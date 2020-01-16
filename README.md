@@ -1,8 +1,10 @@
 # matmef
-Matlab wrapper for MEF library
+Matlab wrapper for MEF 3.0 library
 
 ## Introduction
+Several Matlab functions that wrap around the MEF 3.0 library to read MEF 3.0 data
 
+Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
 
 ## Building from source
 1. Clone or download the matmef repository (and extract if downloaded)
