@@ -17,7 +17,7 @@ Several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.
 2. Start matlab and set the matmef folder as your working directory
 3. To compile the .mex files, run the following lines in matlab:
    - mex read_mef_session_metadata.c meflib/meflib/meflib.c meflib/meflib/mefrec.c matmef_mapping.c mex_datahelper.c
-   - mex read_mef_ts_data.c matmef_data.c meflib/meflib\meflib.c meflib/meflib\mefrec.c -v
+   - mex read_mef_ts_data.c matmef_data.c meflib/meflib/meflib.c meflib/meflib/mefrec.c
 
 ## Examples
 session = read_mef_session_metadata();
