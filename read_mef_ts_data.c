@@ -55,7 +55,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// 
 	// read the data
 	// 
-	mxArray* data = read_channel_data_from_path(channel_path, password, RANGE_BY_SAMPLES, range_start, range_end, data);
+	mxArray* data = read_channel_data_from_path(channel_path, password, RANGE_BY_SAMPLES, range_start, range_end);
 	
 	// check for error
 	if (data == NULL)	mexErrMsgTxt("Error while reading channel data");
