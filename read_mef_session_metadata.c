@@ -29,16 +29,18 @@
  */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
-	si1 *password = NULL;
+	//
+	// session path
+	// 
 	
 	// check the session path input argument
-    if(nrhs < 1) {
+    if (nrhs < 1) {
         mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:noSessionPathArg", "sessionPath input argument not set");
 	} else {
-		if(!mxIsChar(prhs[0])) {
+		if (!mxIsChar(prhs[0])) {
 			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidSessionPathArg", "sessionPath input argument invalid, should string (array of characters)");
 		}
-		if(mxIsEmpty(prhs[0])) {
+		if (mxIsEmpty(prhs[0])) {
 			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidSessionPathArg", "sessionPath input argument invalid, argument is empty");
 		}
 	}
@@ -48,22 +50,40 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	char *mat_session_path = mxArrayToString(prhs[0]);
 	MEF_strncpy(session_path, mat_session_path, MEF_FULL_FILE_NAME_BYTES);
 	
-	// check the password input argument
-    if(nrhs > 1) {
-		if(!mxIsChar(prhs[1])) {
+	
+	// 
+	// password (optional)
+	// 
+	
+	si1* password = NULL;
+	si1 password_arr[PASSWORD_BYTES] = {0};
+	
+	// check if a password input argument is given
+    if (nrhs > 1) {
+		
+		// check the password input argument
+		if (!mxIsChar(prhs[1])) {
 			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
 		}
+
+		// note: if the password passed to any of the meflib read function is an empty string, than 
+		//		 the 'process_password_data' function in 'meflib.c' will crash everything, so make
+		// 		 sure it is either NULL or a string
+		
+		// check if the password input argument is not empty
+		if (!mxIsEmpty(prhs[1])) {
+			
+			// TODO: really need a MEF3 dataset (which cannot be read without a password) to check
+			//char *mat_password = mxArrayToUTF8String(prhs[1]);
+			char *mat_password = mxArrayToString(prhs[1]);
+			password = strcpy(password_arr, mat_password);
+	
+		}
+		
 	}
 	
-	// set 
-	si1     password_arr[PASSWORD_BYTES] = {0};
-	
-    //si1     session_path[MEF_FULL_FILE_NAME_BYTES];
-	//si1 	*password = NULL;
-    
 	// Read indices flag
-    si1 map_indices_flag = 1;
-	
+    si1 map_indices_flag = 1;	
 	
     // initialize MEF library
 	initialize_meflib();
@@ -71,7 +91,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// read the session metadata
 	SESSION* session = read_MEF_session(	NULL, 					// allocate new session object
 											session_path, 			// session filepath
-											password_arr, 				// password
+											password, 				// password
 											NULL, 					// empty password
 											MEF_FALSE, 				// do not read time series data
 											MEF_TRUE				// read record data
