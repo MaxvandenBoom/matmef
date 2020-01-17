@@ -15,7 +15,7 @@
  */
 #include "matmef_data.h"
 #include "mex.h"
-#include "meflib\meflib.h"
+#include "meflib/meflib/meflib.h"
 
 
 /**

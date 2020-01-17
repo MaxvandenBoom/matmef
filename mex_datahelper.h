@@ -7,7 +7,7 @@
  *
  */
 #include "mex.h"
-#include "meflib/meflib.h"
+#include "meflib/meflib/meflib.h"
 
 mxArray* mxDoubleByValue(sf8 value);
 mxArray* mxUInt32ByValue(ui4 value);
