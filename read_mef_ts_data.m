@@ -1,10 +1,12 @@
-%
-%	Retrieves...
 %	
-%	[data] = read_mef_ts_data(channel, ostart, oend, timeSpecified)
+%	Read the MEF3 data from a time-series channel
+%	
+%	[data] = read_mef_ts_data(channel, rangeType, rangeStart, rangeEnd)
 %	
 %   channel 		= 
-%
+%   rangeType 		= Modality that is used to define the data-range to read [either 'time' or 'samples']
+%   rangeStart 		= Start-point for the reading of data (either as a timepoint or samplenumber)
+%   rangeEnd 		= End-point to stop the of reading data (either as a timepoint or samplenumber)
 %
 %   Returns: 
 %   	data 		= s
@@ -19,4 +21,4 @@
 %   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 %   You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
-function data = read_mef_ts_data(channel, ostart, oend, timeSpecified)
+function data = read_mef_ts_data(channel, rangeType, rangeStart, rangeEnd)
