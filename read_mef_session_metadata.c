@@ -29,15 +29,17 @@
  */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
+	si1 *password = NULL;
+	
 	// check the session path input argument
     if(nrhs < 1) {
-        mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:noSessionPathArg", "SessionPath input argument not set");
+        mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:noSessionPathArg", "sessionPath input argument not set");
 	} else {
 		if(!mxIsChar(prhs[0])) {
-			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidSessionPathArg", "SessionPath input argument invalid, should string (array of characters)");
+			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidSessionPathArg", "sessionPath input argument invalid, should string (array of characters)");
 		}
 		if(mxIsEmpty(prhs[0])) {
-			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidSessionPathArg", "SessionPath input argument invalid, argument is empty");
+			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidSessionPathArg", "sessionPath input argument invalid, argument is empty");
 		}
 	}
 	
@@ -46,54 +48,35 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	char *mat_session_path = mxArrayToString(prhs[0]);
 	MEF_strncpy(session_path, mat_session_path, MEF_FULL_FILE_NAME_BYTES);
 	
+	// check the password input argument
+    if(nrhs > 1) {
+		if(!mxIsChar(prhs[1])) {
+			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
+		}
+	}
+	
+	// set 
+	si1     password_arr[PASSWORD_BYTES] = {0};
+	
     //si1     session_path[MEF_FULL_FILE_NAME_BYTES];
 	//si1 	*password = NULL;
     
-	// check input arguments
-	/*
-    if(nrhs!=1)
-        mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidNumInputs",
-                "One input required.");
-    else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:maxlhs",
-                "Too many output arguments.");
-    else if(!mxIsStruct(prhs[0]))
-        mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:inputNotStruct",
-                "Input must be a structure.");
-		
-	*/		
-
-
-	/*
-	// TODO: 
-	
-	if (argc != 3) {
-		fprintf(stderr, "\n\t%cUSAGE: %s session_directory password\n\n", 7, argv[0]);
-		return(1);
-	}
-	session_directory = argv[1];
-	password = argv[2];
-	*/
-    // Read indices flag
+	// Read indices flag
     si1 map_indices_flag = 1;
 	
 	
     // initialize MEF library
 	initialize_meflib();
 
-	//si1* dir = "D:\\MatMEF3\\sample_dora\\mef3.mefd"; 
-	//MEF_strncpy(session_path, "D:\\MatMEF3\\sample_dora\\mef3.mefd", MEF_FULL_FILE_NAME_BYTES);
-	//si1 *session_path = "D:\\MatMEF3\\sample_dora\\mef3.mefd";
-	si1 *password = NULL;
-	
-	// 
+	// read the session metadata
 	SESSION* session = read_MEF_session(	NULL, 					// allocate new session object
 											session_path, 			// session filepath
-											password, 				// password
+											password_arr, 				// password
 											NULL, 					// empty password
 											MEF_FALSE, 				// do not read time series data
 											MEF_TRUE				// read record data
-											);
+										);
+	// TODO, check session output (on return or null)
 	
 	// check if a session-struct should be returned
 	if (nlhs > 0) {
