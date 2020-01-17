@@ -20,17 +20,32 @@
 
 
 /**
- * Main Entry point for 'read_mef_session_metadata'
+ * Main entry point for 'read_mef_session_metadata'
  *
- * @param sessionPath	T
- * @param password		T
- * @param mapIndices	T
- * @return				T
+ * @param sessionPath	Path (absolute or relative) to the MEF3 session folder
+ * @param password		Password to the MEF3 data; Empty string if no password should be used
+ * @param mapIndices	Flag whether indices should be mapped
+ * @return				Structure containing session metadata, channels metadata, segments metadata and records
  */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-
-	// 
-    SESSION *session;
+	
+	// check the session path input argument
+    if(nrhs < 1) {
+        mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:noSessionPathArg", "SessionPath input argument not set");
+	} else {
+		if(!mxIsChar(prhs[0])) {
+			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidSessionPathArg", "SessionPath input argument invalid, should string (array of characters)");
+		}
+		if(mxIsEmpty(prhs[0])) {
+			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidSessionPathArg", "SessionPath input argument invalid, argument is empty");
+		}
+	}
+	
+	// set the session path
+	si1 session_path[MEF_FULL_FILE_NAME_BYTES];
+	char *mat_session_path = mxArrayToString(prhs[0]);
+	MEF_strncpy(session_path, mat_session_path, MEF_FULL_FILE_NAME_BYTES);
+	
     //si1     session_path[MEF_FULL_FILE_NAME_BYTES];
 	//si1 	*password = NULL;
     
@@ -68,17 +83,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 	//si1* dir = "D:\\MatMEF3\\sample_dora\\mef3.mefd"; 
 	//MEF_strncpy(session_path, "D:\\MatMEF3\\sample_dora\\mef3.mefd", MEF_FULL_FILE_NAME_BYTES);
-	si1 *session_path = "D:\\MatMEF3\\sample_dora\\mef3.mefd";
+	//si1 *session_path = "D:\\MatMEF3\\sample_dora\\mef3.mefd";
 	si1 *password = NULL;
 	
 	// 
-	session = read_MEF_session(	NULL, 					// allocate new session object
-								session_path, 			// session filepath
-								password, 				// password
-								NULL, 					// empty password
-								MEF_FALSE, 				// do not read time series data
-								MEF_TRUE				// read record data
-								);
+	SESSION* session = read_MEF_session(	NULL, 					// allocate new session object
+											session_path, 			// session filepath
+											password, 				// password
+											NULL, 					// empty password
+											MEF_FALSE, 				// do not read time series data
+											MEF_TRUE				// read record data
+											);
 	
 	// check if a session-struct should be returned
 	if (nlhs > 0) {

@@ -20,17 +20,41 @@
 
 
 /**
- * Main Entry point for 'read_mef_ts_data'
+ * Main entry point for 'read_mef_ts_data'
  *
- * @param channel		T
+ * @param channelPath	path (absolute or relative) to the MEF3 channel folder
+ * @param password		Password to the MEF3 data; pass an empty string if no password should be used
  * @param rangeType		Modality that is used to define the data-range to read [either 'time' or 'samples']
  * @param rangeStart	Start-point for the reading of data (either as a timepoint or samplenumber)
  * @param rangeEnd		End-point to stop the of reading data (either as a timepoint or samplenumber)
- * @return				T
+ * @return				A vector of doubles holding the channel data
  */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
-	si1 *channel_path = "D:\\MatMEF3\\sample_dora\\mef3.mefd\\EKG.timd";
+
+	// check the channel path input argument
+    if(nrhs < 1) {
+        mexErrMsgIdAndTxt( "MATLAB:read_mef_ts_data:noChannelPathArg", "channelPath input argument not set");
+	} else {
+		if(!mxIsChar(prhs[0])) {
+			mexErrMsgIdAndTxt( "MATLAB:read_mef_ts_data:invalidChannelPathArg", "channelPath input argument invalid, should string (array of characters)");
+		}
+		if(mxIsEmpty(prhs[0])) {
+			mexErrMsgIdAndTxt( "MATLAB:read_mef_ts_data:invalidChannelPathArg", "channelPath input argument invalid, argument is empty");
+		}
+	}
+	
+	// set the channel path
+	si1 channel_path[MEF_FULL_FILE_NAME_BYTES];
+	char *mat_channel_path = mxArrayToString(prhs[0]);
+	MEF_strncpy(channel_path, mat_channel_path, MEF_FULL_FILE_NAME_BYTES);
+
+
+
+	
+
+
+
 	si1 *password = NULL;
 	
 	
