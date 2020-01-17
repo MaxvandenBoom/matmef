@@ -9,7 +9,7 @@ Several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.
 
 ## Using pre-compiled mex files
 1. Clone or download (and extract) the matmef repository
-2. Run the functions
+2. Use the functions
 
 ## Building from source
 1. Clone the matmef repository using: git clone --recurse-submodules https://github.com/MaxvandenBoom/matmef.git
@@ -20,5 +20,5 @@ Several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.
    - mex read_mef_ts_data.c matmef_data.c meflib/meflib/meflib.c meflib/meflib/mefrec.c
 
 ## Examples
-- session = read_mef_session_metadata();
-- data = read_mef_ts_data;
+- session = read_mef_session_metadata('./mefSessionData/', '', 1);
+- data = read_mef_ts_data('./mefSessionData/channelPath/', 'samples', 0, 1000);
