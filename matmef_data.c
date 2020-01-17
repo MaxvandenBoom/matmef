@@ -306,7 +306,11 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 		
         if (channel->segments[start_segment].time_series_data_fps->fp == NULL){
             channel->segments[start_segment].time_series_data_fps->fp = fopen(channel->segments[start_segment].time_series_data_fps->full_file_name, "rb");
-            channel->segments[start_segment].time_series_data_fps->fd = _fileno(channel->segments[start_segment].time_series_data_fps->fp);
+			#ifdef _WIN32
+				channel->segments[start_segment].time_series_data_fps->fd = _fileno(channel->segments[start_segment].time_series_data_fps->fp);
+			#else
+				channel->segments[start_segment].time_series_data_fps->fd = fileno(channel->segments[start_segment].time_series_data_fps->fp);
+			#endif
         }
         FILE* fp = channel->segments[start_segment].time_series_data_fps->fp;
         
@@ -328,7 +332,11 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 		// start with first segment
         if (channel->segments[start_segment].time_series_data_fps->fp == NULL){
             channel->segments[start_segment].time_series_data_fps->fp = fopen(channel->segments[start_segment].time_series_data_fps->full_file_name, "rb");
-            channel->segments[start_segment].time_series_data_fps->fd = _fileno(channel->segments[start_segment].time_series_data_fps->fp);
+			#ifdef _WIN32
+				channel->segments[start_segment].time_series_data_fps->fd = _fileno(channel->segments[start_segment].time_series_data_fps->fp);
+			#else
+				channel->segments[start_segment].time_series_data_fps->fd = fileno(channel->segments[start_segment].time_series_data_fps->fp);
+			#endif
         }
         FILE* fp = channel->segments[start_segment].time_series_data_fps->fp;
         #ifdef _WIN32
@@ -350,7 +358,11 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
         for (i = (start_segment + 1); i <= (end_segment - 1); i++) {
             if (channel->segments[i].time_series_data_fps->fp == NULL){
                 channel->segments[i].time_series_data_fps->fp = fopen(channel->segments[i].time_series_data_fps->full_file_name, "rb");
-                channel->segments[i].time_series_data_fps->fd = _fileno(channel->segments[i].time_series_data_fps->fp);
+				#ifdef _WIN32
+					channel->segments[i].time_series_data_fps->fd = _fileno(channel->segments[i].time_series_data_fps->fp);
+				#else
+					channel->segments[i].time_series_data_fps->fd = fileno(channel->segments[i].time_series_data_fps->fp);
+				#endif
             }
             fp = channel->segments[i].time_series_data_fps->fp;
             fseek(fp, UNIVERSAL_HEADER_BYTES, SEEK_SET);
@@ -368,7 +380,11 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
         // then last segment
         if (channel->segments[end_segment].time_series_data_fps->fp == NULL){
             channel->segments[end_segment].time_series_data_fps->fp = fopen(channel->segments[end_segment].time_series_data_fps->full_file_name, "rb");
-            channel->segments[end_segment].time_series_data_fps->fd = _fileno(channel->segments[end_segment].time_series_data_fps->fp);
+			#ifdef _WIN32
+				channel->segments[end_segment].time_series_data_fps->fd = _fileno(channel->segments[end_segment].time_series_data_fps->fp);
+			#else
+				channel->segments[end_segment].time_series_data_fps->fd = fileno(channel->segments[end_segment].time_series_data_fps->fp);
+			#endif
         }
         num_block_in_segment = channel->segments[end_segment].metadata_fps->metadata.time_series_section_2->number_of_blocks;
         if (end_idx < (ui8) (channel->segments[end_segment].metadata_fps->metadata.time_series_section_2->number_of_blocks - 1)) {
