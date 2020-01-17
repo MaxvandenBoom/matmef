@@ -515,10 +515,22 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 			
 		} else {
 			
-			// prevent buffer overflow
-			if ((sample_counter + rps->block_header->number_of_samples) > num_samps)
-				goto done_decoding;
+			// buffer overflow check
+			if ((sample_counter + rps->block_header->number_of_samples) > num_samps) {
+	
+				// message
+				// TODO: better fix for buffer overflow, should not happen
+				mexPrintf("Error: buffer overflow prevented, this should be fixed in the code"`);
+
+				//
+				free (compressed_data_buffer);
+				free (decomp_data);
+				free (temp_data_buf);
+				return NULL;				
 			
+			}
+			
+			// 
 			rps->decompressed_ptr = rps->decompressed_data = decomp_data + sample_counter;
 		}
 		
@@ -579,9 +591,6 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
         }
 		
     }
-
-	done_decoding:
-	
 
     
     // allocate matlab double array
