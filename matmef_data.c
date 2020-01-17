@@ -430,8 +430,8 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
     cdp = compressed_data_buffer;
     
 	// 
-	si4 sample_counter = 0;
-	si4 offset_into_output_buffer;
+	si8 sample_counter = 0;
+	si8 offset_into_output_buffer;
 	si8 block_start_time_offset;
 
 	//
