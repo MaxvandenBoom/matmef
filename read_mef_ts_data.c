@@ -41,7 +41,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	sf8 sampling_frequency = 250.0;
     si8 range_start = 0;
     si8 range_end = range_start + (10 * sampling_frequency);
-    si4 num_samples = range_end - range_start;
+	//si8 range_end = -1;
 	
 	
 	// 
@@ -50,25 +50,19 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     //sf8 sampling_frequency = 250.0;
 	//si8 range_start = 1533749749914432;        // GMT: 8 August 2018 17:35:49  (beginning of file)
     //si8 range_end = range_start + (10 * 1e6);   // 10 seconds later  (times are specified in microseconds)
-    //si4 num_samples = (((double)(range_end - range_start) / 1e6) * sampling_frequency) + 1;  // add one to round up
     
 
-	// 
-    // allocate output buffer
-	// 
-    si4 *data = (si4*)calloc(num_samples, sizeof(si4));
-    
 	// 
 	// read the data
 	// 
-	mxArray* samples_read = read_channel_data_from_path(channel_path, password, RANGE_BY_SAMPLES, range_start, range_end, data);
+	mxArray* data = read_channel_data_from_path(channel_path, password, RANGE_BY_SAMPLES, range_start, range_end, data);
 	
 	// check for error
-	if (samples_read == NULL)	mexErrMsgTxt("Error while reading channel data");
+	if (data == NULL)	mexErrMsgTxt("Error while reading channel data");
 
 	// check if the data should be returned
 	if (nlhs > 0) {
-		plhs[0] = samples_read;
+		plhs[0] = data;
 		
 		
 	}
