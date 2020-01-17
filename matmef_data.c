@@ -35,15 +35,20 @@ mxArray* read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
 
 	// setup the MEF 3 library
 	(void) initialize_meflib();
-	//MEF_globals->behavior_on_fail = RETURN_ON_FAIL;
 
 	// read the channel metadata
 	CHANNEL *channel = read_MEF_channel(NULL, channel_path, TIME_SERIES_CHANNEL_TYPE, password, NULL, MEF_FALSE, MEF_FALSE);
 
+	// check the number of segments
+	if (channel->number_of_segments == 0) {
+		mexPrintf("Error: no segments in channel, most likely due to an invalid channel folder, exiting...\n"); 
+        return NULL;
+	}
+	
 	// check if the channel is indeed of a time-series channel
 	if (channel->channel_type != TIME_SERIES_CHANNEL_TYPE) {
 		mexPrintf("Error: not a time series channel, exiting...\n"); 
-		return 0;
+		return NULL;
 	}
 	
 	// read the data by the channel object
@@ -79,9 +84,15 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	
 	// check if the channel is indeed of a time-series channel
 	if (channel->channel_type != TIME_SERIES_CHANNEL_TYPE) {
-		mexPrintf("Not a time series channel, exiting...\n"); 
-        return 0;
+		mexPrintf("Error: not a time series channel, exiting...\n"); 
+        return NULL;
     }
+	
+	// check the number of segments
+	if (channel->number_of_segments == 0) {
+		mexPrintf("Error: no segments in channel, exiting...\n"); 
+        return NULL;
+	}
 	
 	// set the default ranges for the samples and time to all
 	si8 start_samp = 0;
@@ -118,16 +129,16 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 		
         if (((start_samp < 0) & (end_samp < 0)) |
             ((start_samp > channel->metadata.time_series_section_2->number_of_samples) & (end_samp > channel->metadata.time_series_section_2->number_of_samples))) {
-            mexPrintf("Error: start and stop samples are out of file. Returning None\n");
+            mexPrintf("Error: start and stop samples are out of file\n");
             return NULL;
         }
         if (end_samp > channel->metadata.time_series_section_2->number_of_samples) {
-            mexPrintf("Warning: stop sample larger than number of samples. Setting end sample to number of samples in channel\n");
-            end_samp = channel->metadata.time_series_section_2->number_of_samples;
+            mexPrintf("Error: stop sample larger than number of samples. Setting end sample to number of samples in channel\n");
+			return NULL;
         }
         if (start_samp < 0) {
-            mexPrintf("Warning: start sample smaller than 0. Setting start sample to 0\n");
-            start_samp = 0;
+            mexPrintf("Error: start sample smaller than 0. Setting start sample to 0\n");
+			return NULL;
         }
 		
     }
@@ -139,7 +150,16 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
     else
         num_samps = (ui4) (end_samp - start_samp);
 	
-	mexPrintf("num_samps: %i\n", num_samps);
+	// check if the range has no samples
+	if (num_samps == 0) {
+		
+		// message
+		mexPrintf("Warning: a range of 0 samples was given, returning empty array\n");
+		
+		// return an empty array
+		return mxCreateDoubleMatrix(1, 1, mxREAL);
+		
+	}
 	
     // iterate through segments, looking for data that matches our criteria
     ui4 n_segments = (ui4) channel->number_of_segments;
