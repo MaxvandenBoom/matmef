@@ -61,17 +61,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// check if a password input argument is given
     if (nrhs > 1) {
 		
-		// check the password input argument
-		if (!mxIsChar(prhs[1])) {
-			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
-		}
-
-		// note: if the password passed to any of the meflib read function is an empty string, than 
-		//		 the 'process_password_data' function in 'meflib.c' will crash everything, so make
-		// 		 sure it is either NULL or a string
-		
 		// check if the password input argument is not empty
 		if (!mxIsEmpty(prhs[1])) {
+				
+			// check the password input argument data type
+			if (!mxIsChar(prhs[1])) {
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
+			}
+
+			// note: if the password passed to any of the meflib read function is an empty string, than 
+			//		 the 'process_password_data' function in 'meflib.c' will crash everything, so make
+			// 		 sure it is either NULL or a string
+			
 			
 			// TODO: really need a MEF3 dataset (which cannot be read without a password) to check
 			//char *mat_password = mxArrayToUTF8String(prhs[1]);
@@ -82,8 +83,43 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		
 	}
 	
+	// 
+	// map indices (optional)
+	// 
+	
 	// Read indices flag
     si1 map_indices_flag = 1;	
+	
+	// check if a map indices input argument is given
+    if (nrhs > 2) {
+		
+		// check if not empty
+		if (!mxIsEmpty(prhs[2])) {
+
+			// check if single numeric or logical
+			if ((!mxIsNumeric(prhs[2]) && !mxIsLogical(prhs[2])) || mxGetNumberOfElements(prhs[2]) > 1) {
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidMapIndicesArg", "mapIndices input argument invalid, should be a single value logical or numeric");
+			}
+			
+			// retrieve the map indices flag value
+			int mat_map_indices_flag = mxGetScalar(prhs[2]);
+			
+			// check the value
+			if (mat_map_indices_flag != 0 && mat_map_indices_flag != 1) {
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidMapIndicesArg", "mapIndices input argument invalid, allowed values are 0, false, 1 or true");
+			}
+			
+			// set the flag
+			map_indices_flag = mat_map_indices_flag;
+			
+		}
+		
+	}
+	
+	
+	//
+	// read session metadata
+	//
 	
     // initialize MEF library
 	initialize_meflib();
@@ -96,6 +132,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 											MEF_FALSE, 				// do not read time series data
 											MEF_TRUE				// read record data
 										);
+	
+	
 	// TODO, check session output (on return or null)
 	
 	// check if a session-struct should be returned
