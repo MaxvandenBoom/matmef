@@ -106,3 +106,42 @@ mxArray *mxInt64ByValue(si8 value) {
 	
 }
 
+
+/**
+ * Create a matlab char string (defaulted to matlab's encoding, most likely UTF-16) based
+ * on a MEF UTF-8 character string
+ *
+ * @param value		The value to store in the matlab variable
+ * @return			The mxArray containing the value
+ */
+mxArray *mxStringByUTF8Value(char *str) {
+	
+	// TODO: try UTF-8 strings, function exists but need set to test
+	
+	// retrieve the number of bytes in the input string
+	// note: this could differ from the actual number of characters according
+	//       to UTF-8 (depending whether the string contains non-ASCII characters)
+	int lengthInBytes = strlen(str);
+	
+	// copy the byte values from the input string into an matlab uint8 array
+	// note: mxCreateString would do this, but also would destroy the non-ASCII
+	//		 code points (any byte with a value above 127 is converted to 65535)
+	mxArray *mat_uint8 = mxCreateNumericMatrix(1, lengthInBytes, mxUINT8_CLASS, mxREAL);
+	mxUint8 *p_mat_uint8 = mxGetData(mat_uint8);
+	for (int i = 0; i < lengthInBytes; i++) {
+		p_mat_uint8[i] = str[i];
+	}
+	
+	// use the native2unicode call from matlab to convert the
+	// UTF-8 input to the standard matlab coding (UTF-16)
+    mxArray* lhs[1]; 
+    mxArray* rhs[] = {mat_uint8, mxCreateString("UTF-8")};
+	mexCallMATLAB(1, &lhs, 2, &rhs, "native2unicode");
+	
+	// free the memory
+	mxFree(mat_uint8);
+	
+	// return matlab array (should now be UTF-16)
+	return lhs[0];
+	
+}

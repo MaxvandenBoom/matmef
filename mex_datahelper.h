@@ -13,7 +13,7 @@ mxArray *mxDoubleByValue(sf8 value);
 mxArray *mxUInt32ByValue(ui4 value);
 mxArray *mxInt32ByValue(si4 value);
 mxArray *mxInt64ByValue(si8 value);
-
+mxArray *mxStringByUTF8Value(char *str);
 
 
 #endif   // MEX_DATAHELPER_
