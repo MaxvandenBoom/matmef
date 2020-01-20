@@ -109,7 +109,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 		mexPrintf("Error: start time later than end time, exiting...\n");
         return NULL;
     }
-    if (!range_type == RANGE_BY_SAMPLES && start_samp >= end_samp) {
+    if (range_type == RANGE_BY_SAMPLES && start_samp >= end_samp) {
         mexPrintf("Error: start sample larger than end sample, exiting...\n");
         return NULL;
     }
