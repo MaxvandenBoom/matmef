@@ -7,7 +7,9 @@
 %	password		= password to the MEF3 data; pass an empty string if no password should be used
 %   rangeType 		= Modality that is used to define the data-range to read [either 'time' or 'samples']
 %   rangeStart 		= Start-point for the reading of data (either as a timepoint or samplenumber)
+% 					  Pass -1 to start at the first sample of the timeseries
 %   rangeEnd 		= End-point to stop the of reading data (either as a timepoint or samplenumber)
+% 					  Pass -1 as value to end at the last sample of the timeseries
 %
 %   Returns: 
 %   	data 		= A vector of doubles holding the channel data
