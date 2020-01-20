@@ -249,70 +249,8 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 mapIndicesFlag, mxArray *ma
 	mxSetField(segmentMetadataStruct, 0, "section_3", map_mef3_md3(segment->metadata_fps->metadata.section_3));
 	
 
-	// TODO: more here
-/*	                       
+	// TODO: more here on "Indices"
 
-	
-
-    // TODO - this should be a list - there is more indices in indices file!!!!
-
-    // Set the TOC to NULL so that the logic works
-    TOC = NULL;
-
-    // Create indices dictionary
-    
-    switch (segment->channel_type){
-        case TIME_SERIES_CHANNEL_TYPE:
-            number_of_entries = segment->time_series_indices_fps->universal_header->number_of_entries;
-            tsi = segment->time_series_indices_fps->time_series_indices;
-
-            PyDict_SetItemString(metadata_dict, "indices", map_mef3_ti(tsi, number_of_entries));
-
-            // Create TOC
-            TOC = create_mef3_TOC(segment);
-            break;
-        case VIDEO_CHANNEL_TYPE:
-            number_of_entries = segment->video_indices_fps->universal_header->number_of_entries;
-            vi = segment->video_indices_fps->video_indices;
-
-            PyDict_SetItemString(metadata_dict, "indices", map_mef3_vi(vi, number_of_entries));
-
-            break;
-        default:
-            PyErr_SetString(PyExc_RuntimeError, "Unrecognized channel type, exiting...");
-            PyErr_Occurred();
-            return NULL;
-    }
-
-    
-    if (TOC != NULL)
-        PyDict_SetItemString(metadata_dict, "TOC", TOC);
-
-    // Get universal headers
-    uhs_dict = PyDict_New();
-
-    // Metadata
-    uh_dict = map_mef3_uh(segment->metadata_fps->universal_header);
-    PyDict_SetItemString(uhs_dict, "metadata", uh_dict);
-
-    // Data an indices universal headers
-    switch (segment->channel_type){
-        case TIME_SERIES_CHANNEL_TYPE:
-            PyDict_SetItemString(uhs_dict, "time_series_data", map_mef3_uh(segment->time_series_data_fps->universal_header));
-            PyDict_SetItemString(uhs_dict, "time_series_indices", map_mef3_uh(segment->time_series_indices_fps->universal_header));
-            break;
-        case VIDEO_CHANNEL_TYPE:
-            PyDict_SetItemString(uhs_dict, "time_series_indices", map_mef3_uh(segment->video_indices_fps->universal_header));
-            break;
-        default:
-            PyErr_SetString(PyExc_RuntimeError, "Unrecognized channel type, exiting...");
-            PyErr_Occurred();
-            return NULL;
-    }
-
-    PyDict_SetItemString(metadata_dict, "universal_headers", uhs_dict);
-
-*/
 
 	
 }
