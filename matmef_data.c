@@ -22,13 +22,12 @@
  * 	Read the channel data from a channel filepath, given a range of data to read.
  *  The range is defined as a type (RANGE_BY_SAMPLES or RANGE_BY_TIME), a startpoint and an endpoint.
  * 	
- *	Note: make sure enough memory is allocated for the data in the output array ('data' argument)
  *
  * 	@param channel_path		The channel filepath
  * 	@param password			Password for the MEF3 datafiles (no password = NULL or empty string)
  *	@param range_type		Modality that is used to define the data-range to read [either 'time' or 'samples']
- *	@param range_start		Start-point for the reading of data (either as a timepoint or samplenumber)
- *	@param range_end		End-point to stop the of reading data (either as a timepoint or samplenumber)	
+ *	@param range_start		Start-point for the reading of data (either as a timepoint or samplenumber; -1 for first)
+ *	@param range_end		End-point to stop the of reading data (either as a timepoint or samplenumber; -1 for last)
  * 	@return					Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
  */
 mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end) {
@@ -67,13 +66,12 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
  * 	Read the channel data based on a channel object (pointer) and a range of data to read.
  *  The range is defined as a type (RANGE_BY_SAMPLES or RANGE_BY_TIME), a startpoint and an endpoint.
  * 	
- *	Note: make sure enough memory is allocated for the data in the output array ('data' argument)
- *	Note2: this function does not free the memory of the given channel object (that is up to the function's caller)
+ *	Note: this function does not free the memory of the given channel object (that is up to the function's caller)
  *
  * 	@param channel			Pointer to the MEF channel object
  *	@param range_type		Modality that is used to define the data-range to read [either 'time' or 'samples']
- *	@param range_start		Start-point for the reading of data (either as a timepoint or samplenumber)
- *	@param range_end		End-point to stop the of reading data (either as a timepoint or samplenumber)	
+ *	@param range_start		Start-point for the reading of data (either as a timepoint or samplenumber; -1 for first)
+ *	@param range_end		End-point to stop the of reading data (either as a timepoint or samplenumber; -1 for last)	
  * 	@return					Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
  */
 mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 range_start, si8 range_end) {
@@ -486,7 +484,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 		offset_into_output_buffer = (si4) channel->segments[start_segment].time_series_indices_fps->time_series_indices[start_idx].start_sample - start_samp;
 	
 	// copy requested samples from first block to output buffer
-	// TBD this loop could be optimized
+	// TODO: this loop could be optimized
 	for (i=0;i<rps->block_header->number_of_samples;i++) {
 		if (offset_into_output_buffer < 0) {
 			offset_into_output_buffer++;
