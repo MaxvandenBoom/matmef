@@ -190,46 +190,6 @@ const char *METADATA_SECTION_3_FIELDNAMES[] = {
 
 
 ///
-// Functions to create the matlab-structs (predefined in c)
-///
-
-mxArray* createFileProcessingStruct() {
-	return mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES);
-}
-mxArray* createSegmentStruct() {
-	return mxCreateStructMatrix(1, 1, SEGMENT_NUMFIELDS, SEGMENT_FIELDNAMES);
-}
-mxArray* createSegmentStructSized(mwSize rows, mwSize columns) {
-	return mxCreateStructMatrix(rows, columns, SEGMENT_NUMFIELDS, SEGMENT_FIELDNAMES);
-}
-mxArray* createChannelStruct() {
-	return mxCreateStructMatrix(1, 1, CHANNEL_NUMFIELDS, CHANNEL_FIELDNAMES);
-}
-mxArray* createChannelStructSized(mwSize rows, mwSize columns) {
-	return mxCreateStructMatrix(rows, columns, CHANNEL_NUMFIELDS, CHANNEL_FIELDNAMES);
-}
-mxArray* createSessionStruct() {
-	return mxCreateStructMatrix(1, 1, SESSION_NUMFIELDS, SESSION_FIELDNAMES);
-}
-mxArray* createMetadataStruct() {	
-	return mxCreateStructMatrix(1, 1, METADATA_NUMFIELDS, METADATA_FIELDNAMES);
-}
-mxArray* createMetadataSection1Struct() {
-	return mxCreateStructMatrix(1, 1, METADATA_SECTION_1_NUMFIELDS, METADATA_SECTION_1_FIELDNAMES);
-}
-mxArray* createTsMetadataSection2Struct() {
-	return mxCreateStructMatrix(1, 1, TS_METADATA_SECTION_2_NUMFIELDS, TS_METADATA_SECTION_2_FIELDNAMES);
-}
-mxArray* createVMetadataSection2Struct() {
-	return mxCreateStructMatrix(1, 1, V_METADATA_SECTION_2_NUMFIELDS, V_METADATA_SECTION_2_FIELDNAMES);
-}
-mxArray* createMetadataSection3Struct() {
-	return mxCreateStructMatrix(1, 1, METADATA_SECTION_3_NUMFIELDS, METADATA_SECTION_3_FIELDNAMES);
-}
-
-
-
-///
 // Functions to map c-objects to matlab-structs
 ///
 
@@ -251,11 +211,11 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 mapIndicesFlag, mxArray* ma
 
 	// set segment specific properties
 	mxSetField(matSegment, matIndex, "channel_type", 			mxInt32ByValue(segment->channel_type));
-	//mxSetField(matSegment, matIndex, "time_series_data_fps",	createFileProcessingStruct());	// TODO: fill later
-	//mxSetField(matSegment, matIndex, "time_series_indices_fps",createFileProcessingStruct());	// TODO: fill later
-	//mxSetField(matSegment, matIndex, "video_indices_fps",		createFileProcessingStruct());	// TODO: fill later
-	//mxSetField(matSegment, matIndex, "record_data_fps",		createFileProcessingStruct());	// TODO: fill later
-	//mxSetField(matSegment, matIndex, "record_indices_fps",	createFileProcessingStruct());	// TODO: fill later
+	//mxSetField(matSegment, matIndex, "time_series_data_fps",	mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
+	//mxSetField(matSegment, matIndex, "time_series_indices_fps",mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
+	//mxSetField(matSegment, matIndex, "video_indices_fps",		mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
+	//mxSetField(matSegment, matIndex, "record_data_fps",		mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
+	//mxSetField(matSegment, matIndex, "record_indices_fps",	mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
 	mxSetField(matSegment, matIndex, "name", 					mxCreateString(segment->name));
 	mxSetField(matSegment, matIndex, "path", 					mxCreateString(segment->path));
 	mxSetField(matSegment, matIndex, "channel_name", 			mxCreateString(segment->channel_name));
@@ -271,7 +231,7 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 mapIndicesFlag, mxArray* ma
 	
 
 	// create a metadata struct and assign it to the 'metadata_fps' field
-	mxArray* segmentMetadataStruct = createMetadataStruct();
+	mxArray* segmentMetadataStruct = mxCreateStructMatrix(1, 1, METADATA_NUMFIELDS, METADATA_FIELDNAMES);
 	mxSetField(matSegment, matIndex, "metadata_fps", segmentMetadataStruct);
 	
 	// map segment metadata sections
@@ -365,7 +325,7 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 mapIndicesFlag, mxArray* ma
  * 	@return					Pointer to the new matlab-struct
  */
 mxArray* map_mef3_segment(SEGMENT *segment, si1 mapIndicesFlag) {
-	mxArray* matSegment = createSegmentStruct();
+	mxArray* matSegment = mxCreateStructMatrix(1, 1, SEGMENT_NUMFIELDS, SEGMENT_FIELDNAMES);
 	map_mef3_segment_tostruct(segment, mapIndicesFlag, matSegment, 0);
 	return matSegment;
 }
@@ -392,8 +352,8 @@ void map_mef3_channel_tostruct(CHANNEL *channel, si1 mapIndicesFlag, mxArray* ma
 
 	// set channel specific properties
 	mxSetField(matChannel, matIndex, "channel_type", 			mxInt32ByValue(channel->channel_type));
-	//mxSetField(matChannel, matIndex, "record_data_fps", 		createFileProcessingStruct());	// TODO: fill later
-	//mxSetField(matChannel, matIndex, "record_indices_fps",	createFileProcessingStruct());	// TODO: fill later
+	//mxSetField(matChannel, matIndex, "record_data_fps", 		mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
+	//mxSetField(matChannel, matIndex, "record_indices_fps",	mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
 	mxSetField(matChannel, matIndex, "number_of_segments", 		mxInt64ByValue(channel->number_of_segments));
 	mxSetField(matChannel, matIndex, "path", 					mxCreateString(channel->path));
 	mxSetField(matChannel, matIndex, "name", 					mxCreateString(channel->name));
@@ -414,7 +374,7 @@ void map_mef3_channel_tostruct(CHANNEL *channel, si1 mapIndicesFlag, mxArray* ma
 	//}
 	
 	// create a metadata struct and assign it to the 'metadata' field
-	mxArray* channelMetadataStruct = createMetadataStruct();
+	mxArray* channelMetadataStruct = mxCreateStructMatrix(1, 1, METADATA_NUMFIELDS, METADATA_FIELDNAMES);
 	mxSetField(matChannel, matIndex, "metadata", channelMetadataStruct);
 	
 	// map channel metadata sections
@@ -435,7 +395,7 @@ void map_mef3_channel_tostruct(CHANNEL *channel, si1 mapIndicesFlag, mxArray* ma
 	if (channel->number_of_segments > 0) {
 		
 		// create a segments struct
-		mxArray* segmentsStruct = createSegmentStructSized(1, channel->number_of_segments);
+		mxArray* segmentsStruct = mxCreateStructMatrix(1, channel->number_of_segments, SEGMENT_NUMFIELDS, SEGMENT_FIELDNAMES);
 		
 		// map the segments      
 		for (i = 0; i < channel->number_of_segments; ++i) {
@@ -460,7 +420,7 @@ void map_mef3_channel_tostruct(CHANNEL *channel, si1 mapIndicesFlag, mxArray* ma
  * 	@return					A pointer to the new matlab-struct
  */
 mxArray* map_mef3_channel(CHANNEL *channel, si1 mapIndicesFlag) {
-	mxArray* matChannel = createChannelStruct();
+	mxArray* matChannel = mxCreateStructMatrix(1, 1, CHANNEL_NUMFIELDS, CHANNEL_FIELDNAMES);
 	map_mef3_channel_tostruct(channel, mapIndicesFlag, matChannel, 0);
 	return matChannel;
 }
@@ -477,7 +437,7 @@ mxArray* map_mef3_session(SESSION *session, si1 mapIndicesFlag) {
 	CHANNEL *channel;
 	
 	// create the a matlab 'session' struct
-	mxArray* matSession = createSessionStruct();
+	mxArray* matSession = mxCreateStructMatrix(1, 1, SESSION_NUMFIELDS, SESSION_FIELDNAMES);
 	
 	// set session-specific properties
 	mxSetField(matSession, 0, "number_of_time_series_channels", mxInt32ByValue(session->number_of_time_series_channels));
@@ -495,8 +455,8 @@ mxArray* map_mef3_session(SESSION *session, si1 mapIndicesFlag) {
 	
 	
 	// TODO: need file with session records to test
-	//mxSetField(matSession, 0, "record_data_fps", 				createFileProcessingStruct());	// TODO: fill later
-	//mxSetField(matSession, 0, "record_indices_fps", 			createFileProcessingStruct());	// TODO: fill later
+	//mxSetField(matSession, 0, "record_data_fps", 				mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
+	//mxSetField(matSession, 0, "record_indices_fps", 			mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
     // Read session records if present and add it to metadata
     //if ((session->record_indices_fps != NULL) & (session->record_data_fps != NULL)){
     //    records_dict = map_mef3_records(session->record_indices_fps, session->record_data_fps);
@@ -511,7 +471,7 @@ mxArray* map_mef3_session(SESSION *session, si1 mapIndicesFlag) {
 		//
 		
 		// create a metadata struct and assign it to the 'time_series_metadata' field
-		mxArray* timeSeriesMetadataStruct = createMetadataStruct();
+		mxArray* timeSeriesMetadataStruct = mxCreateStructMatrix(1, 1, METADATA_NUMFIELDS, METADATA_FIELDNAMES);
 		mxSetField(matSession, 0, "time_series_metadata", timeSeriesMetadataStruct);
 		
 		// map metadata sections
@@ -524,8 +484,9 @@ mxArray* map_mef3_session(SESSION *session, si1 mapIndicesFlag) {
 		// time_series_channels
 		// 
 		
+		
 		// create a channels struct
-		mxArray* channelsStruct = createChannelStructSized(1, session->number_of_time_series_channels);
+		mxArray* channelsStruct = mxCreateStructMatrix(1, session->number_of_time_series_channels, CHANNEL_NUMFIELDS, CHANNEL_FIELDNAMES);
 
 		// add extra fields
 		mxAddField(channelsStruct, "records_info");		// will be left empty if there are no records
@@ -550,7 +511,7 @@ mxArray* map_mef3_session(SESSION *session, si1 mapIndicesFlag) {
 		//
 	
 		// create a metadata struct and assign it to the 'video_metadata' field
-		mxArray* videoMetadataStruct = createMetadataStruct();
+		mxArray* videoMetadataStruct = mxCreateStructMatrix(1, 1, METADATA_NUMFIELDS, METADATA_FIELDNAMES);
 		mxSetField(matSession, 0, "video_metadata", videoMetadataStruct);
 		
 		// map metadata sections
@@ -564,7 +525,7 @@ mxArray* map_mef3_session(SESSION *session, si1 mapIndicesFlag) {
 		// 
 		
 		// create a channels struct
-		mxArray* channelsStruct = createChannelStructSized(1, session->number_of_video_channels);
+		mxArray* channelsStruct = mxCreateStructMatrix(1, session->number_of_video_channels, CHANNEL_NUMFIELDS, CHANNEL_FIELDNAMES);
 
 		// add extra fields
 		mxAddField(channelsStruct, "records_info");		// will be left empty if there are no records
@@ -588,7 +549,7 @@ mxArray* map_mef3_session(SESSION *session, si1 mapIndicesFlag) {
 
 mxArray* map_mef3_md1(METADATA_SECTION_1 *md1) {
 
-    mxArray* matMd = createMetadataSection1Struct();
+    mxArray* matMd = mxCreateStructMatrix(1, 1, METADATA_SECTION_1_NUMFIELDS, METADATA_SECTION_1_FIELDNAMES);
 	//mxSetField(matMd, 0, "section_2_encryption", 			mxCreateString(md1->section_2_encryption));	// TODO: check with valid value
 	//mxSetField(matMd, 0, "section_3_encryption", 			mxCreateString(md1->section_3_encryption));	// TODO: check with valid value
 
@@ -598,7 +559,7 @@ mxArray* map_mef3_md1(METADATA_SECTION_1 *md1) {
 
 mxArray* map_mef3_tmd2(TIME_SERIES_METADATA_SECTION_2 *tmd2) {
 
-    mxArray* matMd = createTsMetadataSection2Struct();
+    mxArray* matMd = mxCreateStructMatrix(1, 1, TS_METADATA_SECTION_2_NUMFIELDS, TS_METADATA_SECTION_2_FIELDNAMES);
 	
 	
 	mxSetField(matMd, 0, "channel_description", 			mxCreateString(tmd2->channel_description));
@@ -634,7 +595,7 @@ mxArray* map_mef3_tmd2(TIME_SERIES_METADATA_SECTION_2 *tmd2) {
 
 mxArray* map_mef3_vmd2(VIDEO_METADATA_SECTION_2 *vmd2) {
 
-    mxArray* matMd = createVMetadataSection2Struct();
+    mxArray* matMd = mxCreateStructMatrix(1, 1, V_METADATA_SECTION_2_NUMFIELDS, V_METADATA_SECTION_2_FIELDNAMES);
 	
 	mxSetField(matMd, 0, "channel_description", 			mxCreateString(vmd2->channel_description));
 	mxSetField(matMd, 0, "session_description", 			mxCreateString(vmd2->session_description));
@@ -654,7 +615,7 @@ mxArray* map_mef3_vmd2(VIDEO_METADATA_SECTION_2 *vmd2) {
 
 mxArray* map_mef3_md3(METADATA_SECTION_3 *md3) {
 
-    mxArray* matMd = createMetadataSection3Struct();
+    mxArray* matMd = mxCreateStructMatrix(1, 1, METADATA_SECTION_3_NUMFIELDS, METADATA_SECTION_3_FIELDNAMES);
 	
 	mxSetField(matMd, 0, "recording_time_offset", 			mxInt64ByValue(md3->recording_time_offset));
 	mxSetField(matMd, 0, "DST_start_time", 					mxInt64ByValue(md3->DST_start_time));

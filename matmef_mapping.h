@@ -19,18 +19,6 @@
 #include "meflib/meflib/meflib.h"
 
 
-mxArray* createFileProcessingStruct();
-mxArray* createSegmentStruct();
-mxArray* createSegmentStructSized(mwSize rows, mwSize columns);
-mxArray* createChannelStruct();
-mxArray* createChannelStructSized(mwSize rows, mwSize columns);
-mxArray* createSessionStruct();
-mxArray* createMetadataStruct();
-mxArray* createMetadataSection1Struct();
-mxArray* createTsMetadataSection2Struct();
-mxArray* createVMetadataSection2Struct();
-mxArray* createMetadataSection3Struct();
-
 void map_mef3_segment_tostruct(SEGMENT *segment, si1 mapIndicesFlag, mxArray* matSegment, int matIndex);
 mxArray* map_mef3_segment(SEGMENT *segment, si1 mapIndicesFlag);
 void map_mef3_channel_tostruct(CHANNEL *channel, si1 mapIndicesFlag, mxArray* matChannel, int matIndex);

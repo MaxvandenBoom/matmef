@@ -33,7 +33,7 @@
  */
 mxArray* read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end) {
 
-	// setup the MEF 3 library
+	// initialize MEF library
 	(void) initialize_meflib();
 
 	// read the channel metadata
