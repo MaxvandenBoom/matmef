@@ -31,7 +31,7 @@
  *	@param range_end		End-point to stop the of reading data (either as a timepoint or samplenumber)	
  * 	@return					Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
  */
-mxArray* read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end) {
+mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end) {
 
 	// initialize MEF library
 	(void) initialize_meflib();
@@ -52,7 +52,7 @@ mxArray* read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
 	}
 	
 	// read the data by the channel object
-	mxArray* samples_read = read_channel_data_from_object(channel, range_type, range_start, range_end);
+	mxArray *samples_read = read_channel_data_from_object(channel, range_type, range_start, range_end);
 			
 	// free the channel object memory
 	if (channel->number_of_segments > 0)	channel->segments[0].metadata_fps->directives.free_password_data = MEF_TRUE;
@@ -76,7 +76,7 @@ mxArray* read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
  *	@param range_end		End-point to stop the of reading data (either as a timepoint or samplenumber)	
  * 	@return					Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
  */
-mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 range_start, si8 range_end) {
+mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 range_start, si8 range_end) {
 	ui4     i, j;
 	ui8		num_blocks;
 	ui8		num_block_in_segment;
@@ -315,9 +315,9 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	}
 	
     // allocate buffers
-    ui1* compressed_data_buffer = (ui1*) malloc((size_t) total_data_bytes);
-    ui1* cdp = compressed_data_buffer;
-    si4* decomp_data = (si4*) malloc((size_t) (num_samps * sizeof(si4)));
+    ui1 *compressed_data_buffer = (ui1*) malloc((size_t) total_data_bytes);
+    ui1 *cdp = compressed_data_buffer;
+    si4 *decomp_data = (si4*) malloc((size_t) (num_samps * sizeof(si4)));
     memset_int(decomp_data, RED_NAN, num_samps);	
 	
     // read in RED data
@@ -332,7 +332,7 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 				channel->segments[start_segment].time_series_data_fps->fd = fileno(channel->segments[start_segment].time_series_data_fps->fp);
 			#endif
         }
-        FILE* fp = channel->segments[start_segment].time_series_data_fps->fp;
+        FILE *fp = channel->segments[start_segment].time_series_data_fps->fp;
         
         #ifdef _WIN32
             _fseeki64(fp, channel->segments[start_segment].time_series_indices_fps->time_series_indices[start_idx].file_offset, SEEK_SET);
@@ -358,7 +358,7 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 				channel->segments[start_segment].time_series_data_fps->fd = fileno(channel->segments[start_segment].time_series_data_fps->fp);
 			#endif
         }
-        FILE* fp = channel->segments[start_segment].time_series_data_fps->fp;
+        FILE *fp = channel->segments[start_segment].time_series_data_fps->fp;
         #ifdef _WIN32
              _fseeki64(fp, channel->segments[start_segment].time_series_indices_fps->time_series_indices[start_idx].file_offset, SEEK_SET);
         #else
@@ -441,7 +441,7 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	ui4 max_samps = channel->metadata.time_series_section_2->maximum_block_samples;
 	
     // create RED processing struct
-    RED_PROCESSING_STRUCT* rps = (RED_PROCESSING_STRUCT *) calloc((size_t) 1, sizeof(RED_PROCESSING_STRUCT));
+    RED_PROCESSING_STRUCT *rps = (RED_PROCESSING_STRUCT *) calloc((size_t) 1, sizeof(RED_PROCESSING_STRUCT));
     rps->compression.mode = RED_DECOMPRESSION;
     rps->decompressed_ptr = rps->decompressed_data = decomp_data;
     rps->difference_buffer = (si1 *) e_calloc((size_t) RED_MAX_DIFFERENCE_BYTES(max_samps), sizeof(ui1), __FUNCTION__, __LINE__, USE_GLOBAL_BEHAVIOR);
@@ -457,11 +457,11 @@ mxArray* read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	//
 	// decode the first block
 	// 
-    si4* temp_data_buf = (int *) malloc((max_samps * 1.1) * sizeof(si4));
+    si4 *temp_data_buf = (int *) malloc((max_samps * 1.1) * sizeof(si4));
     rps->decompressed_ptr = rps->decompressed_data = temp_data_buf;
     rps->compressed_data = cdp;
     rps->block_header = (RED_BLOCK_HEADER *) rps->compressed_data;
-    if (!check_block_crc((ui1*)(rps->block_header), max_samps, compressed_data_buffer, total_data_bytes)) {
+    if (!check_block_crc((ui1 *)(rps->block_header), max_samps, compressed_data_buffer, total_data_bytes)) {
 		// incorrect crc
 		
 		// message
@@ -736,10 +736,10 @@ void memset_int(si4 *ptr, si4 value, size_t num) {
     }
 }
 
-si4 check_block_crc(ui1* block_hdr_ptr, ui4 max_samps, ui1* total_data_ptr, ui8 total_data_bytes) {
+si4 check_block_crc(ui1 *block_hdr_ptr, ui4 max_samps, ui1 *total_data_ptr, ui8 total_data_bytes) {
     ui8 offset_into_data, remaining_buf_size;
     si1 CRC_valid;
-    RED_BLOCK_HEADER* block_header;
+    RED_BLOCK_HEADER *block_header;
     
     offset_into_data = block_hdr_ptr - total_data_ptr;
     remaining_buf_size = total_data_bytes - offset_into_data;

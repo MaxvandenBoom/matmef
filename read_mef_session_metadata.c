@@ -55,7 +55,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// password (optional)
 	// 
 	
-	si1* password = NULL;
+	si1 *password = NULL;
 	si1 password_arr[PASSWORD_BYTES] = {0};
 	
 	// check if a password input argument is given
@@ -125,7 +125,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	initialize_meflib();
 
 	// read the session metadata
-	SESSION* session = read_MEF_session(	NULL, 					// allocate new session object
+	SESSION *session = read_MEF_session(	NULL, 					// allocate new session object
 											session_path, 			// session filepath
 											password, 				// password
 											NULL, 					// empty password

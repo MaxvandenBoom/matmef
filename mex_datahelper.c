@@ -23,7 +23,7 @@
  * @param value		The value to store in the matlab variable
  * @return			The mxArray containing the value
  */
-mxArray* mxDoubleByValue(sf8 value) {
+mxArray *mxDoubleByValue(sf8 value) {
 	
 	// create the matlab variable (1x1 real double matrix)
 	mxArray *retArr = mxCreateDoubleMatrix(1, 1, mxREAL);
@@ -45,7 +45,7 @@ mxArray* mxDoubleByValue(sf8 value) {
  * @param value		The value to store in the matlab variable
  * @return			The mxArray containing the value
  */
-mxArray* mxUInt32ByValue(ui4 value) {
+mxArray *mxUInt32ByValue(ui4 value) {
 	
 	// create the matlab variable (1x1 real uint32 matrix)
 	mxArray *retArr = mxCreateNumericMatrix(1, 1, mxUINT32_CLASS, mxREAL);
@@ -68,7 +68,7 @@ mxArray* mxUInt32ByValue(ui4 value) {
  * @param value		The value to store in the matlab variable
  * @return			The mxArray containing the value
  */
-mxArray* mxInt32ByValue(si4 value) {
+mxArray *mxInt32ByValue(si4 value) {
 	
 	// create the matlab variable (1x1 real int32 matrix)
 	mxArray *retArr = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
@@ -90,7 +90,7 @@ mxArray* mxInt32ByValue(si4 value) {
  * @param value		The value to store in the matlab variable
  * @return			The mxArray containing the value
  */
-mxArray* mxInt64ByValue(si8 value) {
+mxArray *mxInt64ByValue(si8 value) {
 	
 	// create the matlab variable (1x1 real int64 matrix)
 	mxArray *retArr = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
@@ -120,7 +120,7 @@ mxArray* mxInt64ByValue(si8 value) {
  * @return			The mxArray containing the value
  */
 /*
-mxArray* mxDoubleByValue(double value) {
+mxArray *mxDoubleByValue(double value) {
 	
 	// create the matlab variable (1x1 real double matrix)
 	mxArray *retArr = mxCreateDoubleMatrix(1, 1, mxREAL);
@@ -145,7 +145,7 @@ mxArray* mxDoubleByValue(double value) {
  * @return			The mxArray containing the value
  */
 /*
-mxArray* mxIntByValue(int value, bool sign, int bits) {
+mxArray *mxIntByValue(int value, bool sign, int bits) {
 	mxArray *retArr;
 	
 	// create the matlab variable (1x1 real double matrix)

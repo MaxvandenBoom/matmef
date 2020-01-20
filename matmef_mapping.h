@@ -19,15 +19,15 @@
 #include "meflib/meflib/meflib.h"
 
 
-void map_mef3_segment_tostruct(SEGMENT *segment, si1 mapIndicesFlag, mxArray* matSegment, int matIndex);
-mxArray* map_mef3_segment(SEGMENT *segment, si1 mapIndicesFlag);
-void map_mef3_channel_tostruct(CHANNEL *channel, si1 mapIndicesFlag, mxArray* matChannel, int matIndex);
-mxArray* map_mef3_channel(CHANNEL *channel, si1 mapIndicesFlag);
-mxArray* map_mef3_session(SESSION *session, si1 map_indices_flag);
-mxArray* map_mef3_md1(METADATA_SECTION_1 *md1);
-mxArray* map_mef3_tmd2(TIME_SERIES_METADATA_SECTION_2 *tmd2);
-mxArray* map_mef3_vmd2(VIDEO_METADATA_SECTION_2 *vmd2);
-mxArray* map_mef3_md3(METADATA_SECTION_3 *md3);
+void map_mef3_segment_tostruct(SEGMENT *segment, si1 mapIndicesFlag, mxArray *matSegment, int matIndex);
+mxArray *map_mef3_segment(SEGMENT *segment, si1 mapIndicesFlag);
+void map_mef3_channel_tostruct(CHANNEL *channel, si1 mapIndicesFlag, mxArray *matChannel, int matIndex);
+mxArray *map_mef3_channel(CHANNEL *channel, si1 mapIndicesFlag);
+mxArray *map_mef3_session(SESSION *session, si1 map_indices_flag);
+mxArray *map_mef3_md1(METADATA_SECTION_1 *md1);
+mxArray *map_mef3_tmd2(TIME_SERIES_METADATA_SECTION_2 *tmd2);
+mxArray *map_mef3_vmd2(VIDEO_METADATA_SECTION_2 *vmd2);
+mxArray *map_mef3_md3(METADATA_SECTION_3 *md3);
 
 
 #endif   // MATMEF_MAPPING_
