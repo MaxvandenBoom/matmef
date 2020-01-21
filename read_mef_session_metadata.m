@@ -3,12 +3,12 @@
 %   
 %   [metadata] = read_mef_session_metadata(fileName, password)
 %	
-%   sessionPath 	= path (absolute or relative) to the MEF3 session folder
-%   password		= password to the MEF3 data; pass an empty string if no password should be used
-%   mapIndices		= flag whether indices should be mapped [0 or 1; default is 0]
+%   sessionPath     = path (absolute or relative) to the MEF3 session folder
+%   password        = password to the MEF3 data; pass an empty string if no password should be used
+%   mapIndices      = flag whether indices should be mapped [0 or 1; default is 0]
 %
 %   Returns: 
-%       metadata 	= structure containing session metadata, channels metadata, segments metadata and records
+%       metadata    = structure containing session metadata, channels metadata, segments metadata and records
 %
 %
 %   Copyright 2020, Max van den Boom and Mayo Clinic (Rochester MN)
