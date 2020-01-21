@@ -24,7 +24,7 @@
  *
  * @param sessionPath	Path (absolute or relative) to the MEF3 session folder
  * @param password		Password to the MEF3 data; Empty string if no password should be used
- * @param mapIndices	Flag whether indices should be mapped
+ * @param mapIndices	Flag whether indices should be mapped (0 or 1; default is 0)
  * @return				Structure containing session metadata, channels metadata, segments metadata and records
  */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
@@ -89,7 +89,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// 
 	
 	// Read indices flag
-    si1 map_indices_flag = 1;	
+    si1 map_indices_flag = 0;	
 	
 	// check if a map indices input argument is given
     if (nrhs > 2) {
@@ -135,7 +135,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 										);
 	
 	
-	// TODO, check session output (on return or null)
+	
+	// check for error
+	if (session == NULL)	mexErrMsgTxt("Error while reading session metadata");
 	
 	// check if a session-struct should be returned
 	if (nlhs > 0) {
