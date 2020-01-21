@@ -57,8 +57,8 @@ const char *SEGMENT_FIELDNAMES[] 	= {
 	"channel_type",
 	"metadata_fps",					// instead of mapping the FILE_PROCESSING_NUMFIELDS object data, we will directly map the metadata here
 	"time_series_data_fps",			
-	"time_series_indices_fps",
-	"video_indices_fps",
+	"time_series_indices_fps",		// instead of mapping the FILE_PROCESSING_NUMFIELDS object data, we will directly map the indices here
+	"video_indices_fps",			// instead of mapping the FILE_PROCESSING_NUMFIELDS object data, we will directly map the indices here
 	"record_data_fps",
 	"record_indices_fps",
 	"name",							// just base name, no extension
@@ -368,7 +368,7 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
 				mxSetField(	mat_segment, 
 							mat_index, 
 							"video_indices_fps", 
-							map_mef3_ti(	segment->video_indices_fps->video_indices,
+							map_mef3_vi(	segment->video_indices_fps->video_indices,
 											segment->video_indices_fps->universal_header->number_of_entries));
 				
 				break;
@@ -377,11 +377,6 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
 				
 		}
 	}
-	
-	
-	// TODO: more here on "universal headers"
-
-
 	
 }
  
@@ -522,14 +517,27 @@ mxArray *map_mef3_session(SESSION *session, si1 map_indices_flag) {
 	mxSetField(mat_session, 0, "latest_end_time", 					mxInt64ByValue(session->latest_end_time));
 	
 	
+	//
+	// records
+	// 
+	
+	
 	// TODO: need file with session records to test
 	//mxSetField(mat_session, 0, "record_data_fps", 				mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
 	//mxSetField(mat_session, 0, "record_indices_fps", 			mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
-    // Read session records if present and add it to metadata
+    //
+	//
+	//
+	// Read session records if present and add it to metadata
     //if ((session->record_indices_fps != NULL) & (session->record_data_fps != NULL)){
     //    records_dict = map_mef3_records(session->record_indices_fps, session->record_data_fps);
     //    PyDict_SetItemString(metadata_dict, "records_info", records_dict);
     //}
+	
+	
+	//
+	// time_series
+	// 
 	
     // check if there are time series channels
     if (session->number_of_time_series_channels > 0) {
@@ -566,6 +574,11 @@ mxArray *map_mef3_session(SESSION *session, si1 map_indices_flag) {
 		mxSetField(mat_session, 0, "time_series_channels", channels_struct);
 
 	}
+	
+	
+	//
+	// video
+	// 
 	
     // check if there are video channels
     if (session->number_of_video_channels > 0) {
@@ -760,4 +773,6 @@ mxArray *map_mef3_vi(VIDEO_INDEX *vi, si8 number_of_entries) {
 	// return the struct
 	return mat_vi;
 }
+
+
 

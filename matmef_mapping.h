@@ -31,6 +31,6 @@ mxArray *map_mef3_vmd2(VIDEO_METADATA_SECTION_2 *vmd2);
 mxArray *map_mef3_md3(METADATA_SECTION_3 *md3);
 
 mxArray *map_mef3_ti(TIME_SERIES_INDEX *ti, si8 number_of_entries);
-
+mxArray *map_mef3_vi(VIDEO_INDEX *vi, si8 number_of_entries);
 
 #endif   // MATMEF_MAPPING_
