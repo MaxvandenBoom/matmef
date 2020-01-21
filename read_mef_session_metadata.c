@@ -24,7 +24,7 @@
  *
  * @param sessionPath	Path (absolute or relative) to the MEF3 session folder
  * @param password		Password to the MEF3 data; Empty string if no password should be used
- * @param mapIndices	Flag whether indices should be mapped (0 or 1; default is 0)
+ * @param mapIndices	Flag whether indices should be mapped [0 or 1; default is 0]
  * @return				Structure containing session metadata, channels metadata, segments metadata and records
  */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
