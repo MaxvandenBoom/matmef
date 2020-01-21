@@ -134,9 +134,9 @@ mxArray *mxStringByUTF8Value(char *str) {
 	
 	// use the native2unicode call from matlab to convert the
 	// UTF-8 input to the standard matlab coding (UTF-16)
-    mxArray* lhs[1]; 
-    mxArray* rhs[] = {mat_uint8, mxCreateString("UTF-8")};
-	mexCallMATLAB(1, &lhs, 2, &rhs, "native2unicode");
+    mxArray *lhs[1]; 
+    mxArray *rhs[] = {mat_uint8, mxCreateString("UTF-8")};
+	mexCallMATLAB(1, lhs, 2, rhs, "native2unicode");
 	
 	// free the memory
 	mxFree(mat_uint8);
