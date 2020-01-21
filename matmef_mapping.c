@@ -55,16 +55,16 @@ const char *UNIVERSAL_HEADER_FIELDNAMES[] 	= {
 const int SEGMENT_NUMFIELDS			= 12;
 const char *SEGMENT_FIELDNAMES[] 	= {	
 	"channel_type",
-	"metadata_fps",
-	"time_series_data_fps",
+	"metadata_fps",					// instead of mapping the FILE_PROCESSING_NUMFIELDS object data, we will directly map the metadata here
+	"time_series_data_fps",			
 	"time_series_indices_fps",
 	"video_indices_fps",
 	"record_data_fps",
 	"record_indices_fps",
-	"name",					// just base name, no extension
-	"path",					// full path to enclosing directory (channel directory)
-	"channel_name",			// just base name, no extension
-	"session_name",			// just base name, no extension
+	"name",							// just base name, no extension
+	"path",							// full path to enclosing directory (channel directory)
+	"channel_name",					// just base name, no extension
+	"session_name",					// just base name, no extension
 	"level_UUID"
 };
 
@@ -76,10 +76,10 @@ const char *CHANNEL_FIELDNAMES[] 	= {
 	"record_indices_fps",
 	"number_of_segments",
 	"segments",
-	"path",			// full path to enclosing directory (session directory)
-	"name",			// just base name, no extension
-	"extension",	// channel directory extension
-	"session_name",	// just base name, no extension
+	"path",					// full path to enclosing directory (session directory)
+	"name",					// just base name, no extension
+	"extension",			// channel directory extension
+	"session_name",			// just base name, no extension
 	"level_UUID",
 	"anonymized_name",
 	// variables below refer to segments
@@ -116,8 +116,8 @@ const int METADATA_SECTION_1_NUMFIELDS		= 4;
 const char *METADATA_SECTION_1_FIELDNAMES[] = {
 	"section_2_encryption",
 	"section_3_encryption",
-	"protected_region",
-	"discretionary_region"
+	"protected_region",				// (not mapped)
+	"discretionary_region"			// (not mapped)
 };
 
 const int TS_METADATA_SECTION_2_NUMFIELDS		= 27;
@@ -149,8 +149,8 @@ const char *TS_METADATA_SECTION_2_FIELDNAMES[] = {
 	"maximum_contiguous_blocks",
 	"maximum_contiguous_block_bytes",
 	"maximum_contiguous_samples",
-	"protected_region",
-	"discretionary_region"
+	"protected_region",				// (not mapped)
+	"discretionary_region"			// (not mapped)
 };
 
 const int V_METADATA_SECTION_2_NUMFIELDS		= 12;
@@ -167,8 +167,8 @@ const char *V_METADATA_SECTION_2_FIELDNAMES[] = {
 	"maximum_clip_bytes",
 	"video_format",
 	"video_file_CRC",
-	"protected_region",
-	"discretionary_region"
+	"protected_region",				// (not mapped)
+	"discretionary_region"			// (not mapped)
 };
 
 const int METADATA_SECTION_3_NUMFIELDS		= 10;
@@ -181,8 +181,8 @@ const char *METADATA_SECTION_3_FIELDNAMES[] = {
 	"subject_name_2",				// utf8[31]
 	"subject_ID",					// utf8[31]
 	"recording_location",			// utf8[127]
-	"protected_region",
-	"discretionary_region"
+	"protected_region",				// (not mapped)
+	"discretionary_region"			// (not mapped)
 };
 
 const int METADATA_NUMFIELDS 		= 4;
@@ -227,10 +227,10 @@ const char *TIME_SERIES_INDEX_FIELDNAMES[] 	= {
 	"block_bytes",
 	"maximum_sample_value",
 	"minimum_sample_value",
-	"protected_region",
+	"protected_region",					// (not mapped)
 	"RED_block_flags",
-	"RED_block_protected_region",
-	"RED_block_discretionary_region"
+	"RED_block_protected_region",		// (not mapped)
+	"RED_block_discretionary_region"	// (not mapped)
 };
 
 
@@ -243,30 +243,30 @@ const char *VIDEO_INDEX_FIELDNAMES[] 	= {
 	"end_frame",
 	"file_offset",
 	"clip_bytes",
-	"protected_region",
-	"discretionary_region"
+	"protected_region",					// (not mapped)
+	"discretionary_region"				// (not mapped)
 };
 
 
 // File Processing Structures
 const int FILE_PROCESSING_NUMFIELDS			= 16;
 const char *FILE_PROCESSING_FIELDNAMES[]	= {
-	"full_file_name",			// full path including extension
-	"fp",
-	"fd",
+	"full_file_name",					// full path including extension
+	"fp",								// runtime file pointer		(not mapped)
+	"fd",								// runtime file descriptor	(not mapped)
 	"file_length",
 	"file_type_code",
 	"universal_header",
-	"directives",
-	"password_data",
+	"directives",						// runtime struct 	(not mapped)
+	"password_data",					// this will often be the same for all files
 	"metadata",
 	"time_series_indices",
 	"video_indices",
 	"records",
 	"record_indices",
-	"RED_blocks",
+	"RED_blocks",						// only used when type = TIME_SERIES_DATA_FILE_TYPE_CODE; (not mapped)
 	"raw_data_bytes",
-	"raw_data"
+	"raw_data"							// (not mapped)
 };	
 
 
@@ -311,8 +311,15 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
     //    PyDict_SetItemString(metadata_dict, "records_info", records_dict);
     //}
 	
-
-	// create a metadata struct and assign it to the 'metadata_fps' field
+	
+	//
+	// metadata
+	//
+	
+	// create a metadata struct (for the segment) and assign it to the 'metadata_fps' field
+	// note: normally the _fps field would hold the FILE_PROCESSING_NUMFIELDS object, which in turn has
+	// 		 a 'metadata' field which will be set when reading a time-series segment file or video segment file, but
+	//		 here we map it directly (without the processing struct)
 	mxArray *segment_metadata_struct = mxCreateStructMatrix(1, 1, METADATA_NUMFIELDS, METADATA_FIELDNAMES);
 	mxSetField(mat_segment, mat_index, "metadata_fps", segment_metadata_struct);
 	
@@ -330,34 +337,48 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
 	}  
 	mxSetField(segment_metadata_struct, 0, "section_3", map_mef3_md3(segment->metadata_fps->metadata.section_3));
 	
-
-	// TODO: map_indices_flag is passed as in PyMef, but not actually used. Should we?
 	
 	//
-	// map segment indices
+	// map indices
 	//
+		
+	// check if indices should be mapped
+	if (map_indices_flag) {
+		
+		switch (segment->channel_type){
+			case TIME_SERIES_CHANNEL_TYPE:
+		
+				// create a time-series indices struct (for the segment) and assign it to the 'time_series_indices_fps' field
+				// note: normally the _fps field would hold the FILE_PROCESSING_NUMFIELDS object, which in turn has
+				// 		 a 'time_series_indices' field which will be set when reading a time-series indices file, but
+				//		 here we map it directly (without the processing struct)
+				mxSetField(	mat_segment, 
+							mat_index, 
+							"time_series_indices_fps", 
+							map_mef3_ti(	segment->time_series_indices_fps->time_series_indices,
+											segment->time_series_indices_fps->universal_header->number_of_entries));
+				
+				break;
+			case VIDEO_CHANNEL_TYPE:
+				
+				// create a video indices struct (for the segment) and assign it to the 'video_indices_fps' field
+				// note: normally the _fps field would hold the FILE_PROCESSING_NUMFIELDS object, which in turn has
+				// 		 a 'video_indices' field which will be set when reading a video indices file, but
+				//		 here we map it directly (without the processing struct)
+				mxSetField(	mat_segment, 
+							mat_index, 
+							"video_indices_fps", 
+							map_mef3_ti(	segment->video_indices_fps->video_indices,
+											segment->video_indices_fps->universal_header->number_of_entries));
+				
+				break;
+			default:
+				mexErrMsgTxt("Unrecognized channel type, exiting...");
+				
+		}
+	}
 	
-    switch (segment->channel_type){
-        case TIME_SERIES_CHANNEL_TYPE:
-            
-			//mxSetField(segment_metadata_struct, 0, "video_section_2", map_mef3_ti(	segment->time_series_indices_fps->time_series_indices,
-			//																		segment->time_series_indices_fps->universal_header->number_of_entries));
-			
-            //PyDict_SetItemString(metadata_dict, "indices", map_mef3_ti(tsi, number_of_entries));
-
-
-            break;
-        case VIDEO_CHANNEL_TYPE:
-            //si8 number_of_entries = segment->video_indices_fps->universal_header->number_of_entries;
-            //VIDEO_INDEX *vi = segment->video_indices_fps->video_indices;
-
-            //PyDict_SetItemString(metadata_dict, "indices", map_mef3_vi(vi, number_of_entries));
-
-            break;
-        default:
-            mexErrMsgTxt("Unrecognized channel type, exiting...");
-    }
-
+	
 	// TODO: more here on "universal headers"
 
 
@@ -534,10 +555,6 @@ mxArray *map_mef3_session(SESSION *session, si1 map_indices_flag) {
 		
 		// create a channels struct
 		mxArray *channels_struct = mxCreateStructMatrix(1, session->number_of_time_series_channels, CHANNEL_NUMFIELDS, CHANNEL_FIELDNAMES);
-
-		// add extra fields
-		mxAddField(channels_struct, "records_info");		// will be left empty if there are no records
-		// note: segments field already exists in struct
 		
 		// map the time-serie channels      
 		for (i = 0; i < session->number_of_time_series_channels; ++i) {
@@ -573,10 +590,6 @@ mxArray *map_mef3_session(SESSION *session, si1 map_indices_flag) {
 		
 		// create a channels struct
 		mxArray *channels_struct = mxCreateStructMatrix(1, session->number_of_video_channels, CHANNEL_NUMFIELDS, CHANNEL_FIELDNAMES);
-
-		// add extra fields
-		mxAddField(channels_struct, "records_info");		// will be left empty if there are no records
-		// note: segments field already exists in struct
 		
 		// map the video channels      
 		for (i = 0; i < session->number_of_video_channels; ++i) {
@@ -677,52 +690,74 @@ mxArray *map_mef3_md3(METADATA_SECTION_3 *md3) {
 	return mat_md;
 }
 
+mxArray *map_mef3_fps(FILE_PROCESSING_STRUCT *fps) {
+	
+    mxArray *mat_fps = mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES);
+	
+	mxSetField(mat_fps, 0, "full_file_name", 				mxCreateString(fps->full_file_name));
+	mxSetField(mat_fps, 0, "file_length", 					mxInt64ByValue(fps->file_length));
+	mxSetField(mat_fps, 0, "file_type_code", 				mxUInt32ByValue(fps->file_type_code));
+	mxSetField(mat_fps, 0, "raw_data_bytes", 				mxInt64ByValue(fps->raw_data_bytes));
+	
+	switch (fps->file_type_code) {
+		case TIME_SERIES_METADATA_FILE_TYPE_CODE:
+			break;
+		case VIDEO_METADATA_FILE_TYPE_CODE:
+			break;
+	}
+	
+	// return the struct
+	return mat_fps;
+	
+}
+
+
 mxArray *map_mef3_ti(TIME_SERIES_INDEX *ti, si8 number_of_entries) {
 
+	// create the a matlab 'time_series_index' struct
     mxArray *mat_ti = mxCreateStructMatrix(1, number_of_entries, TIME_SERIES_INDEX_NUMFIELDS, TIME_SERIES_INDEX_FIELDNAMES);
 	
-	
-	
-	
-	
-	/*
-	
-	typedef struct {
-	si8	file_offset;
-	si8	start_time;
-	si8	start_sample;
-	ui4	number_of_samples;
-	ui4	block_bytes;
-	si4	maximum_sample_value;
-	si4	minimum_sample_value;
-	ui1	protected_region[TIME_SERIES_INDEX_PROTECTED_REGION_BYTES];
-        ui1	RED_block_flags;
-        ui1	RED_block_protected_region[RED_BLOCK_PROTECTED_REGION_BYTES];
-	ui1	RED_block_discretionary_region[RED_BLOCK_DISCRETIONARY_REGION_BYTES];
-} TIME_SERIES_INDEX;
-	
+	// loop through the time-series indices
+	si8 i;
+	for (i = 0; i < number_of_entries; ++i) {
+		TIME_SERIES_INDEX *cur_ti = ti + i;
+		
+		mxSetField(mat_ti, i, "file_offset", 				mxInt64ByValue(cur_ti->file_offset));
+		mxSetField(mat_ti, i, "start_time", 				mxInt64ByValue(cur_ti->start_time));
+		mxSetField(mat_ti, i, "start_sample", 				mxInt64ByValue(cur_ti->start_sample));
+		mxSetField(mat_ti, i, "number_of_samples", 			mxUInt32ByValue(cur_ti->number_of_samples));
+		mxSetField(mat_ti, i, "block_bytes", 				mxUInt32ByValue(cur_ti->block_bytes));
+		mxSetField(mat_ti, i, "maximum_sample_value", 		mxInt32ByValue(cur_ti->maximum_sample_value));
+		mxSetField(mat_ti, i, "minimum_sample_value", 		mxInt32ByValue(cur_ti->minimum_sample_value));
+		//mxSetField(mat_ti, i, "RED_block_flags", 			mxUInt8ByValue(cur_ti->RED_block_flags));	// TODO: check with value
 
-                       "file_offset", "i8",
-                       "start_time", "i8",
-                       "start_sample", "i8",
-                       "number_of_samples", "u4",
-                       "block_bytes", "u4",
-                       "maximum_sample_value", "i4",
-                       "minimum_sample_value", "i4",
-
-                       "protected_region", "V", TIME_SERIES_INDEX_PROTECTED_REGION_BYTES,
-                       "RED_block_flags", "V",
-                       "RED_block_protected_region", "V", RED_BLOCK_PROTECTED_REGION_BYTES,
-                       "RED_block_discretionary_region", "V", RED_BLOCK_DISCRETIONARY_REGION_BYTES);
-*/
-	
-	
-	
-	
-	
-	
+	}	
 	
 	// return the struct
 	return mat_ti;
+}
+
+
+mxArray *map_mef3_vi(VIDEO_INDEX *vi, si8 number_of_entries) {
+
+	// create the a matlab 'video_index' struct
+    mxArray *mat_vi = mxCreateStructMatrix(1, number_of_entries, VIDEO_INDEX_NUMFIELDS, VIDEO_INDEX_FIELDNAMES);
+	
+	// loop through the video indices
+	si8 i;
+	for (i = 0; i < number_of_entries; ++i) {
+		VIDEO_INDEX *cur_vi = vi + i;
+		
+		mxSetField(mat_vi, i, "start_time", 				mxInt64ByValue(cur_vi->start_time));
+		mxSetField(mat_vi, i, "end_time", 					mxInt64ByValue(cur_vi->end_time));
+		mxSetField(mat_vi, i, "start_frame", 				mxUInt32ByValue(cur_vi->start_frame));
+		mxSetField(mat_vi, i, "end_frame", 					mxUInt32ByValue(cur_vi->end_frame));
+		mxSetField(mat_vi, i, "file_offset", 				mxInt64ByValue(cur_vi->file_offset));
+		mxSetField(mat_vi, i, "clip_bytes", 				mxInt64ByValue(cur_vi->clip_bytes));
+		
+	}	
+	
+	// return the struct
+	return mat_vi;
 }
 
