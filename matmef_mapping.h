@@ -32,5 +32,7 @@ mxArray *map_mef3_md3(METADATA_SECTION_3 *md3);
 
 mxArray *map_mef3_ti(TIME_SERIES_INDEX *ti, si8 number_of_entries);
 mxArray *map_mef3_vi(VIDEO_INDEX *vi, si8 number_of_entries);
+mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT *rd_fps);
+
 
 #endif   // MATMEF_MAPPING_

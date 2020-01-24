@@ -39,9 +39,9 @@ const char *UNIVERSAL_HEADER_FIELDNAMES[] 	= {
 	"number_of_entries",
 	"maximum_entry_size",
 	"segment_number",
-	"channel_name",				// utf8[63], base name only, no extension
-	"session_name",				// utf8[63], base name only, no extension
-	"anonymized_name",			// utf8[63]
+	"channel_name",					// utf8[63], base name only, no extension
+	"session_name",					// utf8[63], base name only, no extension
+	"anonymized_name",				// utf8[63]
 	"level_UUID",
 	"file_UUID",
 	"provenance_UUID",
@@ -52,44 +52,53 @@ const char *UNIVERSAL_HEADER_FIELDNAMES[] 	= {
 };
 
 // Session, Channel, Segment Processing Structures
-const int SEGMENT_NUMFIELDS			= 12;
+const int SEGMENT_NUMFIELDS			= 10;
 const char *SEGMENT_FIELDNAMES[] 	= {	
 	"channel_type",
-	"metadata_fps",					// instead of mapping the FILE_PROCESSING_NUMFIELDS object data, we will directly map the metadata here
-	"time_series_data_fps",			
-	"time_series_indices_fps",		// instead of mapping the FILE_PROCESSING_NUMFIELDS object data, we will directly map the indices here
-	"video_indices_fps",			// instead of mapping the FILE_PROCESSING_NUMFIELDS object data, we will directly map the indices here
-	"record_data_fps",
-	"record_indices_fps",
+	//"metadata_fps",				// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'metadata' field
+	//"time_series_data_fps",		// (not mapped)
+	//"time_series_indices_fps",	// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'time_series_indices' field
+	//"video_indices_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'video_indices' field
+	//"record_data_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'records' field
+	//"record_indices_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'records' field
 	"name",							// just base name, no extension
 	"path",							// full path to enclosing directory (channel directory)
 	"channel_name",					// just base name, no extension
 	"session_name",					// just base name, no extension
-	"level_UUID"
+	"level_UUID",
+	
+	// non-meflib fields, added for mapping (contains data normally held within the _fps structs)
+	"metadata",
+	"time_series_indices",
+	"video_indices",
+	"records"
 };
 
-const int CHANNEL_NUMFIELDS			= 16;
+const int CHANNEL_NUMFIELDS			= 15;
 const char *CHANNEL_FIELDNAMES[] 	= {	
 	"channel_type",
 	"metadata",
-	"record_data_fps",
-	"record_indices_fps",
+	//"record_data_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'records' field
+	//"record_indices_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'records' field
 	"number_of_segments",
 	"segments",
-	"path",					// full path to enclosing directory (session directory)
-	"name",					// just base name, no extension
-	"extension",			// channel directory extension
-	"session_name",			// just base name, no extension
+	"path",							// full path to enclosing directory (session directory)
+	"name",							// just base name, no extension
+	"extension",					// channel directory extension
+	"session_name",					// just base name, no extension
 	"level_UUID",
 	"anonymized_name",
 	// variables below refer to segments
 	"maximum_number_of_records",
 	"maximum_record_bytes",
 	"earliest_start_time",
-	"latest_end_time"
+	"latest_end_time",
+	
+	// non-meflib fields, added for mapping (contains data normally held within the _fps structs)
+	"records"
 };
 
-const int SESSION_NUMFIELDS			= 16;
+const int SESSION_NUMFIELDS			= 15;
 const char *SESSION_FIELDNAMES[] 	= {	
 	"time_series_metadata",
 	"number_of_time_series_channels",
@@ -97,8 +106,8 @@ const char *SESSION_FIELDNAMES[] 	= {
 	"video_metadata",
 	"number_of_video_channels",
 	"video_channels",
-	"record_data_fps",			// FILE_PROCESSING_STRUCT
-	"record_indices_fps",		// FILE_PROCESSING_STRUCT
+	//"record_data_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'records' field
+	//"record_indices_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'records' field
 	"name",
 	"path",
 	"anonymized_name",
@@ -107,7 +116,10 @@ const char *SESSION_FIELDNAMES[] 	= {
 	"maximum_number_of_records",
 	"maximum_record_bytes",
 	"earliest_start_time",
-	"latest_end_time"
+	"latest_end_time",
+
+	// non-meflib fields, added for mapping (contains data normally held within the _fps structs)
+	"records"
 };
 
 
@@ -120,8 +132,8 @@ const char *METADATA_SECTION_1_FIELDNAMES[] = {
 	"discretionary_region"			// (not mapped)
 };
 
-const int TS_METADATA_SECTION_2_NUMFIELDS		= 27;
-const char *TS_METADATA_SECTION_2_FIELDNAMES[] = {
+const int TIME_SERIES_METADATA_SECTION_2_NUMFIELDS		= 27;
+const char *TIME_SERIES_METADATA_SECTION_2_FIELDNAMES[] = {
 	// type-independent fields
 	"channel_description",			// utf8[511];
 	"session_description",			// utf8[511];
@@ -153,8 +165,8 @@ const char *TS_METADATA_SECTION_2_FIELDNAMES[] = {
 	"discretionary_region"			// (not mapped)
 };
 
-const int V_METADATA_SECTION_2_NUMFIELDS		= 12;
-const char *V_METADATA_SECTION_2_FIELDNAMES[] = {
+const int VIDEO_METADATA_SECTION_2_NUMFIELDS		= 12;
+const char *VIDEO_METADATA_SECTION_2_FIELDNAMES[] 	= {
 	// type-independent fields
 	"channel_description",			// utf8[511]
 	"session_description",
@@ -185,12 +197,13 @@ const char *METADATA_SECTION_3_FIELDNAMES[] = {
 	"discretionary_region"			// (not mapped)
 };
 
-const int METADATA_NUMFIELDS 		= 4;
+const int METADATA_NUMFIELDS 		= 3;
 const char *METADATA_FIELDNAMES[] 	= {
 	"section_1",
-	"time_series_section_2",
-	"video_section_2",
-	"section_3"
+	"section_2",					// non-meflib field, added for mapping 'time_series_section_2' or 'video_section_2' (since it is always one or the other)
+	//"time_series_section_2",		// instead of mapping the time_series_section_2 object, the data is mapped to the 'section_2' field for time-series
+	//"video_section_2",			// instead of mapping the video_section_2 object, the data is mapped to the 'section_2' field for video
+	"section_3"	
 };
 
 
@@ -293,44 +306,39 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
 
 	// set segment specific properties
 	mxSetField(mat_segment, mat_index, "channel_type", 				mxInt32ByValue(segment->channel_type));
-	//mxSetField(mat_segment, mat_index, "time_series_data_fps",	mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
-	//mxSetField(mat_segment, mat_index, "time_series_indices_fps",	mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
-	//mxSetField(mat_segment, mat_index, "video_indices_fps",		mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
-	//mxSetField(mat_segment, mat_index, "record_data_fps",			mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
-	//mxSetField(mat_segment, mat_index, "record_indices_fps",		mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
 	mxSetField(mat_segment, mat_index, "name", 						mxCreateString(segment->name));
 	mxSetField(mat_segment, mat_index, "path", 						mxCreateString(segment->path));
 	mxSetField(mat_segment, mat_index, "channel_name", 				mxCreateString(segment->channel_name));
 	mxSetField(mat_segment, mat_index, "session_name", 				mxCreateString(segment->session_name));
 	//mxSetField(mat_segment, mat_index, "level_UUID", 				mxCreateString(segment->level_UUID));	// TODO: check with valid value
 	
-	// TODO: 
-    // Read segment records if present and add it to metadata
-    //if ((segment->record_indices_fps != NULL) & (segment->record_data_fps != NULL)){
-    //    records_dict = map_mef3_records(segment->record_indices_fps, segment->record_data_fps);
-    //    PyDict_SetItemString(metadata_dict, "records_info", records_dict);
-    //}
+	
+	//
+	// records
+	//
+	
+	// check segment records and (if existent) add
+    if ((segment->record_indices_fps != NULL) & (segment->record_data_fps != NULL)) {
+		mxSetField(mat_segment, mat_index, "records", map_mef3_records(segment->record_indices_fps, segment->record_data_fps));
+    }
 	
 	
 	//
 	// metadata
 	//
 	
-	// create a metadata struct (for the segment) and assign it to the 'metadata_fps' field
-	// note: normally the _fps field would hold the FILE_PROCESSING_NUMFIELDS object, which in turn has
-	// 		 a 'metadata' field which will be set when reading a time-series segment file or video segment file, but
-	//		 here we map it directly (without the processing struct)
+	// create a metadata struct (for the segment) and assign it to the 'metadata' field
 	mxArray *segment_metadata_struct = mxCreateStructMatrix(1, 1, METADATA_NUMFIELDS, METADATA_FIELDNAMES);
-	mxSetField(mat_segment, mat_index, "metadata_fps", segment_metadata_struct);
+	mxSetField(mat_segment, mat_index, "metadata", segment_metadata_struct);
 	
 	// map segment metadata sections
 	mxSetField(segment_metadata_struct, 0, "section_1", map_mef3_md1(segment->metadata_fps->metadata.section_1));
 	switch (segment->channel_type){
 		case TIME_SERIES_CHANNEL_TYPE:
-			mxSetField(segment_metadata_struct, 0, "time_series_section_2", map_mef3_tmd2(segment->metadata_fps->metadata.time_series_section_2));
+			mxSetField(segment_metadata_struct, 0, "section_2", map_mef3_tmd2(segment->metadata_fps->metadata.time_series_section_2));
 			break;
 		case VIDEO_CHANNEL_TYPE:
-			mxSetField(segment_metadata_struct, 0, "video_section_2", map_mef3_vmd2(segment->metadata_fps->metadata.video_section_2));
+			mxSetField(segment_metadata_struct, 0, "section_2", map_mef3_vmd2(segment->metadata_fps->metadata.video_section_2));
 			break;
 		default:
 			mexErrMsgTxt("Unrecognized channel type, exiting...");
@@ -348,26 +356,20 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
 		switch (segment->channel_type){
 			case TIME_SERIES_CHANNEL_TYPE:
 		
-				// create a time-series indices struct (for the segment) and assign it to the 'time_series_indices_fps' field
-				// note: normally the _fps field would hold the FILE_PROCESSING_NUMFIELDS object, which in turn has
-				// 		 a 'time_series_indices' field which will be set when reading a time-series indices file, but
-				//		 here we map it directly (without the processing struct)
+				// create a time-series indices struct (for the segment) and assign it to the 'time_series_indices' field
 				mxSetField(	mat_segment, 
 							mat_index, 
-							"time_series_indices_fps", 
+							"time_series_indices", 
 							map_mef3_ti(	segment->time_series_indices_fps->time_series_indices,
 											segment->time_series_indices_fps->universal_header->number_of_entries));
 				
 				break;
 			case VIDEO_CHANNEL_TYPE:
 				
-				// create a video indices struct (for the segment) and assign it to the 'video_indices_fps' field
-				// note: normally the _fps field would hold the FILE_PROCESSING_NUMFIELDS object, which in turn has
-				// 		 a 'video_indices' field which will be set when reading a video indices file, but
-				//		 here we map it directly (without the processing struct)
+				// create a video indices struct (for the segment) and assign it to the 'video_indices' field
 				mxSetField(	mat_segment, 
 							mat_index, 
-							"video_indices_fps", 
+							"video_indices", 
 							map_mef3_vi(	segment->video_indices_fps->video_indices,
 											segment->video_indices_fps->universal_header->number_of_entries));
 				
@@ -415,8 +417,6 @@ void map_mef3_channel_tostruct(CHANNEL *channel, si1 map_indices_flag, mxArray *
 
 	// set channel specific properties
 	mxSetField(mat_channel, mat_index, "channel_type", 				mxInt32ByValue(channel->channel_type));
-	//mxSetField(mat_channel, mat_index, "record_data_fps", 		mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
-	//mxSetField(mat_channel, mat_index, "record_indices_fps",		mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
 	mxSetField(mat_channel, mat_index, "number_of_segments", 		mxInt64ByValue(channel->number_of_segments));
 	mxSetField(mat_channel, mat_index, "path", 						mxCreateString(channel->path));
 	mxSetField(mat_channel, mat_index, "name", 						mxCreateString(channel->name));
@@ -429,12 +429,20 @@ void map_mef3_channel_tostruct(CHANNEL *channel, si1 map_indices_flag, mxArray *
 	mxSetField(mat_channel, mat_index, "earliest_start_time", 		mxInt64ByValue(channel->earliest_start_time));
 	mxSetField(mat_channel, mat_index, "latest_end_time", 			mxInt64ByValue(channel->latest_end_time));
 	
-	// TODO: 
-	// Read channel records if present and add it to metadata
-	//if ((channel->record_indices_fps != NULL) & (channel->record_data_fps != NULL)){
-	//	records_dict = map_mef3_records(channel->record_indices_fps, channel->record_data_fps);
-	//	PyDict_SetItemString(metadata_dict, "records_info", records_dict);
-	//}
+	
+	//
+	// records
+	//
+	
+	// check channel records and (if existent) add
+    if ((channel->record_indices_fps != NULL) & (channel->record_data_fps != NULL)) {
+		mxSetField(mat_channel, mat_index, "records", map_mef3_records(channel->record_indices_fps, channel->record_data_fps));
+    }
+	
+	
+	//
+	// metadata
+	//
 	
 	// create a metadata struct and assign it to the 'metadata' field
 	mxArray *channel_metadata_struct = mxCreateStructMatrix(1, 1, METADATA_NUMFIELDS, METADATA_FIELDNAMES);
@@ -444,10 +452,10 @@ void map_mef3_channel_tostruct(CHANNEL *channel, si1 map_indices_flag, mxArray *
 	mxSetField(channel_metadata_struct, 0, "section_1", map_mef3_md1(channel->metadata.section_1));
 	switch (channel->channel_type){
 		case TIME_SERIES_CHANNEL_TYPE:
-			mxSetField(channel_metadata_struct, 0, "time_series_section_2", map_mef3_tmd2(channel->metadata.time_series_section_2));
+			mxSetField(channel_metadata_struct, 0, "section_2", map_mef3_tmd2(channel->metadata.time_series_section_2));
 			break;
 		case VIDEO_CHANNEL_TYPE:
-			mxSetField(channel_metadata_struct, 0, "video_section_2", map_mef3_vmd2(channel->metadata.video_section_2));
+			mxSetField(channel_metadata_struct, 0, "section_2", map_mef3_vmd2(channel->metadata.video_section_2));
 			break;
 		default:
 			mexErrMsgTxt("Unrecognized channel type, exiting...");
@@ -521,18 +529,10 @@ mxArray *map_mef3_session(SESSION *session, si1 map_indices_flag) {
 	// records
 	// 
 	
-	
-	// TODO: need file with session records to test
-	//mxSetField(mat_session, 0, "record_data_fps", 				mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
-	//mxSetField(mat_session, 0, "record_indices_fps", 			mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES));	// TODO: fill later
-    //
-	//
-	//
-	// Read session records if present and add it to metadata
-    //if ((session->record_indices_fps != NULL) & (session->record_data_fps != NULL)){
-    //    records_dict = map_mef3_records(session->record_indices_fps, session->record_data_fps);
-    //    PyDict_SetItemString(metadata_dict, "records_info", records_dict);
-    //}
+	// check session records and (if existent) add
+    if ((session->record_indices_fps != NULL) & (session->record_data_fps != NULL)) {
+		mxSetField(mat_session, 0, "records", map_mef3_records(session->record_indices_fps, session->record_data_fps));
+    }
 	
 	
 	//
@@ -551,9 +551,9 @@ mxArray *map_mef3_session(SESSION *session, si1 map_indices_flag) {
 		mxSetField(mat_session, 0, "time_series_metadata", time_series_metadata_struct);
 		
 		// map metadata sections
-		mxSetField(time_series_metadata_struct, 0, "section_1", 			map_mef3_md1(session->time_series_metadata.section_1));
-		mxSetField(time_series_metadata_struct, 0, "time_series_section_2", map_mef3_tmd2(session->time_series_metadata.time_series_section_2));
-		mxSetField(time_series_metadata_struct, 0, "section_3", 			map_mef3_md3(session->time_series_metadata.section_3));
+		mxSetField(time_series_metadata_struct, 0, "section_1", 	map_mef3_md1(session->time_series_metadata.section_1));
+		mxSetField(time_series_metadata_struct, 0, "section_2", 	map_mef3_tmd2(session->time_series_metadata.time_series_section_2));
+		mxSetField(time_series_metadata_struct, 0, "section_3", 	map_mef3_md3(session->time_series_metadata.section_3));
 		
 		
 		//
@@ -593,7 +593,7 @@ mxArray *map_mef3_session(SESSION *session, si1 map_indices_flag) {
 		
 		// map metadata sections
 		mxSetField(video_metadata_struct, 0, "section_1", 		map_mef3_md1(session->video_metadata.section_1));
-		mxSetField(video_metadata_struct, 0, "video_section_2", map_mef3_vmd2(session->video_metadata.video_section_2));
+		mxSetField(video_metadata_struct, 0, "section_2",		map_mef3_vmd2(session->video_metadata.video_section_2));
 		mxSetField(video_metadata_struct, 0, "section_3", 		map_mef3_md3(session->video_metadata.section_3));
 		
 		
@@ -632,7 +632,7 @@ mxArray *map_mef3_md1(METADATA_SECTION_1 *md1) {
 
 mxArray *map_mef3_tmd2(TIME_SERIES_METADATA_SECTION_2 *tmd2) {
 
-    mxArray *mat_md = mxCreateStructMatrix(1, 1, TS_METADATA_SECTION_2_NUMFIELDS, TS_METADATA_SECTION_2_FIELDNAMES);
+    mxArray *mat_md = mxCreateStructMatrix(1, 1, TIME_SERIES_METADATA_SECTION_2_NUMFIELDS, TIME_SERIES_METADATA_SECTION_2_FIELDNAMES);
 	
 	
 	mxSetField(mat_md, 0, "channel_description", 			mxCreateString(tmd2->channel_description));
@@ -668,7 +668,7 @@ mxArray *map_mef3_tmd2(TIME_SERIES_METADATA_SECTION_2 *tmd2) {
 
 mxArray *map_mef3_vmd2(VIDEO_METADATA_SECTION_2 *vmd2) {
 
-    mxArray *mat_md = mxCreateStructMatrix(1, 1, V_METADATA_SECTION_2_NUMFIELDS, V_METADATA_SECTION_2_FIELDNAMES);
+    mxArray *mat_md = mxCreateStructMatrix(1, 1, VIDEO_METADATA_SECTION_2_NUMFIELDS, VIDEO_METADATA_SECTION_2_FIELDNAMES);
 	
 	mxSetField(mat_md, 0, "channel_description", 			mxCreateString(vmd2->channel_description));
 	mxSetField(mat_md, 0, "session_description", 			mxCreateString(vmd2->session_description));
@@ -701,27 +701,6 @@ mxArray *map_mef3_md3(METADATA_SECTION_3 *md3) {
 	
 	// return the struct
 	return mat_md;
-}
-
-mxArray *map_mef3_fps(FILE_PROCESSING_STRUCT *fps) {
-	
-    mxArray *mat_fps = mxCreateStructMatrix(1, 1, FILE_PROCESSING_NUMFIELDS, FILE_PROCESSING_FIELDNAMES);
-	
-	mxSetField(mat_fps, 0, "full_file_name", 				mxCreateString(fps->full_file_name));
-	mxSetField(mat_fps, 0, "file_length", 					mxInt64ByValue(fps->file_length));
-	mxSetField(mat_fps, 0, "file_type_code", 				mxUInt32ByValue(fps->file_type_code));
-	mxSetField(mat_fps, 0, "raw_data_bytes", 				mxInt64ByValue(fps->raw_data_bytes));
-	
-	switch (fps->file_type_code) {
-		case TIME_SERIES_METADATA_FILE_TYPE_CODE:
-			break;
-		case VIDEO_METADATA_FILE_TYPE_CODE:
-			break;
-	}
-	
-	// return the struct
-	return mat_fps;
-	
 }
 
 
@@ -774,5 +753,82 @@ mxArray *map_mef3_vi(VIDEO_INDEX *vi, si8 number_of_entries) {
 	return mat_vi;
 }
 
+// Runs through records and puts them in a matlab-struct
+mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT *rd_fps) {
+	si4 i;
+	RECORD_HEADER *rh;
+	ui4     *type_str_int;
+	ui4 	type_code;
+	
+    // retrieve the number of records
+    si8 number_of_records = ri_fps->universal_header->number_of_entries;
+    mexPrintf("nr: %i", number_of_records);
+	
+	// 
+	mxArray *mat_records = mxCreateStructMatrix(1, number_of_records, RECORD_HEADER_NUMFIELDS, RECORD_HEADER_FIELDNAMES);
+	
+    // first entry
+    ui1 *rd = rd_fps->raw_data + UNIVERSAL_HEADER_BYTES;
+	
+	// loop through the records
+	for (i = 0; i < number_of_records; ++i) {
+		
+		// cast the record header
+        rh = (RECORD_HEADER *) rd;
 
-
+		// 
+		//mxSetField(mat_records, i, "record_CRC", 			mxUInt32ByValue(rh->record_CRC));			// TODO: check with valid value, leave empty for now
+		mxSetField(mat_records, i, "type_string", 			mxCreateString(rh->type_string));
+		//ui1	version_major;
+		//ui1	version_minor;
+		//si1	encryption;
+		//ui4	bytes;
+		mxSetField(mat_records, i, "time", 					mxInt64ByValue(rh->time));
+		
+		// TODO: records body
+		type_str_int = (ui4 *) rh->type_string;
+		type_code = *type_str_int;
+		switch (type_code) {
+			case MEFREC_Note_TYPE_CODE:
+				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_Note_type(rh));
+				break;
+			case MEFREC_EDFA_TYPE_CODE:
+				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_EDFA_type(rh));
+				break;
+			case MEFREC_LNTP_TYPE_CODE:
+				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_LNTP_type(rh));
+				break;
+			case MEFREC_Seiz_TYPE_CODE:
+				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_Seiz_type(rh));
+				//sz = (MEFREC_Seiz_1_0 *) ((ui1 *) rh + MEFREC_Seiz_1_0_OFFSET);
+				//if (sz->number_of_channels > 0){
+				//	PyDict_SetItemString(rh_dict, "record_subbody", map_mef3_Seiz_ch_type(rh, sz->number_of_channels));
+				//}
+				break;
+			case MEFREC_CSti_TYPE_CODE:
+				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_CSti_type(rh));
+				break;
+			case MEFREC_ESti_TYPE_CODE:
+				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_ESti_type(rh));
+				break;
+			case MEFREC_SyLg_TYPE_CODE:
+				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_SyLg_type(rh));
+				break;
+			case MEFREC_UnRc_TYPE_CODE:
+				//PyErr_Format(PyExc_RuntimeError, "\"%s\" (0x%x) is an unrecognized record type\n", rh->type_string, type_code);
+				//PyErr_Occurred();
+				break;
+			default:
+				//PyErr_Format(PyExc_RuntimeError, "\"%s\" (0x%x) is an unrecognized record type\n", rh->type_string, type_code);
+				//PyErr_Occurred();
+				break;
+		}
+		
+		// to the next record 
+		rd += (RECORD_HEADER_BYTES + rh->bytes);
+        
+	}
+	
+	// return the struct
+	return mat_records;
+}
