@@ -762,12 +762,17 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 	
     // retrieve the number of records
     si8 number_of_records = ri_fps->universal_header->number_of_entries;
-    mexPrintf("nr: %i", number_of_records);
+
+	// create custom record struct list
+	const int RECORD_NUMFIELDS		= 3;
+	const char *RECORD_FIELDNAMES[]	= {	
+		"time",
+		"type",
+		"body"
+	};
+	mxArray *mat_records = mxCreateStructMatrix(1, number_of_records, RECORD_NUMFIELDS, RECORD_FIELDNAMES);
 	
-	// 
-	mxArray *mat_records = mxCreateStructMatrix(1, number_of_records, RECORD_HEADER_NUMFIELDS, RECORD_HEADER_FIELDNAMES);
-	
-    // first entry
+    // point to first record entry
     ui1 *rd = rd_fps->raw_data + UNIVERSAL_HEADER_BYTES;
 	
 	// loop through the records
@@ -776,55 +781,81 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 		// cast the record header
         rh = (RECORD_HEADER *) rd;
 
-		// 
-		//mxSetField(mat_records, i, "record_CRC", 			mxUInt32ByValue(rh->record_CRC));			// TODO: check with valid value, leave empty for now
-		mxSetField(mat_records, i, "type_string", 			mxCreateString(rh->type_string));
-		//ui1	version_major;
-		//ui1	version_minor;
-		//si1	encryption;
-		//ui4	bytes;
-		mxSetField(mat_records, i, "time", 					mxInt64ByValue(rh->time));
+
+		//
+		// header
+		//
 		
-		// TODO: records body
+		mxSetField(mat_records, i, "time", 					mxInt64ByValue(rh->time));
+		mxSetField(mat_records, i, "type", 					mxCreateString(rh->type_string));
+		
+		
+		//
+		// body
+		//
+		
 		type_str_int = (ui4 *) rh->type_string;
 		type_code = *type_str_int;
 		switch (type_code) {
 			case MEFREC_Note_TYPE_CODE:
-				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_Note_type(rh));
+				
+				if (rh->version_major == 1 && rh->version_minor == 0) {
+					si1 *body_p = (si1 *) rh + MEFREC_Note_1_0_TEXT_OFFSET;
+					mxSetField(mat_records, i, "body", 			mxCreateString(body_p));
+					
+				} else
+					mexPrintf("Warning: unrecognized Note version, skipping note body\n");
+				
 				break;
 			case MEFREC_EDFA_TYPE_CODE:
-				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_EDFA_type(rh));
+				
+				// TODO: need example with this type of records
+				mexPrintf("Warning: unimplemented record type, skipping body\n");
+				
 				break;
 			case MEFREC_LNTP_TYPE_CODE:
-				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_LNTP_type(rh));
+				
+				// TODO: need example with this type of records
+				mexPrintf("Warning: unimplemented record type, skipping body\n");
+				
 				break;
 			case MEFREC_Seiz_TYPE_CODE:
-				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_Seiz_type(rh));
-				//sz = (MEFREC_Seiz_1_0 *) ((ui1 *) rh + MEFREC_Seiz_1_0_OFFSET);
-				//if (sz->number_of_channels > 0){
-				//	PyDict_SetItemString(rh_dict, "record_subbody", map_mef3_Seiz_ch_type(rh, sz->number_of_channels));
-				//}
+				
+				// TODO: need example with this type of records
+				mexPrintf("Warning: unimplemented record type, skipping body\n");
+				
 				break;
 			case MEFREC_CSti_TYPE_CODE:
-				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_CSti_type(rh));
+				
+				// TODO: need example with this type of records
+				mexPrintf("Warning: unimplemented record type, skipping body\n");
+				
 				break;
 			case MEFREC_ESti_TYPE_CODE:
-				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_ESti_type(rh));
+				
+				// TODO: need example with this type of records
+				mexPrintf("Warning: unimplemented record type, skipping body\n");
+				
 				break;
 			case MEFREC_SyLg_TYPE_CODE:
-				//PyDict_SetItemString(rh_dict, "record_body", map_mef3_SyLg_type(rh));
+				
+				// TODO: need example with this type of records
+				mexPrintf("Warning: unimplemented record type, skipping body\n");
+				
 				break;
 			case MEFREC_UnRc_TYPE_CODE:
-				//PyErr_Format(PyExc_RuntimeError, "\"%s\" (0x%x) is an unrecognized record type\n", rh->type_string, type_code);
-				//PyErr_Occurred();
-				break;
+				
+				mexPrintf("Error: \"%s\" (0x%x) is an unrecognized record type\n", rh->type_string, type_code);
+				return NULL;
+				
 			default:
-				//PyErr_Format(PyExc_RuntimeError, "\"%s\" (0x%x) is an unrecognized record type\n", rh->type_string, type_code);
-				//PyErr_Occurred();
-				break;
+				
+				mexPrintf("Error: \"%s\" (0x%x) is an unrecognized record type\n", rh->type_string, type_code);
+				return NULL;
+			
 		}
 		
-		// to the next record 
+		// forward the record pointer to the next record 
 		rd += (RECORD_HEADER_BYTES + rh->bytes);
         
 	}
