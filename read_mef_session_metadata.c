@@ -139,6 +139,20 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// check for error
 	if (session == NULL)	mexErrMsgTxt("Error while reading session metadata");
 	
+	// check if the data is encrypted but no password is given
+	if (session->time_series_metadata.section_1 != NULL) {
+		if ((session->time_series_metadata.section_1->section_2_encryption > 0 || session->time_series_metadata.section_1->section_2_encryption > 0) && password == NULL) {
+			mexErrMsgTxt("Error: data is encrypted, but no password is given, exiting...\n");
+			return NULL;
+		}
+	}
+	if (session->video_metadata.section_1 != NULL) {
+		if ((session->video_metadata.section_1->section_2_encryption > 0 || session->video_metadata.section_1->section_2_encryption > 0) && password == NULL) {
+			mexErrMsgTxt("Error: data is encrypted, but no password is given, exiting...\n");
+			return NULL;
+		}
+	}
+	
 	// check if a session-struct should be returned
 	if (nlhs > 0) {
 		
