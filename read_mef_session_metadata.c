@@ -143,13 +143,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	if (session->time_series_metadata.section_1 != NULL) {
 		if ((session->time_series_metadata.section_1->section_2_encryption > 0 || session->time_series_metadata.section_1->section_2_encryption > 0) && password == NULL) {
 			mexErrMsgTxt("Error: data is encrypted, but no password is given, exiting...\n");
-			return NULL;
 		}
 	}
 	if (session->video_metadata.section_1 != NULL) {
 		if ((session->video_metadata.section_1->section_2_encryption > 0 || session->video_metadata.section_1->section_2_encryption > 0) && password == NULL) {
 			mexErrMsgTxt("Error: data is encrypted, but no password is given, exiting...\n");
-			return NULL;
 		}
 	}
 	
