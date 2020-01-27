@@ -34,7 +34,7 @@ mxArray *mxDoubleByValue(sf8 value) {
 	// transfer the value to the matlab (allocated memory)
 	data[0] = (mxDouble)value;
 	
-	// return the double variable
+	// return the matlab variable
 	return retArr;
 	
 }
@@ -63,6 +63,29 @@ mxArray *mxUInt32ByValue(ui4 value) {
 
 
 /**
+ * Create a (1x1 real) Int8 matrix based on a MEF si1 (signed 1 byte int) variable
+ *
+ * @param value		The value to store in the matlab variable
+ * @return			The mxArray containing the value
+ */
+mxArray *mxInt8ByValue(si1 value) {
+	
+	// create the matlab variable (1x1 real int8 matrix)
+	mxArray *retArr = mxCreateNumericMatrix(1, 1, mxINT8_CLASS, mxREAL);
+	
+	// retrieve the pointer to the memory allocated by matlab
+	mxInt8 *data = mxGetData(retArr);
+	
+	// transfer the value to the matlab (allocated memory)
+	data[0] = (mxInt8)value;
+	
+	// return the matlab variable
+	return retArr;
+	
+}
+
+
+/**
  * Create a (1x1 real) Int32 matrix based on a MEF si4 (signed 4 byte int) variable
  *
  * @param value		The value to store in the matlab variable
@@ -79,7 +102,7 @@ mxArray *mxInt32ByValue(si4 value) {
 	// transfer the value to the matlab (allocated memory)
 	data[0] = (mxInt32)value;
 	
-	// return the double variable
+	// return the matlab variable
 	return retArr;
 	
 }
@@ -101,7 +124,7 @@ mxArray *mxInt64ByValue(si8 value) {
 	// transfer the value to the matlab (allocated memory)
 	data[0] = (mxInt64)value;
 	
-	// return the double variable
+	// return the matlab variable
 	return retArr;
 	
 }
