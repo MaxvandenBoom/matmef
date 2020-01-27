@@ -33,7 +33,7 @@
 mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end) {
 
 	// check if the password is empty, correct to NULL if it is
-	if (password != null && password[0] == '\0') {
+	if (password != NULL && password[0] == '\0') {
 		password = NULL;
 	}
 	
@@ -50,7 +50,7 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
 	}
 	
 	// check if the data is encrypted but no password is given
-	if ((channel->metadata.section_1->section_2_encryption != 0 || channel->metadata.section_1->section_2_encryption != 0) && password == NULL) {
+	if ((channel->metadata.section_1->section_2_encryption > 0 || channel->metadata.section_1->section_2_encryption > 0) && password == NULL) {
 		mexPrintf("Error: data is encrypted, but no password is given, exiting...\n"); 
 		return NULL;
 	}
