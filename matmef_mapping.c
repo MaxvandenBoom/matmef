@@ -3,7 +3,7 @@
  * 	MEF 3.0 Library Matlab Wrapper
  * 	Functions to map MEF3 objects and structures to Matlab structures
  *	
- *  Copyright 2020, Max van den Boom and Mayo Clinic (Rochester MN)
+ *  Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
  *  
  *	
@@ -623,8 +623,8 @@ mxArray *map_mef3_session(SESSION *session, si1 map_indices_flag) {
 mxArray *map_mef3_md1(METADATA_SECTION_1 *md1) {
 
     mxArray *mat_md = mxCreateStructMatrix(1, 1, METADATA_SECTION_1_NUMFIELDS, METADATA_SECTION_1_FIELDNAMES);
-	//mxSetField(mat_md, 0, "section_2_encryption", 		mxCreateString(md1->section_2_encryption));	// TODO: check with valid value
-	//mxSetField(mat_md, 0, "section_3_encryption", 		mxCreateString(md1->section_3_encryption));	// TODO: check with valid value
+	mxSetField(mat_md, 0, "section_2_encryption", 			mxInt8ByValue(md1->section_2_encryption));
+	mxSetField(mat_md, 0, "section_3_encryption", 			mxInt8ByValue(md1->section_3_encryption));
 
 	// return the struct
 	return mat_md;

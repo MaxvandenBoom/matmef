@@ -5,7 +5,7 @@
  * 	MEF 3.0 Library Matlab Wrapper
  * 	Functions to map MEF3 objects and structures to Matlab structures
  *	
- *  Copyright 2020, Max van den Boom and Mayo Clinic (Rochester MN)
+ *  Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
  *  
  *	
