@@ -3,7 +3,7 @@
  * 	MEF 3.0 Library Matlab Wrapper
  * 	Functions to load data from MEF3 datafiles
  *	
- *  Copyright 2020, Max van den Boom and Mayo Clinic (Rochester MN)
+ *  Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
  *  
  *	
@@ -32,16 +32,27 @@
  */
 mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end) {
 
+	// check if the password is empty, correct to NULL if it is
+	if (password != null && password[0] == '\0') {
+		password = NULL;
+	}
+	
 	// initialize MEF library
 	(void) initialize_meflib();
 
 	// read the channel metadata
 	CHANNEL *channel = read_MEF_channel(NULL, channel_path, TIME_SERIES_CHANNEL_TYPE, password, NULL, MEF_FALSE, MEF_FALSE);
-
+	
 	// check the number of segments
 	if (channel->number_of_segments == 0) {
 		mexPrintf("Error: no segments in channel, most likely due to an invalid channel folder, exiting...\n"); 
         return NULL;
+	}
+	
+	// check if the data is encrypted but no password is given
+	if ((channel->metadata.section_1->section_2_encryption != 0 || channel->metadata.section_1->section_2_encryption != 0) && password == NULL) {
+		mexPrintf("Error: data is encrypted, but no password is given, exiting...\n"); 
+		return NULL;
 	}
 	
 	// check if the channel is indeed of a time-series channel
@@ -93,10 +104,10 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	}
 	
 	// set the default ranges for the samples and time to all
-	si8 start_samp = 0;
-    si8 start_time = channel->earliest_start_time;
-    si8 end_samp = channel->metadata.time_series_section_2->number_of_samples;
-    si8 end_time = channel->latest_end_time;
+	ui8 start_samp = 0;
+    ui8 start_time = channel->earliest_start_time;
+    ui8 end_samp = channel->metadata.time_series_section_2->number_of_samples;
+    ui8 end_time = channel->latest_end_time;
 	
 	// update the ranges if available (> -1)
 	if (range_start > -1)	start_samp 	= start_time 	= range_start;
@@ -142,7 +153,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
     }
 	
     // determine the number of samples
-    ui4 num_samps = 0;
+    ui8 num_samps = 0;
     if (range_type == RANGE_BY_TIME)
         num_samps = (ui4)((((end_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) + 0.5);
     else
@@ -180,6 +191,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
     for (i = 0; i < n_segments; ++i) {
         
         if (range_type == RANGE_BY_TIME) {
+			
             si8 segment_start_time = channel->segments[i].time_series_data_fps->universal_header->start_time;
             si8 segment_end_time   = channel->segments[i].time_series_data_fps->universal_header->end_time;
             remove_recording_time_offset( &segment_start_time);
@@ -193,10 +205,30 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
                 end_segment = i;
 			
         } else {
+				
             si8 segment_start_sample = channel->segments[i].metadata_fps->metadata.time_series_section_2->start_sample;
             si8 segment_end_sample   = channel->segments[i].metadata_fps->metadata.time_series_section_2->start_sample +
-            channel->segments[i].metadata_fps->metadata.time_series_section_2->number_of_samples;
-            
+										channel->segments[i].metadata_fps->metadata.time_series_section_2->number_of_samples;
+			
+			// TODO: bug, needs to be checked by Dan
+			// check for end_sample overflow
+			if (segment_end_sample < 0) {
+				
+				// message
+				mexPrintf("Error: segment overflow...");
+				return NULL;
+				
+			}
+			
+			//mexPrintf("start_sample: %I64d\n", segment_start_sample);
+			//mexPrintf("number_of_samples: %I64d\n", channel->segments[0].metadata_fps->metadata.time_series_section_2->number_of_samples);	
+			//mexPrintf("segment_end_sample: %I64d\n", segment_end_sample);
+		
+
+
+			
+			
+			
             if ((start_samp >= segment_start_sample) && (start_samp <= segment_end_sample))
                 start_segment = i;
             if ((end_samp >= segment_start_sample) && (end_samp <= segment_end_sample))
@@ -205,12 +237,23 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
         }
 		
     }
-    
+
+	// TODO: check on segment start/end not being -1
+    mexPrintf("start_segment: %i\n", start_segment);
+	mexPrintf("end_segment: %i\n", end_segment);
+	if (start_segment == -1 || end_segment == -1) {
+
+		// message
+		mexPrintf("Error: unable to find the start segment (%i) or end segment (%i), existing...\n", start_segment, end_segment);
+		return NULL;
+		
+	}
+
     // find start block in start segment
     ui8 start_idx = 0;
 	ui8 end_idx = 0;
     for (j = 1; j < channel->segments[start_segment].metadata_fps->metadata.time_series_section_2->number_of_blocks; j++) {
-        
+		
         si8 block_start_time = channel->segments[start_segment].time_series_indices_fps->time_series_indices[j].start_time;
         remove_recording_time_offset( &block_start_time);
         
