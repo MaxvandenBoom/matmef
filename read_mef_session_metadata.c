@@ -23,7 +23,7 @@
  * Main entry point for 'read_mef_session_metadata'
  *
  * @param sessionPath	Path (absolute or relative) to the MEF3 session folder
- * @param password		Password to the MEF3 data; Empty string if no password should be used
+ * @param password		Password to the MEF3 data; Pass empty string/variable if not encrypted
  * @param mapIndices	Flag whether indices should be mapped [0 or 1; default is 0]
  * @return				Structure containing session metadata, channels metadata, segments metadata and records
  */
@@ -60,19 +60,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
 	// check if a password input argument is given
     if (nrhs > 1) {
-		
+
+		// note: if the password passed to any of the meflib read function is an empty string, than 
+		//		 the 'process_password_data' function in 'meflib.c' will crash everything, so make
+		// 		 sure it is either NULL or a string
+
 		// check if the password input argument is not empty
 		if (!mxIsEmpty(prhs[1])) {
 				
 			// check the password input argument data type
 			if (!mxIsChar(prhs[1])) {
 				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
-			}
-
-			// note: if the password passed to any of the meflib read function is an empty string, than 
-			//		 the 'process_password_data' function in 'meflib.c' will crash everything, so make
-			// 		 sure it is either NULL or a string
-			
+			}			
 			
 			// TODO: really need a MEF3 dataset (which cannot be read without a password) to check
 			//char *mat_password = mxArrayToUTF8String(prhs[1]);

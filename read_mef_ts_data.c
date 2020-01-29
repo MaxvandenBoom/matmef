@@ -23,7 +23,7 @@
  * Main entry point for 'read_mef_ts_data'
  *
  * @param channelPath	path (absolute or relative) to the MEF3 channel folder
- * @param password		Password to the MEF3 data; pass an empty string if no password should be used
+ * @param password		Password to the MEF3 data; Pass empty string/variable if not encrypted
  * @param rangeType		Modality that is used to define the data-range to read [either 'time' or 'samples']
  * @param rangeStart	Start-point for the reading of data (either as a timepoint or samplenumber; -1 for first)
  * @param rangeEnd		End-point to stop the of reading data (either as a timepoint or samplenumber; -1 for last)
@@ -65,17 +65,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// check if a password input argument is given
     if (nrhs > 1) {
 		
-		// check the password input argument
-		if (!mxIsChar(prhs[1])) {
-			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
-		}
-
 		// note: if the password passed to any of the meflib read function is an empty string, than 
 		//		 the 'process_password_data' function in 'meflib.c' will crash everything, so make
 		// 		 sure it is either NULL or a string with at least one character
 		
 		// check if the password input argument is not empty
 		if (!mxIsEmpty(prhs[1])) {
+		
+			// check the password input argument
+			if (!mxIsChar(prhs[1])) {
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
+			}
 			
 			// TODO: really need a MEF3 dataset (which cannot be read without a password) to check
 			// set the password

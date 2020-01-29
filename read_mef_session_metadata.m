@@ -4,7 +4,7 @@
 %   [metadata] = read_mef_session_metadata(fileName, password)
 %	
 %   sessionPath     = path (absolute or relative) to the MEF3 session folder
-%   password        = password to the MEF3 data; pass an empty string if no password should be used
+%   password        = password to the MEF3 data; Pass empty string/variable if not encrypted
 %   mapIndices      = flag whether indices should be mapped [0 or 1; default is 0]
 %
 %   Returns: 
