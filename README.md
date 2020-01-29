@@ -20,5 +20,5 @@ Several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.
    - mex read_mef_ts_data.c matmef_data.c meflib/meflib/meflib.c meflib/meflib/mefrec.c
 
 ## Examples
-- session = read_mef_session_metadata('./mefSessionData/', '', 1);
-- data = read_mef_ts_data('./mefSessionData/channelPath/', 'samples', 0, 1000);
+- session = read_mef_session_metadata('./mefSessionData/', [], 1);
+- data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'samples', 0, 1000);
