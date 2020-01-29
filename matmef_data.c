@@ -90,7 +90,6 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	ui8		num_blocks;
 	ui8		num_block_in_segment;
 	
-	
 	// check if the channel is indeed of a time-series channel
 	if (channel->channel_type != TIME_SERIES_CHANNEL_TYPE) {
 		mexPrintf("Error: not a time series channel, exiting...\n"); 

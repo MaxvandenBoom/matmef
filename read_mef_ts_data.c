@@ -113,6 +113,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		if (strcmp(mat_range_type, "time") == 0)
 			range_type = RANGE_BY_TIME;
 		
+		
 		// check if a range-start input argument is given
 		if (nrhs > 3) {
 			
@@ -144,7 +145,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// 
 	// read the data
 	// 
-	mxArray *data = read_channel_data_from_path(channel_path, password, RANGE_BY_SAMPLES, range_start, range_end);
+	mxArray *data = read_channel_data_from_path(channel_path, password, range_type, range_start, range_end);
 	
 	// check for error
 	if (data == NULL)	mexErrMsgTxt("Error while reading channel data");
