@@ -238,9 +238,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 		
     }
 
-	// TODO: check on segment start/end not being -1
-    mexPrintf("start_segment: %i\n", start_segment);
-	mexPrintf("end_segment: %i\n", end_segment);
+	// check if both the start- and endsegment were found
 	if (start_segment == -1 || end_segment == -1) {
 
 		// message
