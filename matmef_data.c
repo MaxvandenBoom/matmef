@@ -49,9 +49,12 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
         return NULL;
 	}
 	
-	// check if the data is encrypted but no password is given
-	if ((channel->metadata.section_1->section_2_encryption > 0 || channel->metadata.section_1->section_2_encryption > 0) && password == NULL) {
-		mexPrintf("Error: data is encrypted, but no password is given, exiting...\n"); 
+	// check if the data is encrypted and/or the correctness of password
+	if (channel->metadata.section_1->section_2_encryption > 0 || channel->metadata.section_1->section_2_encryption > 0) {
+		if (password == NULL)
+			mexPrintf("Error: data is encrypted, but no password is given, exiting...\n"); 
+		else
+			mexPrintf("Error: wrong password for encrypted data, exiting...\n"); 
 		return NULL;
 	}
 	
