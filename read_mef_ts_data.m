@@ -14,6 +14,11 @@
 %   Returns: 
 %       data        = A vector of doubles holding the channel data
 %
+%   Note:  When the rangeType is set to 'samples', the function simply returns the samples as they are
+%          found (consecutively) in the datafile, without any regard for time or data gaps; Meaning 
+%          that, if there is a time-gap between samples, then these will not appear in the result returned.
+%          In contrast, the 'time' rangeType will return the data with NaN values in place for the missing samples.
+%
 %
 %   Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
 %   Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
