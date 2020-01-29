@@ -212,25 +212,6 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
             si8 segment_end_sample   = channel->segments[i].metadata_fps->metadata.time_series_section_2->start_sample +
 										channel->segments[i].metadata_fps->metadata.time_series_section_2->number_of_samples;
 			
-			// TODO: bug, needs to be checked by Dan
-			// check for end_sample overflow
-			if (segment_end_sample < 0) {
-				
-				// message
-				mexPrintf("Error: segment overflow...");
-				return NULL;
-				
-			}
-			
-			//mexPrintf("start_sample: %I64d\n", segment_start_sample);
-			//mexPrintf("number_of_samples: %I64d\n", channel->segments[0].metadata_fps->metadata.time_series_section_2->number_of_samples);	
-			//mexPrintf("segment_end_sample: %I64d\n", segment_end_sample);
-		
-
-
-			
-			
-			
             if ((start_samp >= segment_start_sample) && (start_samp <= segment_end_sample))
                 start_segment = i;
             if ((end_samp >= segment_start_sample) && (end_samp <= segment_end_sample))
