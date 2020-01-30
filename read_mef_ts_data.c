@@ -119,12 +119,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			
 			// check if single numeric
 			if (!mxIsNumeric(prhs[3]) || mxGetNumberOfElements(prhs[3]) > 1) {
-				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeStartArg", "range-start input argument invalid, should be a single value numeric");
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeStartArg", "range-start input argument invalid, should be a single value numeric (either -1 or >=0)");
 			}
 			
 			// set the range-start value
 			range_start = mxGetScalar(prhs[3]);
-
+            
+            // check if -1 or positive value
+            if (range_start != -1 && range_start < 0) {
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeStartArg", "range-start input argument invalid, should be a single value numeric (either -1 or >=0)");
+			}
+            
 		}
 		
 		// check if a range-end input argument is given
@@ -132,12 +137,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			
 			// check if single numeric
 			if (!mxIsNumeric(prhs[4]) || mxGetNumberOfElements(prhs[4]) > 1) {
-				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeEndArg", "range-end input argument invalid, should be a single value numeric");
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeEndArg", "range-end input argument invalid, should be a single value numeric (either -1 or >=0)");
 			}
 			
 			// set the range-end value
 			range_end = mxGetScalar(prhs[4]);
-
+            
+            // check if -1 or positive value
+            if (range_end != -1 && range_end < 0) {
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeEndArg", "range-end input argument invalid, should be a single value numeric (either -1 or >=0)");
+			}
+            
 		}
 		
 	}
