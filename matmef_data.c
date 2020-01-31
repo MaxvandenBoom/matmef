@@ -89,7 +89,7 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
  * 	@return					Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
  */
 mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 range_start, si8 range_end) {
-	ui4     i, j;
+	ui8     i, j;
 	ui8		num_blocks;
 	ui8		num_block_in_segment;
 	
@@ -337,7 +337,6 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 		
 	}
 	
-	
     // allocate a buffer for the compressed data
     ui1 *compressed_data_buffer = (ui1*) malloc((size_t) total_data_bytes);
 	if (compressed_data_buffer == NULL) {
@@ -495,6 +494,12 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	// decode the first block
 	// 
     si4 *temp_data_buf = (int *) malloc((max_samps * 1.1) * sizeof(si4));
+    if (temp_data_buf == NULL) {
+        free (compressed_data_buffer);
+        free (decomp_data);
+        mexPrintf("Error: could not allocated enough memory for the block buffer, exiting....\n");
+        return NULL;
+    }
     rps->decompressed_ptr = rps->decompressed_data = temp_data_buf;
     rps->compressed_data = cdp;
     rps->block_header = (RED_BLOCK_HEADER *) rps->compressed_data;
@@ -664,34 +669,33 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
         }
 		
     }
-
     
-    // allocate matlab double array
 	// 
-    // Integers represent the "real" data but cannot use NaNs. this way can put data directly into
-	// matlab array when decompressing - cannot do this with floats - have to be copied
-	// TODO: check
-	//
-	// using doubles so we can use NaN values for discontinuities
+    // Decompressed data are integers (si4) and represent the "real" data; Integers technically do not have a NaN value as it exists for float datatypes.
+    // Internally a si4 emulated NaN value ('RED_NAN') is used, however this value is not standard for Matlab (or Python)
+    //
+    // When range is indicated in time, then gaps/discontinuities in the data need to be filled with NaNs. Therefore, we return
+    // the data as doubles. Integer to float cannot by byte-copied, therefore it needs to be cast per element, which is slow.
+    //
+    // TODO: could be speed up by directly casting or copying the values in the above loops to the matlab array; or
+    //       when the range is indicated in samples, no nans exist, so we could allocate a matlab int array at the
+    //       start and read data directly into that (above loops)
+    //
+    
+	// allocate matlab double array
+    // using doubles so we can use NaN values for discontinuities (when range is indicated in time)
 	mxArray *mat_array = mxCreateDoubleMatrix(1, num_samps, mxREAL);
-	//mxArray *mat_array_out = mxCreateNumericMatrix(1, num_samps, mxINT32_CLASS, mxREAL);	// Integers for now but might have to convert to floats
 	mxDouble *ptr_mat_array = mxGetPr(mat_array);
-	
-	
-	
-	// Matlab double type specific - no need to do this if we use (matlab) integer array and
-    // put the data directly into it
-	
-    // copy requested samples from last block to output buffer
+    
+    // copy/cast the data to the matlab array
 	mxDouble mxNaN = mxGetNaN();
-    for (i=0;i < num_samps;i++) {
+    for (i = 0; i < num_samps; i++) {
         if (*(decomp_data + i) == RED_NAN)
 			*(ptr_mat_array + i) = mxNaN;
         else
             *(ptr_mat_array + i) = (sf8) *(decomp_data + i);
-    }	
-	
-		
+    }
+    
     // free the memory holding the compressed data
     free (decomp_data);
     free (temp_data_buf);
@@ -765,21 +769,9 @@ void memset_int(si4 *ptr, si4 value, size_t num) {
     if (num < 1)
         return;
     
-	// new routine
-	// 
-	// not performing memcpy per element aymore, since it was not beneficial anyway when using a set datatype (si4)
-	// compiler will optimize further
 	si4 *limit = ptr + num;
     for (temp_ptr = ptr; temp_ptr < limit; ++temp_ptr)
 		*temp_ptr = value;
-	
-	// old routine from PyMef
-	//int i;
-    //temp_ptr = ptr;
-    //for (i = 0; i < num; ++i) {
-        //memcpy(temp_ptr, &value, sizeof(si4));
-        //temp_ptr++;
-    //}
 	
 }
 
