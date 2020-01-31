@@ -133,6 +133,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
             mexPrintf("Error: start and stop times are out of file.\n");
             return NULL;
         }
+		
         if (end_time > channel->latest_end_time)			mexPrintf("Warning: stop uutc later than latest end time. Will insert NaNs\n");
         if (start_time < channel->earliest_start_time)		mexPrintf("Warning: start uutc earlier than earliest start time. Will insert NaNs\n");
 		
@@ -261,7 +262,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
     }
     
     // find total_samps and total_data_bytes, so we can allocate buffers
-    si8 total_samps = 0;
+    ui8 total_samps = 0;
     ui8 total_data_bytes = 0;
     
     // check if the data is in one segment or multiple
@@ -336,11 +337,25 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 		
 	}
 	
-    // allocate buffers
+	
+    // allocate a buffer for the compressed data
     ui1 *compressed_data_buffer = (ui1*) malloc((size_t) total_data_bytes);
+	if (compressed_data_buffer == NULL) {
+		mexPrintf("Error: could not allocated enough memory for the compressed data, exiting....\n");
+		return NULL;
+	}
     ui1 *cdp = compressed_data_buffer;
+	
+	// allocate the samples buffer
     si4 *decomp_data = (si4*) malloc((size_t) (num_samps * sizeof(si4)));
-    memset_int(decomp_data, RED_NAN, num_samps);	
+	if (decomp_data == NULL) {
+		free (compressed_data_buffer);
+		mexPrintf("Error: could not allocated enough memory for the sample buffer, exiting....\n");
+		return NULL;
+	}
+	
+	// initialize the entire sample buffer to nan
+	memset_int(decomp_data, RED_NAN, num_samps);
 	
     // read in RED data
     if (start_segment == end_segment) {
@@ -746,16 +761,26 @@ done:
 
 void memset_int(si4 *ptr, si4 value, size_t num) {
     si4 *temp_ptr;
-    int i;
     
     if (num < 1)
         return;
     
-    temp_ptr = ptr;
-    for (i=0;i<num;i++) {
-        memcpy(temp_ptr, &value, sizeof(si4));
-        temp_ptr++;
-    }
+	// new routine
+	// 
+	// not performing memcpy per element aymore, since it was not beneficial anyway when using a set datatype (si4)
+	// compiler will optimize further
+	si4 *limit = ptr + num;
+    for (temp_ptr = ptr; temp_ptr < limit; ++temp_ptr)
+		*temp_ptr = value;
+	
+	// old routine from PyMef
+	//int i;
+    //temp_ptr = ptr;
+    //for (i = 0; i < num; ++i) {
+        //memcpy(temp_ptr, &value, sizeof(si4));
+        //temp_ptr++;
+    //}
+	
 }
 
 si4 check_block_crc(ui1 *block_hdr_ptr, ui4 max_samps, ui1 *total_data_ptr, ui8 total_data_bytes) {
