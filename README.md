@@ -21,7 +21,7 @@ Several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.
 
 ## Matlab usage examples
 %  
-% High-level functions:  
+% High-level 
 %  
 
 % metadata only  
@@ -38,7 +38,7 @@ Several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.
   
   
 %  
-% Low-level functions  
+% Low-level
 %  
   
 session = read_mef_session_metadata('./mefSessionData/', [], 1);  
