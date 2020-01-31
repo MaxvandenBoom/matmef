@@ -19,8 +19,25 @@ Several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.
    - mex read_mef_session_metadata.c meflib/meflib/meflib.c meflib/meflib/mefrec.c matmef_mapping.c mex_datahelper.c
    - mex read_mef_ts_data.c matmef_data.c meflib/meflib/meflib.c meflib/meflib/mefrec.c
 
-## Examples
-- session = read_mef_session_metadata('./mefSessionData/', [], 1);
-- data = read_mef_ts_data('./mefSessionData/channelPath/');
-- data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'samples', 0, 1000);
-- data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'time', 1578715810000000, 1578715832000000);
+## Matlab usage examples
+  
+Higher-level functions:  
+  
+% metadata only  
+[metadata] = readMef3('./mefSessionData/');  
+
+% two channels  
+[metadata, signaldata] = readMef3('./mefSessionData/', [], {'Ch02', 'Ch07'});  
+
+% all channel, samples 0-1000  
+[metadata, signaldata] = readMef3('./mefSessionData/', [], [], 'samples', 0, 1000);  
+
+% two channels, samples 0-1000  
+[metadata, signaldata] = readMef3('./mefSessionData/', [], {'Ch02', 'Ch07'}, 'samples', 0, 1000);  
+  
+   
+Low-level functions:  
+session = read_mef_session_metadata('./mefSessionData/', [], 1);  
+data = read_mef_ts_data('./mefSessionData/channelPath/');  
+data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'samples', 0, 1000);  
+data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'time', 1578715810000000, 1578715832000000);  
