@@ -4,7 +4,7 @@ Matlab wrapper for MEF 3.0 library
 ## Introduction
 Several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.0 data
 
-- Written by Max van den Boom
+- Written by Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
 - Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
 
 ## Using pre-compiled mex files
