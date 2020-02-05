@@ -15,7 +15,7 @@
 %                     to end at the last sample of the timeseries
 %
 %   Returns:
-%       metadata    = A structing that contains all session/channel/segment metadata
+%       metadata    = A structing that contains all session/channel/segment metadata. Will return empty on failure to read
 %       data        = A matrix of doubles containing the requested channel(s) signal data. The first
 %                     dimension (rows) represents the samples, the second dimension (columns) represents
 %                     the channels (in the order of occurance in the 'channels' input argument or metadata)
@@ -65,6 +65,7 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
     try
         metadata = read_mef_session_metadata(sessPath, password);
     catch e
+        metadata = [];
         fprintf(2, [e.message, '\nUnable to read MEF3 metadata\n']);
         return;
     end
@@ -77,6 +78,7 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         ~isfield(metadata, 'latest_end_time') || metadata.latest_end_time < 0
         
         fprintf(2, ['Error: no MEF3 (meta)data found in directory ''', sessPath, '''\n']);
+        metadata = [];
         return;
         
     end
