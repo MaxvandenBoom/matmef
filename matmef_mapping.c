@@ -15,10 +15,9 @@
  */
 #include "matmef_mapping.h"
 #include "mex.h"
-#include "meflib/meflib/meflib.h"
 #include "mex_datahelper.h"
 
-
+#include "meflib/meflib/meflib.h"
 
 ///
 // Fields definitions for MEF3 matlab structs

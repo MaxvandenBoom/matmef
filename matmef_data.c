@@ -15,7 +15,9 @@
  */
 #include "matmef_data.h"
 #include "mex.h"
-#include "meflib/meflib/meflib.h"
+
+#include "meflib/meflib/meflib.c"
+#include "meflib/meflib/mefrec.c"
 
 
 /**
@@ -39,8 +41,9 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
 	
 	// initialize MEF library
 	(void) initialize_meflib();
-
+	
 	// read the channel metadata
+	MEF_globals->behavior_on_fail = SUPPRESS_ERROR_OUTPUT;
 	CHANNEL *channel = read_MEF_channel(NULL, channel_path, TIME_SERIES_CHANNEL_TYPE, password, NULL, MEF_FALSE, MEF_FALSE);
 	
 	// check the number of segments

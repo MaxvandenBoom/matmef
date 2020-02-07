@@ -14,9 +14,10 @@
  *  You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "mex.h"
-#include "meflib/meflib/meflib.h"
 #include "matmef_mapping.h"
 
+#include "meflib/meflib/meflib.c"
+#include "meflib/meflib/mefrec.c"
 
 
 /**
@@ -125,6 +126,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	initialize_meflib();
 
 	// read the session metadata
+	MEF_globals->behavior_on_fail = SUPPRESS_ERROR_OUTPUT;
 	SESSION *session = read_MEF_session(	NULL, 					// allocate new session object
 											session_path, 			// session filepath
 											password, 				// password
@@ -132,8 +134,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 											MEF_FALSE, 				// do not read time series data
 											MEF_TRUE				// read record data
 										);
-	
-	
+	MEF_globals->behavior_on_fail = EXIT_ON_FAIL;
 	
 	// check for error
 	if (session == NULL)	mexErrMsgTxt("Error while reading session metadata");
