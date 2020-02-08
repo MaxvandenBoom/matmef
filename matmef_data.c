@@ -28,8 +28,8 @@
  * 	@param channel_path		The channel filepath
  * 	@param password			Password for the MEF3 datafiles (no password = NULL or empty string)
  *	@param range_type		Modality that is used to define the data-range to read [either 'time' or 'samples']
- *	@param range_start		Start-point for the reading of data (either as a timepoint or samplenumber; -1 for first)
- *	@param range_end		End-point to stop the of reading data (either as a timepoint or samplenumber; -1 for last)
+ *	@param range_start		Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
+ *	@param range_end		End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
  * 	@return					Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
  */
 mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end) {
@@ -87,8 +87,8 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
  *
  * 	@param channel			Pointer to the MEF channel object
  *	@param range_type		Modality that is used to define the data-range to read [either 'time' or 'samples']
- *	@param range_start		Start-point for the reading of data (either as a timepoint or samplenumber; -1 for first)
- *	@param range_end		End-point to stop the of reading data (either as a timepoint or samplenumber; -1 for last)	
+ *	@param range_start		Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
+ *	@param range_end		End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)	
  * 	@return					Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
  */
 mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 range_start, si8 range_end) {

@@ -9,10 +9,10 @@
 %                     order here will determine the order of channels in the output matrix. If left empty, all
 %                     channels will be read abd returned in the order in which they occur in the metadata
 %   rangeType       = (optional) modality that is used to define the data-range to read [either 'time' or 'samples']
-%   rangeStart      = (optional) start-point for the reading of data (either as a timepoint or samplenumber), pass -1
-%                     to start at the first sample of the timeseries
-%   rangeEnd        = (optional) end-point to stop the of reading data (either as a timepoint or samplenumber), pass -1
-%                     to end at the last sample of the timeseries
+%   rangeStart      = (optional) start-point for the reading of data (either as an epoch/unix timestamp or samplenumber)
+% 					  pass -1 to start at the first sample of the timeseries
+%   rangeEnd        = (optional) end-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber)
+%					  pass -1 to end at the last sample of the timeseries
 %
 %   Returns:
 %       metadata    = A structing that contains all session/channel/segment metadata. Will return empty on failure to read
