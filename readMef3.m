@@ -5,9 +5,9 @@
 %	
 %   sessPath        = path (absolute or relative) to the MEF3 session folder
 %   password        = password to the MEF3 data; Pass empty string/variable if not encrypted
-%   channels        = a cell array with the names of the channels to return the signal data from. The input
-%                     order here will determine the order of channels in the output matrix. If left empty, all
-%                     channels will be read abd returned in the order in which they occur in the metadata
+%   channels        = a cell array with the names of the channels to return the signal data from. The order of channels
+%                     in this input argument will determine the order of channels in the output matrix. If left empty, all
+%                     channels will be read and ordered using the 'acquisition_channel_number' metadata variable of each channel
 %   rangeType       = (optional) modality that is used to define the data-range to read [either 'time' or 'samples']
 %   rangeStart      = (optional) start-point for the reading of data (either as an epoch/unix timestamp or samplenumber)
 % 					  pass -1 to start at the first sample of the timeseries
@@ -16,11 +16,9 @@
 %
 %   Returns:
 %       metadata    = A structing that contains all session/channel/segment metadata. Will return empty on failure to read
-%       data        = A matrix of doubles containing the requested channel(s) signal data. The first
-%                     dimension (rows) represents the samples, the second dimension (columns) represents
-%                     the channels (in the order of occurance in the 'channels' input argument or metadata)
-%
-%
+%       data        = A matrix of doubles containing the requested channel(s) signal data. The first dimension (rows) represents
+%                     the channels (ordered based on the 'channels' input argument); the second dimension (columns) represents the samples
+% 
 %
 %   Examples:
 %
@@ -136,8 +134,9 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
             end
             
             % check if it starts at one
-            if acqChNum(1)~= 0
-                
+            if min(acqChNum) ~= 1
+                warning('on'); warning('backtrace', 'off');
+                warning('Channels are sorted, but ');
             end
             
             % check if not consecutive
@@ -175,8 +174,8 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         end
         
         % make sure all requested channels exist
-        % note: if one or more channels are not found will return an error. Channel selection can be sensitive;
-        %       This way prevents unexpected consequences that could arise when instead returning less or empty channels
+        % note: if one or more channels are not found will return an error. Channel selection can be sensitive, this
+        %       approach prevents unexpected consequences that could arise when - instead - returning less or empty channels
         channelsFound = ismember(lower(channels), lower({metadata.time_series_channels.name}));
         if sum(channelsFound) < length(channels)
             for i = 1:length(channels)
@@ -208,6 +207,13 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
                 end
 
             end
+            
+            % transpose the matrix
+            % 
+            % Transposing can be an unnecessary performance hit for large datasets, however BIDS
+            % and some other packages (e.g. fieldtrip) expect a <channels>x<samples> format
+            % 
+            data = data';
             
         catch e
             
