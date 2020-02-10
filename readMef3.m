@@ -53,11 +53,11 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
     
     % make sure the session directory is valid and exists
     if ~exist('sessPath', 'var') || isempty(sessPath) || ~ischar(sessPath)
-        fprintf(2, ['Error: missing or invalid session directory ''', sessPath, '''\n']);
+        fprintf(2, 'Error: missing or invalid session directory ''%s''\n', sessPath);
         return;
     end
     if ~exist(sessPath, 'dir')
-        fprintf(2, ['Error: session directory ''', sessPath, ''' could not be found\n']);
+        fprintf(2, 'Error: session directory ''%s'' could not be found\n', sessPath);
         return;
     end
     
@@ -66,7 +66,7 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         metadata = read_mef_session_metadata(sessPath, password);
     catch e
         metadata = [];
-        fprintf(2, [e.message, '\nUnable to read MEF3 metadata\n']);
+        fprintf(2, '%s\nUnable to read MEF3 metadata\n', e.message);
         return;
     end
     
@@ -77,7 +77,7 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         ~isfield(metadata, 'earliest_start_time') || metadata.earliest_start_time < 0 || ...
         ~isfield(metadata, 'latest_end_time') || metadata.latest_end_time < 0
         
-        fprintf(2, ['Error: no MEF3 (meta)data found in directory ''', sessPath, '''\n']);
+        fprintf(2, 'Error: no MEF3 (meta)data found in directory ''%s''\n', sessPath);
         metadata = [];
         return;
         
@@ -121,11 +121,42 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         % make sure the channels argument has a value
         if ~exist('channels', 'var') || isempty(channels),  channels = {};  end
             
-        % if no channels requested, then request all
+        % if specific channels requested
         if isempty(channels)
+            
+            % 
+            % see if we can order the channels using the channel metadata
+            % using channel->metadata->section_2->acquisition_channel_number
+            % 
+            
+            % list the acquisition channel numbers
+            acqChNum = [];
+            for i = 1:metadata.number_of_time_series_channels
+                acqChNum(i) = metadata.time_series_channels(i).metadata.section_2.acquisition_channel_number;
+            end
+            
+            % check if it starts at one
+            if acqChNum(1)~= 0
+                
+            end
+            
+            % check if not consecutive
+            
+            
+            % sort the channels 
+            [ordAcqChNum, prevIndex] = sort(acqChNum);
+            
+            % re-order the channels in the metadata
+            for i = 1:length(ordAcqChNum)
+                tmpStruct(i) = metadata.time_series_channels(prevIndex(i));
+            end
+            metadata.time_series_channels = tmpStruct;
+            
+            % include all the channels
             for i = 1:metadata.number_of_time_series_channels
                 channels{end + 1} = metadata.time_series_channels(i).name;
             end
+            
         end
         
         % allow the request of a single channel as a string argument
@@ -133,12 +164,12 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         
         % check the channels input argument
         if ~iscell(channels)
-            fprintf(2, ['Error: invalid input argument for ''channels'', should be a cell array containing channel names as string (e.g. {''ch1'', ''ch2'', ''ch3''})\n']);
+            fprintf(2, 'Error: invalid input argument for ''channels'', should be a cell array containing channel names as string (e.g. {''ch1'', ''ch2'', ''ch3''})\n');
             return;
         end
         for i = 1:length(channels)
             if ~ischar(channels{i})
-                fprintf(2, ['Error: invalid input argument for ''channels'', should be a cell array containing channel names as string (e.g. {''ch1'', ''ch2'', ''ch3''})\n']);
+                fprintf(2, 'Error: invalid input argument for ''channels'', should be a cell array containing channel names as string (e.g. {''ch1'', ''ch2'', ''ch3''})\n');
                 return;
             end 
         end
@@ -150,7 +181,7 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         if sum(channelsFound) < length(channels)
             for i = 1:length(channels)
                 if channelsFound(i) == 0
-                    fprintf(2, ['Error: requested channel ''', channels{i}, ''' was not found\n']);
+                    fprintf(2, 'Error: requested channel ''%s'' was not found\n', channels{i});
                 end
             end
             return;
@@ -181,7 +212,7 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         catch e
             
             % error message
-            fprintf(2, [e.message, '\nUnable to read MEF3 channel data\n']);
+            fprintf(2, '%s\nUnable to read MEF3 channel data\n', e.message);
             return;
             
         end
