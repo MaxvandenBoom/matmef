@@ -133,17 +133,20 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
                 acqChNum(i) = metadata.time_series_channels(i).metadata.section_2.acquisition_channel_number;
             end
             
+            % sort the channels
+            [ordAcqChNum, prevIndex] = sort(acqChNum);
+            
             % check if it starts at one
             if min(acqChNum) ~= 1
                 warning('on'); warning('backtrace', 'off');
-                warning('Channels are sorted, but ');
+                warning('The acquisition channel count does not start at 1, check the (metadata) output to see if ordered correctly');
             end
             
             % check if not consecutive
-            
-            
-            % sort the channels 
-            [ordAcqChNum, prevIndex] = sort(acqChNum);
+            if ~isempty(setdiff(min(acqChNum):max(acqChNum), acqChNum))
+                warning('on'); warning('backtrace', 'off');
+                warning('The acquisition channel count is not consecutive, check the (metadata) output to see if ordered correctly');
+            end
             
             % re-order the channels in the metadata
             for i = 1:length(ordAcqChNum)
