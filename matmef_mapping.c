@@ -720,8 +720,7 @@ mxArray *map_mef3_ti(TIME_SERIES_INDEX *ti, si8 number_of_entries) {
 		mxSetField(mat_ti, i, "block_bytes", 				mxUInt32ByValue(cur_ti->block_bytes));
 		mxSetField(mat_ti, i, "maximum_sample_value", 		mxInt32ByValue(cur_ti->maximum_sample_value));
 		mxSetField(mat_ti, i, "minimum_sample_value", 		mxInt32ByValue(cur_ti->minimum_sample_value));
-		//mxSetField(mat_ti, i, "RED_block_flags", 			mxUInt8ByValue(cur_ti->RED_block_flags));	// TODO: check with value
-
+        mxSetField(mat_ti, i, "RED_block_flags", 			mxUInt8ByValue(cur_ti->RED_block_flags));
 	}	
 	
 	// return the struct
