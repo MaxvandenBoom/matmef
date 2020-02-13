@@ -109,10 +109,10 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	}
 	
 	// set the default ranges for the samples and time to all
-	ui8 start_samp = 0;
-    ui8 start_time = channel->earliest_start_time;
-    ui8 end_samp = channel->metadata.time_series_section_2->number_of_samples;
-    ui8 end_time = channel->latest_end_time;
+	si8 start_samp = 0;
+    si8 start_time = channel->earliest_start_time;
+    si8 end_samp = channel->metadata.time_series_section_2->number_of_samples;
+    si8 end_time = channel->latest_end_time;
 	
 	// update the ranges if available (> -1)
 	if (range_start > -1)	start_samp 	= start_time 	= range_start;
@@ -265,7 +265,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
     }
     
     // find total_samps and total_data_bytes, so we can allocate buffers
-    ui8 total_samps = 0;
+    si8 total_samps = 0;
     ui8 total_data_bytes = 0;
     
     // check if the data is in one segment or multiple
