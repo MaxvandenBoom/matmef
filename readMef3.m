@@ -7,7 +7,8 @@
 %   password        = password to the MEF3 data; Pass empty string/variable if not encrypted
 %   channels        = a cell array with the names of the channels to return the signal data from. The order of channels
 %                     in this input argument will determine the order of channels in the output matrix. If left empty, all
-%                     channels will be read and ordered using the 'acquisition_channel_number' metadata variable of each channel
+%                     channels will be read and ordered as in the metadata.time_series_channels (ordered according to 
+%                     the 'acquisition_channel_number' metadata variable of each channel)
 %   rangeType       = (optional) modality that is used to define the data-range to read [either 'time' or 'samples']
 %   rangeStart      = (optional) start-point for the reading of data (either as an epoch/unix timestamp or samplenumber)
 % 					  pass -1 to start at the first sample of the timeseries
@@ -46,8 +47,9 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
     metadata = [];    
     data = [];
     
-    % make sure the password argument has a value
+    % set defaults
     if ~exist('password', 'var') || isempty(password),  password = [];   end
+    if ~exist('channels', 'var') || isempty(channels),  channels = {};  end
     
     % make sure the session directory is valid and exists
     if ~exist('sessPath', 'var') || isempty(sessPath) || ~ischar(sessPath)
@@ -58,7 +60,7 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         fprintf(2, 'Error: session directory ''%s'' could not be found\n', sessPath);
         return;
     end
-    
+
     % read all the metadata in the session (including channels and segments)
     try
         metadata = read_mef_session_metadata(sessPath, password);
@@ -116,49 +118,53 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
             return;
         end
         
-        % make sure the channels argument has a value
-        if ~exist('channels', 'var') || isempty(channels),  channels = {};  end
-            
-        % if specific channels requested
+    end
+
+    
+    % 
+    % sort the channels in the metadat (using channel->metadata->section_2->acquisition_channel_number)
+    % 
+
+    % list the acquisition channel numbers
+    acqChNum = [];
+    for i = 1:metadata.number_of_time_series_channels
+        acqChNum(i) = metadata.time_series_channels(i).metadata.section_2.acquisition_channel_number;
+    end
+
+    % sort the channels
+    [ordAcqChNum, prevIndex] = sort(acqChNum);
+
+    % check if it starts at one
+    if min(acqChNum) ~= 1
+        warning('on'); warning('backtrace', 'off');
+        warning('The acquisition channel count does not start at 1, check the (metadata) output to see if ordered correctly');
+    end
+
+    % check if not consecutive
+    if ~isempty(setdiff(min(acqChNum):max(acqChNum), acqChNum))
+        warning('on'); warning('backtrace', 'off');
+        warning('The acquisition channel count is not consecutive, check the (metadata) output to see if ordered correctly');
+    end
+
+    % re-order the channels in the metadata
+    for i = 1:length(ordAcqChNum)
+        tmpStruct(i) = metadata.time_series_channels(prevIndex(i));
+    end
+    metadata.time_series_channels = tmpStruct;
+
+    
+    %
+    % load signal data
+    %
+    
+    % check if signal data should be returned
+    if nargout > 1
+        
+        % include all channel if no specific channels were given
         if isempty(channels)
-            
-            % 
-            % see if we can order the channels using the channel metadata
-            % using channel->metadata->section_2->acquisition_channel_number
-            % 
-            
-            % list the acquisition channel numbers
-            acqChNum = [];
-            for i = 1:metadata.number_of_time_series_channels
-                acqChNum(i) = metadata.time_series_channels(i).metadata.section_2.acquisition_channel_number;
-            end
-            
-            % sort the channels
-            [ordAcqChNum, prevIndex] = sort(acqChNum);
-            
-            % check if it starts at one
-            if min(acqChNum) ~= 1
-                warning('on'); warning('backtrace', 'off');
-                warning('The acquisition channel count does not start at 1, check the (metadata) output to see if ordered correctly');
-            end
-            
-            % check if not consecutive
-            if ~isempty(setdiff(min(acqChNum):max(acqChNum), acqChNum))
-                warning('on'); warning('backtrace', 'off');
-                warning('The acquisition channel count is not consecutive, check the (metadata) output to see if ordered correctly');
-            end
-            
-            % re-order the channels in the metadata
-            for i = 1:length(ordAcqChNum)
-                tmpStruct(i) = metadata.time_series_channels(prevIndex(i));
-            end
-            metadata.time_series_channels = tmpStruct;
-            
-            % include all the channels
             for i = 1:metadata.number_of_time_series_channels
                 channels{end + 1} = metadata.time_series_channels(i).name;
             end
-            
         end
         
         % allow the request of a single channel as a string argument
