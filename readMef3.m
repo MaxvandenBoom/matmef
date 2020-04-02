@@ -2,6 +2,7 @@
 %   Read MEF3 meta- and signaldata from a session directory
 %	
 %   [metadata, data] = readMef3(sessPath, password, channels, rangeType, rangeStart, rangeEnd)
+%   [metadata, data] = readMef3(sessPath, password, channels, rangeType, ranges)
 %	
 %   sessPath        = path (absolute or relative) to the MEF3 session folder
 %   password        = password to the MEF3 data; Pass empty string/variable if not encrypted
@@ -10,15 +11,18 @@
 %                     channels will be read and ordered as in the metadata.time_series_channels (ordered according to 
 %                     the 'acquisition_channel_number' metadata variable of each channel)
 %   rangeType       = (optional) modality that is used to define the data-range to read [either 'time' or 'samples']
-%   rangeStart      = (optional) start-point for the reading of data (either as an epoch/unix timestamp or samplenumber)
-% 					  pass -1 to start at the first sample of the timeseries
-%   rangeEnd        = (optional) end-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber)
-%					  pass -1 to end at the last sample of the timeseries
+%   rangeStart      = (optional) start-point for the reading of data (depending on the rangeType, defined as an epoch/unix
+%                     timestamp or samplenumber). Pass -1 to start at the first sample of the timeseries
+%   rangeEnd        = (optional) end-point to stop the of reading data (depending on the rangeType, defined as
+%                     an epoch/unix timestamp or samplenumber). Pass -1 to end at the last sample of the timeseries
+%   ranges          = (optional) a Nx2 matrix of multiple ranges (start- and end-points) for the reading of data.
+%
 %
 %   Returns:
 %       metadata    = A structing that contains all session/channel/segment metadata. Will return empty on failure to read
 %       data        = A matrix of doubles containing the requested channel(s) signal data. The first dimension (rows) represents
-%                     the channels (ordered based on the 'channels' input argument); the second dimension (columns) represents the samples
+%                     the channels (ordered based on the 'channels' input argument); the second dimension (columns) represents the
+%                     the samples/time. If multiple ranges are given then there is a third dimension, representing the requested ranges/epochs
 % 
 %
 %   Examples:
@@ -43,7 +47,7 @@
 %   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 %   You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
-function [metadata, data] = readMef3(sessPath, password, channels, rangeType, rangeStart, rangeEnd)
+function [metadata, data] = readMef3(sessPath, password, channels, rangeType, varargin)
     metadata = [];    
     data = [];
     
@@ -89,6 +93,12 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         warning('No channels found in session directory');
     end
     
+    % check if too many input arguments are given
+    if nargin > 6
+        fprintf(2, 'Error: too many input arguments\n');
+        return;
+    end
+    
     % check if signal data should be returned
     if nargout > 1
         
@@ -104,20 +114,67 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
             return
         end
         
-        % check the range start input argument
+        % set range defaults
         if ~exist('rangeStart', 'var'), rangeStart = -1;        end
-        if isempty(rangeStart) || ~isnumeric(rangeStart) || length(rangeStart) ~= 1 || (~(rangeStart == -1) && rangeStart < 0)
-            fprintf(2, 'Error: invalid rangeStart input argument, should be a single value numeric (either -1 or >= 0)\n');
-            return;
-        end
-        
-        % check the range end input argument
         if ~exist('rangeEnd', 'var'),   rangeEnd = -1;          end
-        if isempty(rangeEnd) || ~isnumeric(rangeEnd) || length(rangeEnd) ~= 1 || (~(rangeEnd == -1) && rangeEnd < 0)
-            fprintf(2, 'Error: invalid rangeEnd input argument, should be a single value numeric (either -1 or >= 0)\n');
-            return;
-        end
         
+        % check whether a single range or multiple ranges are given
+        if nargin == 5
+            % 5 input args, matrix with multiple ranges given
+
+            % retrieve the ranges
+            ranges = varargin{1};
+            
+            % check the range start input argument
+            if isempty(ranges) || ~isnumeric(ranges) || size(ranges, 2) ~= 2 || size(ranges, 1) < 1 || any(ranges(:) < 0)
+                fprintf(2, 'Error: invalid ''ranges'' input argument, should be a Nx2 matrix with numeric values (>= 0)\n');
+                return;
+            end
+            
+            % sort the ranges and calculate their lengths
+            ranges = sort(ranges, 2, 'asc');
+            rangesDiff = ranges(:, 2) - ranges(:, 1);
+            
+            % check whether any of the ranges results in a length of 0
+            if any(rangesDiff <= 0)
+                fprintf(2, 'Error: invalid ''ranges'' input argument, one or more ranges result in a length of 0\n');
+                return;
+            end
+            
+            % warn if input range differs in length, data will be padded with nans at the end
+            if any(rangesDiff ~= rangesDiff(1))
+                warning('on'); warning('backtrace', 'off');
+                warning('The ranges that were requested differ in length, data will be padded with nans at the end');
+            end
+            
+        elseif nargin == 6
+            % 6 input args, range start and end given
+            
+            % check the range start input argument
+            if isempty(rangeStart) || ~isnumeric(rangeStart) || length(rangeStart) ~= 1 || (~(rangeStart == -1) && rangeStart < 0)
+                fprintf(2, 'Error: invalid rangeStart input argument, should be a single value numeric (either -1 or >= 0)\n');
+                return;
+            end
+
+            % check the range end input argument
+            if isempty(rangeEnd) || ~isnumeric(rangeEnd) || length(rangeEnd) ~= 1 || (~(rangeEnd == -1) && rangeEnd < 0)
+                fprintf(2, 'Error: invalid rangeEnd input argument, should be a single value numeric (either -1 or >= 0)\n');
+                return;
+            end
+
+            % transfer the start and end of the range
+            ranges = [varargin{1}, varargin{2}];
+            
+            % if there are no -1's, % order and check length
+            if ~any(ranges == -1)
+                ranges = sort(ranges, 2, 'asc');
+                if ranges(2) - ranges(1) <= 0
+                    fprintf(2, 'Error: invalid range, the requested range length is 0\n');
+                    return;
+                end
+            end
+            
+        end
     end
 
     
@@ -127,8 +184,8 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
 
     % list the acquisition channel numbers
     acqChNum = [];
-    for i = 1:metadata.number_of_time_series_channels
-        acqChNum(i) = metadata.time_series_channels(i).metadata.section_2.acquisition_channel_number;
+    for iChannel = 1:metadata.number_of_time_series_channels
+        acqChNum(iChannel) = metadata.time_series_channels(iChannel).metadata.section_2.acquisition_channel_number;
     end
 
     % sort the channels
@@ -147,8 +204,8 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
     end
 
     % re-order the channels in the metadata
-    for i = 1:length(ordAcqChNum)
-        tmpStruct(i) = metadata.time_series_channels(prevIndex(i));
+    for iChannel = 1:length(ordAcqChNum)
+        tmpStruct(iChannel) = metadata.time_series_channels(prevIndex(iChannel));
     end
     metadata.time_series_channels = tmpStruct;
 
@@ -162,8 +219,8 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         
         % include all channel if no specific channels were given
         if isempty(channels)
-            for i = 1:metadata.number_of_time_series_channels
-                channels{end + 1} = metadata.time_series_channels(i).name;
+            for iChannel = 1:metadata.number_of_time_series_channels
+                channels{end + 1} = metadata.time_series_channels(iChannel).name;
             end
         end
         
@@ -175,8 +232,8 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
             fprintf(2, 'Error: invalid input argument for ''channels'', should be a cell array containing channel names as string (e.g. {''ch1'', ''ch2'', ''ch3''})\n');
             return;
         end
-        for i = 1:length(channels)
-            if ~ischar(channels{i})
+        for iChannel = 1:length(channels)
+            if ~ischar(channels{iChannel})
                 fprintf(2, 'Error: invalid input argument for ''channels'', should be a cell array containing channel names as string (e.g. {''ch1'', ''ch2'', ''ch3''})\n');
                 return;
             end 
@@ -187,9 +244,9 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         %       approach prevents unexpected consequences that could arise when - instead - returning less or empty channels
         channelsFound = ismember(lower(channels), lower({metadata.time_series_channels.name}));
         if sum(channelsFound) < length(channels)
-            for i = 1:length(channels)
-                if channelsFound(i) == 0
-                    fprintf(2, 'Error: requested channel ''%s'' was not found\n', channels{i});
+            for iChannel = 1:length(channels)
+                if channelsFound(iChannel) == 0
+                    fprintf(2, 'Error: requested channel ''%s'' was not found\n', channels{iChannel});
                 end
             end
             return;
@@ -199,35 +256,43 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, ra
         try
             
             % loop through the channels in the order they are requested
-            for i = 1:length(channels)
-                channelIndex = find(ismember(lower({metadata.time_series_channels.name}), lower(channels{i})));
+            for iChannel = 1:length(channels)
+                channelIndex = find(ismember(lower({metadata.time_series_channels.name}), lower(channels{iChannel})));
                 channelPath = [metadata.time_series_channels(channelIndex).path, filesep, metadata.time_series_channels(channelIndex).name, '.', metadata.time_series_channels(channelIndex).extension];
-
+                
+                %
                 % read the data of each channel
-                % note: we cannot beforehand determine the size of matrix because of potential recording
-                %       gaps in the data. Therefore, we cannot allocate memory beforehand. We do assume the
-                %       signal sample length is equal over channels. So instead we use horzcat to expand the
-                %       matrix linearly in memory (in contrast to vertcat, which would internally require
-                %       copying each element and is therefore much slower)
-                if i == 1
-                    data = read_mef_ts_data(channelPath, password, rangeType, rangeStart, rangeEnd)';
-                else
-                    data = horzcat(data, read_mef_ts_data(channelPath, password, rangeType, rangeStart, rangeEnd)');
-                end
+                %
 
+                % loop through the ranges
+                for iRange = 1:size(ranges, 1)
+
+                    % read the signal
+                    signal = read_mef_ts_data(channelPath, password, rangeType, ranges(iRange, 1), ranges(iRange, 2))';
+
+                    % on the first read, initialize the array
+                    % note: we cannot beforehand determine the size of matrix because of potential
+                    %       recording gaps in the data. Therefore, we allocate memory here.
+                    if iChannel == 1 && iRange == 1
+                        data = nan(length(channels), length(signal), size(ranges, 1));
+                    end
+
+                    % if signal too large for the data matrix, pad data matrix with nans
+                    if length(signal) > size(data, 2)
+                       data = padarray(data, [0, (length(signal) - size(data, 2))], nan, 'post');
+                    end
+
+                    % store the data 
+                    data(iChannel, 1:length(signal), iRange) = signal;
+
+                end
+                
             end
-            
-            % transpose the matrix
-            % 
-            % Transposing can be an unnecessary performance hit for large datasets, however BIDS
-            % and some other packages (e.g. fieldtrip) expect a <channels>x<samples> format
-            % 
-            data = data';
-            
+
         catch e
             
             % error message
-            fprintf(2, '%s\nUnable to read MEF3 channel data\n', e.message);
+            fprintf(2, '%s\nError while reading MEF3 channel data\n', e.message);
             return;
             
         end
