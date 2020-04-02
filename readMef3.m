@@ -27,10 +27,17 @@
 %
 %   Examples:
 %
+%       % single range/epoch
 %       [metadata] = readMef3('./mefSessionData/');                                          % read metadata only  
 %       [metadata, signaldata] = readMef3('./mefSessionData/', [], {'Ch02', 'Ch07'});        % read metadata and two channels of data
-%       [metadata, signaldata] = readMef3('./mefSessionData/', [], [], 'samples', 0, 1000);  % read all channels, samples 0-1000  
-% 
+%       [metadata, signaldata] = readMef3('./mefSessionData/', [], [], 'samples', 0, 1000);  % read all channels, samples 0-1000 
+%
+%       % multiple ranges/epochs
+%       ranges = [[0,    1000]; ...
+%                 [1000, 2000]; ...
+%                 [5000, 6000]];
+%       [metadata, signaldata] = readMef3('./mefSessionData/', [], [], 'samples', ranges);
+%
 %
 %   Note:  When the rangeType is set to 'samples', the function simply returns the samples as they are
 %          found (consecutively) in the datafile, without any regard for time or data gaps; Meaning 
