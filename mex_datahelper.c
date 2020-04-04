@@ -144,10 +144,10 @@ mxArray *mxUint64ByValue(ui8 value) {
 	mxArray *retArr = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
 	
 	// retrieve the pointer to the memory allocated by matlab
-	mxUInt64 *data = mxGetData(retArr);
+	mxUint64 *data = mxGetData(retArr);
 	
 	// transfer the value to the matlab (allocated memory)
-	data[0] = (mxUInt64)value;
+	data[0] = (mxUint64)value;
 	
 	// return the matlab variable
 	return retArr;
