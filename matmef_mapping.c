@@ -309,7 +309,7 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
 	mxSetField(mat_segment, mat_index, "path", 						mxCreateString(segment->path));
 	mxSetField(mat_segment, mat_index, "channel_name", 				mxCreateString(segment->channel_name));
 	mxSetField(mat_segment, mat_index, "session_name", 				mxCreateString(segment->session_name));
-	mxSetField(mat_segment, mat_index, "level_UUID", 				mxUInt8ArrayByValue(segment->level_UUID, UUID_BYTES));
+	mxSetField(mat_segment, mat_index, "level_UUID", 				mxUint8ArrayByValue(segment->level_UUID, UUID_BYTES));
 	
 	
 	//
@@ -421,7 +421,7 @@ void map_mef3_channel_tostruct(CHANNEL *channel, si1 map_indices_flag, mxArray *
 	mxSetField(mat_channel, mat_index, "name", 						mxCreateString(channel->name));
 	mxSetField(mat_channel, mat_index, "extension", 				mxCreateString(channel->extension));
 	mxSetField(mat_channel, mat_index, "session_name", 				mxCreateString(channel->session_name));
-	mxSetField(mat_channel, mat_index, "level_UUID", 				mxUInt8ArrayByValue(channel->level_UUID, UUID_BYTES));
+	mxSetField(mat_channel, mat_index, "level_UUID", 				mxUint8ArrayByValue(channel->level_UUID, UUID_BYTES));
 	mxSetField(mat_channel, mat_index, "anonymized_name", 			mxCreateString(channel->anonymized_name));
 	mxSetField(mat_channel, mat_index, "maximum_number_of_records", mxInt64ByValue(channel->maximum_number_of_records));
 	mxSetField(mat_channel, mat_index, "maximum_record_bytes", 		mxInt64ByValue(channel->maximum_record_bytes));
@@ -516,7 +516,7 @@ mxArray *map_mef3_session(SESSION *session, si1 map_indices_flag) {
 	mxSetField(mat_session, 0, "name", 								mxCreateString(session->name));
 	mxSetField(mat_session, 0, "path", 								mxCreateString(session->path));
 	mxSetField(mat_session, 0, "anonymized_name", 					mxCreateString(session->anonymized_name));
-	mxSetField(mat_session, 0, "level_UUID", 						mxUInt8ArrayByValue(session->level_UUID, UUID_BYTES));
+	mxSetField(mat_session, 0, "level_UUID", 						mxUint8ArrayByValue(session->level_UUID, UUID_BYTES));
 	mxSetField(mat_session, 0, "maximum_number_of_records", 		mxInt64ByValue(session->maximum_number_of_records));
 	mxSetField(mat_session, 0, "maximum_record_bytes", 				mxInt64ByValue(session->maximum_record_bytes));
 	mxSetField(mat_session, 0, "earliest_start_time", 				mxInt64ByValue(session->earliest_start_time));
@@ -652,8 +652,8 @@ mxArray *map_mef3_tmd2(TIME_SERIES_METADATA_SECTION_2 *tmd2) {
 	mxSetField(mat_md, 0, "number_of_samples", 				mxInt64ByValue(tmd2->number_of_samples));
 	mxSetField(mat_md, 0, "number_of_blocks", 				mxInt64ByValue(tmd2->number_of_blocks));
 	mxSetField(mat_md, 0, "maximum_block_bytes", 			mxInt64ByValue(tmd2->maximum_block_bytes));
-	mxSetField(mat_md, 0, "maximum_block_samples", 			mxUInt32ByValue(tmd2->maximum_block_samples));
-	mxSetField(mat_md, 0, "maximum_difference_bytes", 		mxUInt32ByValue(tmd2->maximum_difference_bytes));	
+	mxSetField(mat_md, 0, "maximum_block_samples", 			mxUint32ByValue(tmd2->maximum_block_samples));
+	mxSetField(mat_md, 0, "maximum_difference_bytes", 		mxUint32ByValue(tmd2->maximum_difference_bytes));	
 	mxSetField(mat_md, 0, "block_interval", 				mxInt64ByValue(tmd2->block_interval));
 	mxSetField(mat_md, 0, "number_of_discontinuities", 		mxInt64ByValue(tmd2->number_of_discontinuities));
 	mxSetField(mat_md, 0, "maximum_contiguous_blocks", 		mxInt64ByValue(tmd2->maximum_contiguous_blocks));
@@ -678,7 +678,7 @@ mxArray *map_mef3_vmd2(VIDEO_METADATA_SECTION_2 *vmd2) {
 	mxSetField(mat_md, 0, "number_of_clips", 				mxInt64ByValue(vmd2->number_of_clips));
 	mxSetField(mat_md, 0, "maximum_clip_bytes", 			mxInt64ByValue(vmd2->maximum_clip_bytes));
 	mxSetField(mat_md, 0, "video_format", 					mxCreateString(vmd2->video_format));
-	//mxSetField(mat_md, 0, "video_file_CRC", 				mxUInt32ByValue(vmd2->video_file_CRC));			// TODO: check with valid value, leave empty for now
+	//mxSetField(mat_md, 0, "video_file_CRC", 				mxUint32ByValue(vmd2->video_file_CRC));			// TODO: check with valid value, leave empty for now
 	
 	// return the struct
 	return mat_md;
@@ -715,11 +715,11 @@ mxArray *map_mef3_ti(TIME_SERIES_INDEX *ti, si8 number_of_entries) {
 		mxSetField(mat_ti, i, "file_offset", 				mxInt64ByValue(cur_ti->file_offset));
 		mxSetField(mat_ti, i, "start_time", 				mxInt64ByValue(cur_ti->start_time));
 		mxSetField(mat_ti, i, "start_sample", 				mxInt64ByValue(cur_ti->start_sample));
-		mxSetField(mat_ti, i, "number_of_samples", 			mxUInt32ByValue(cur_ti->number_of_samples));
-		mxSetField(mat_ti, i, "block_bytes", 				mxUInt32ByValue(cur_ti->block_bytes));
+		mxSetField(mat_ti, i, "number_of_samples", 			mxUint32ByValue(cur_ti->number_of_samples));
+		mxSetField(mat_ti, i, "block_bytes", 				mxUint32ByValue(cur_ti->block_bytes));
 		mxSetField(mat_ti, i, "maximum_sample_value", 		mxInt32ByValue(cur_ti->maximum_sample_value));
 		mxSetField(mat_ti, i, "minimum_sample_value", 		mxInt32ByValue(cur_ti->minimum_sample_value));
-        mxSetField(mat_ti, i, "RED_block_flags", 			mxUInt8ByValue(cur_ti->RED_block_flags));
+        mxSetField(mat_ti, i, "RED_block_flags", 			mxUint8ByValue(cur_ti->RED_block_flags));
 	}	
 	
 	// return the struct
@@ -739,8 +739,8 @@ mxArray *map_mef3_vi(VIDEO_INDEX *vi, si8 number_of_entries) {
 		
 		mxSetField(mat_vi, i, "start_time", 				mxInt64ByValue(cur_vi->start_time));
 		mxSetField(mat_vi, i, "end_time", 					mxInt64ByValue(cur_vi->end_time));
-		mxSetField(mat_vi, i, "start_frame", 				mxUInt32ByValue(cur_vi->start_frame));
-		mxSetField(mat_vi, i, "end_frame", 					mxUInt32ByValue(cur_vi->end_frame));
+		mxSetField(mat_vi, i, "start_frame", 				mxUint32ByValue(cur_vi->start_frame));
+		mxSetField(mat_vi, i, "end_frame", 					mxUint32ByValue(cur_vi->end_frame));
 		mxSetField(mat_vi, i, "file_offset", 				mxInt64ByValue(cur_vi->file_offset));
 		mxSetField(mat_vi, i, "clip_bytes", 				mxInt64ByValue(cur_vi->clip_bytes));
 		

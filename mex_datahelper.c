@@ -19,13 +19,13 @@
 
 
 /**
- * Create a (1xN real) UInt8 vector/matrix based on a MEF array of ui1 (unsigned 1 byte int) values
+ * Create a (1xN real) Uint8 vector/matrix based on a MEF array of ui1 (unsigned 1 byte int) values
  *
  * @param array			The array to store in the matlab variable
  * @param num_bytes		The number of values in the array to transfer
  * @return				The mxArray containing the array
  */
-mxArray *mxUInt8ArrayByValue(ui1 *array, int num_bytes) {
+mxArray *mxUint8ArrayByValue(ui1 *array, int num_bytes) {
     int i;
 	
 	// create the matlab variable (1x1 real double matrix)
@@ -41,36 +41,14 @@ mxArray *mxUInt8ArrayByValue(ui1 *array, int num_bytes) {
 }
 
 
+
 /**
- * Create a (1x1 real) double matrix based on a MEF sf8 (signed 8 byte float) variable
+ * Create a (1x1 real) Uint8 matrix based on a MEF ui1 (unsigned 1 byte int) variable
  *
  * @param value		The value to store in the matlab variable
  * @return			The mxArray containing the value
  */
-mxArray *mxDoubleByValue(sf8 value) {
-	
-	// create the matlab variable (1x1 real double matrix)
-	mxArray *retArr = mxCreateDoubleMatrix(1, 1, mxREAL);
-	
-	// retrieve the pointer to the memory allocated by matlab
-	mxDouble *data = mxGetPr(retArr);
-	
-	// transfer the value to the matlab (allocated memory)
-	data[0] = (mxDouble)value;
-	
-	// return the matlab variable
-	return retArr;
-	
-}
-
-
-/**
- * Create a (1x1 real) UInt8 matrix based on a MEF ui1 (unsigned 1 byte int) variable
- *
- * @param value		The value to store in the matlab variable
- * @return			The mxArray containing the value
- */
-mxArray *mxUInt8ByValue(ui1 value) {
+mxArray *mxUint8ByValue(ui1 value) {
 	
 	// create the matlab variable (1x1 real uint8 matrix)
 	mxArray *retArr = mxCreateNumericMatrix(1, 1, mxUINT8_CLASS, mxREAL);
@@ -110,12 +88,12 @@ mxArray *mxInt8ByValue(si1 value) {
 
 
 /**
- * Create a (1x1 real) UInt32 matrix based on a MEF ui4 (unsigned 4 byte int) variable
+ * Create a (1x1 real) Uint32 matrix based on a MEF ui4 (unsigned 4 byte int) variable
  *
  * @param value		The value to store in the matlab variable
  * @return			The mxArray containing the value
  */
-mxArray *mxUInt32ByValue(ui4 value) {
+mxArray *mxUint32ByValue(ui4 value) {
 	
 	// create the matlab variable (1x1 real uint32 matrix)
 	mxArray *retArr = mxCreateNumericMatrix(1, 1, mxUINT32_CLASS, mxREAL);
@@ -155,6 +133,28 @@ mxArray *mxInt32ByValue(si4 value) {
 }
 
 /**
+ * Create a (1x1 real) Uint64 matrix based on a MEF ui8 (unsigned 8 byte int) variable
+ *
+ * @param value		The value to store in the matlab variable
+ * @return			The mxArray containing the value
+ */
+mxArray *mxUint64ByValue(ui8 value) {
+	
+	// create the matlab variable (1x1 real uint64 matrix)
+	mxArray *retArr = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
+	
+	// retrieve the pointer to the memory allocated by matlab
+	mxUInt64 *data = mxGetData(retArr);
+	
+	// transfer the value to the matlab (allocated memory)
+	data[0] = (mxUInt64)value;
+	
+	// return the matlab variable
+	return retArr;
+	
+}
+
+/**
  * Create a (1x1 real) Int64 matrix based on a MEF si8 (signed 8 byte int) variable
  *
  * @param value		The value to store in the matlab variable
@@ -176,6 +176,28 @@ mxArray *mxInt64ByValue(si8 value) {
 	
 }
 
+
+/**
+ * Create a (1x1 real) double matrix based on a MEF sf8 (signed 8 byte float) variable
+ *
+ * @param value		The value to store in the matlab variable
+ * @return			The mxArray containing the value
+ */
+mxArray *mxDoubleByValue(sf8 value) {
+	
+	// create the matlab variable (1x1 real double matrix)
+	mxArray *retArr = mxCreateDoubleMatrix(1, 1, mxREAL);
+	
+	// retrieve the pointer to the memory allocated by matlab
+	mxDouble *data = mxGetPr(retArr);
+	
+	// transfer the value to the matlab (allocated memory)
+	data[0] = (mxDouble)value;
+	
+	// return the matlab variable
+	return retArr;
+	
+}
 
 /**
  * Create a matlab char string (defaulted to matlab's encoding, most likely UTF-16) based
