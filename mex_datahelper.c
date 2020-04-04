@@ -3,6 +3,7 @@
  * 	Functions to convert primitive c-datatypes to matlab primitive (1x1) arrays/matrices
  *	
  *  Copyright 2020, Max van den Boom
+ *  Included updates from Richard J. Cui (4 apr 2020)
  *
  *  
  *  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
@@ -15,6 +16,29 @@
 #include "mex.h"
 #include "meflib/meflib/meflib.h"
 
+
+
+/**
+ * Create a (1xN real) UInt8 vector/matrix based on a MEF array of ui1 (unsigned 1 byte int) values
+ *
+ * @param array			The array to store in the matlab variable
+ * @param num_bytes		The number of values in the array to transfer
+ * @return				The mxArray containing the array
+ */
+mxArray *mxUInt8ArrayByValue(ui1 *array, int num_bytes) {
+    int i;
+	
+	// create the matlab variable (1x1 real double matrix)
+    mxArray *retArr = mxCreateNumericMatrix(1, num_bytes, mxUINT8_CLASS, mxREAL);
+	
+	// transfer the values to the matlab (allocated memory)
+    unsigned char *ucp = (unsigned char *)mxGetData(retArr);
+    for (i = 0; i < num_bytes; i++)		ucp[i] = array[i];
+    
+	// return the matlab variable
+    return retArr;
+	
+}
 
 
 /**

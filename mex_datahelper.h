@@ -9,6 +9,7 @@
 #include "mex.h"
 #include "meflib/meflib/meflib.h"
 
+mxArray *mxUInt8ArrayByValue(ui1 *array, int num_bytes);
 mxArray *mxDoubleByValue(sf8 value);
 mxArray *mxUInt8ByValue(ui1 value);
 mxArray *mxInt8ByValue(si1 value);
