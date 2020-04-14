@@ -7,7 +7,7 @@
  *	
  *  Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
- *  
+ *  Includes updates from Richard J. Cui - richard.cui@utoronto.ca (4 apr 2020)
  *	
  *  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -19,6 +19,9 @@
 #include "meflib/meflib/meflib.h"
 
 
+void map_mef3_segment_universal_header_tostruct(UNIVERSAL_HEADER *universal_header, mxArray *mat_universal_header, int mat_index);
+mxArray *map_mef3_segment_universal_header(UNIVERSAL_HEADER *universal_header);
+	
 void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *mat_segment, int mat_index);
 mxArray *map_mef3_segment(SEGMENT *segment, si1 map_indices_flag);
 void map_mef3_channel_tostruct(CHANNEL *channel, si1 map_indices_flag, mxArray *mat_channel, int mat_index);

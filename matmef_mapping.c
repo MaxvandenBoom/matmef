@@ -5,7 +5,7 @@
  *	
  *  Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
- *  Included updates from Richard J. Cui (4 apr 2020)
+ *  Includes updates from Richard J. Cui - richard.cui@utoronto.ca (4 apr 2020)
  *	
  *  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -18,6 +18,7 @@
 #include "mex_datahelper.h"
 
 #include "meflib/meflib/meflib.h"
+
 
 ///
 // Fields definitions for MEF3 matlab structs
@@ -289,6 +290,63 @@ const char *FILE_PROCESSING_FIELDNAMES[]	= {
 
 
 
+
+
+/**
+ * 	Map a MEF universal_header c-struct to an exising matlab-struct
+ *  (by Richard J. Cui)
+ *
+ * 	@param universal_header			Pointer to the MEF universal_header c-struct
+ * 	@param mat_universal_header		Pointer to the existing matlab-struct
+ * 	@param mat_index				The index in the existing matlab-struct at which to map the data
+ 
+ */
+void map_mef3_segment_universal_header_tostruct(UNIVERSAL_HEADER *universal_header, mxArray *mat_universal_header, int mat_index) {
+
+    mxSetField(mat_universal_header, mat_index, "header_CRC", 			mxUint64ByValue(universal_header->header_CRC));
+    mxSetField(mat_universal_header, mat_index, "body_CRC", 			mxUint64ByValue(universal_header->body_CRC));
+    mxSetField(mat_universal_header, mat_index, "file_type_string", 	mxCreateString(universal_header->file_type_string));
+    mxSetField(mat_universal_header, mat_index, "mef_version_major", 	mxUint8ByValue(universal_header->mef_version_major));
+    mxSetField(mat_universal_header, mat_index, "mef_version_minor", 	mxUint8ByValue(universal_header->mef_version_minor));
+    mxSetField(mat_universal_header, mat_index, "byte_order_code", 		mxUint8ByValue(universal_header->byte_order_code));
+    mxSetField(mat_universal_header, mat_index, "start_time", 			mxInt64ByValue(universal_header->start_time));
+    mxSetField(mat_universal_header, mat_index, "end_time", 			mxInt64ByValue(universal_header->end_time));  
+    mxSetField(mat_universal_header, mat_index, "number_of_entries", 	mxInt64ByValue(universal_header->number_of_entries));  
+    mxSetField(mat_universal_header, mat_index, "maximum_entry_size", 	mxInt64ByValue(universal_header->maximum_entry_size));  
+    mxSetField(mat_universal_header, mat_index, "segment_number", 		mxInt32ByValue(universal_header->segment_number));  
+    mxSetField(mat_universal_header, mat_index, "channel_name", 		mxCreateString(universal_header->channel_name));  
+    mxSetField(mat_universal_header, mat_index, "session_name", 		mxCreateString(universal_header->session_name));  
+    mxSetField(mat_universal_header, mat_index, "anonymized_name", 		mxCreateString(universal_header->anonymized_name));  
+    mxSetField(mat_universal_header, mat_index, "level_UUID", 			mxUint8ArrayByValue(universal_header->level_UUID, UUID_BYTES));
+    mxSetField(mat_universal_header, mat_index, "file_UUID", 			mxUint8ArrayByValue(universal_header->file_UUID, UUID_BYTES));
+    mxSetField(mat_universal_header, mat_index, "provenance_UUID", 		mxUint8ArrayByValue(universal_header->provenance_UUID, UUID_BYTES));
+    mxSetField(mat_universal_header, mat_index, "level_1_password_validation_field", mxUint8ArrayByValue(universal_header->level_1_password_validation_field, PASSWORD_VALIDATION_FIELD_BYTES));
+    mxSetField(mat_universal_header, mat_index, "level_2_password_validation_field", mxUint8ArrayByValue(universal_header->level_2_password_validation_field, PASSWORD_VALIDATION_FIELD_BYTES));
+    mxSetField(mat_universal_header, mat_index, "protected_region", 	mxUint8ArrayByValue(universal_header->protected_region, UNIVERSAL_HEADER_PROTECTED_REGION_BYTES)); 
+    mxSetField(mat_universal_header, mat_index, "discretionary_region", mxUint8ArrayByValue(universal_header->discretionary_region, UNIVERSAL_HEADER_DISCRETIONARY_REGION_BYTES));
+    
+    return;
+}
+
+/**
+ * 	Map a MEF universal_header c-struct to a newly created matlab-struct
+ *  (by Richard J. Cui)
+ *
+ * 	@param universal_header		Pointer to the MEF universal_header c-struct
+ * 	@return						Pointer to the new matlab-struct
+ */
+mxArray *map_mef3_segment_universal_header(UNIVERSAL_HEADER *universal_header) {
+    
+    mxArray *mat_universal_header;
+    int mat_index = 0;
+    
+    mat_universal_header = mxCreateStructMatrix(1, 1, UNIVERSAL_HEADER_NUMFIELDS, UNIVERSAL_HEADER_FIELDNAMES);
+    map_mef3_segment_universal_header_tostruct(universal_header, mat_universal_header, mat_index);
+    
+    return mat_universal_header;
+}
+
+
 /**
  * 	Map a MEF segment c-struct to an exising matlab-struct
  * 	
@@ -298,8 +356,7 @@ const char *FILE_PROCESSING_FIELDNAMES[]	= {
  * 	@param segment			Pointer to the MEF segment c-struct
  * 	@param map_indices_flag	
  * 	@param mat_segment		Pointer to the existing matlab-struct
- * 	@param mat_index			The index in the existing matlab-struct at which to map the data	
- * 	@return					Pointer to the new matlab-struct
+ * 	@param mat_index		The index in the existing matlab-struct at which to map the data	
  */
 void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *mat_segment, int mat_index) {
 
@@ -407,8 +464,7 @@ mxArray *map_mef3_segment(SEGMENT *segment, si1 map_indices_flag) {
  * 	@param channel			A pointer to the MEF channel c-struct
  * 	@param map_indices_flag	
  * 	@param mat_channel		A pointer to the existing matlab-struct
- * 	@param mat_index			The index in the existing matlab-struct at which to map the data	
- * 	@return					A pointer to the new matlab-struct
+ * 	@param mat_index		The index in the existing matlab-struct at which to map the data	
  */
 void map_mef3_channel_tostruct(CHANNEL *channel, si1 map_indices_flag, mxArray *mat_channel, int mat_index) {
 	si4   	i;

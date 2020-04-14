@@ -3,7 +3,7 @@
  * 	Functions to convert primitive c-datatypes to matlab primitive (1x1) arrays/matrices
  *	
  *  Copyright 2020, Max van den Boom
- *  Included updates from Richard J. Cui (4 apr 2020)
+ *  Includes updates from Richard J. Cui - richard.cui@utoronto.ca (4 apr 2020)
  *
  *  
  *  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
 
 /**
  * Create a (1xN real) Uint8 vector/matrix based on a MEF array of ui1 (unsigned 1 byte int) values
+ * (by Richard J. Cui)
  *
  * @param array			The array to store in the matlab variable
  * @param num_bytes		The number of values in the array to transfer
