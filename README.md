@@ -37,7 +37,14 @@ Several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.
 
 % two channels, samples 0-1000  
 [metadata, signaldata] = readMef3('./mefSessionData/', [], {'Ch02', 'Ch07'}, 'samples', 0, 1000);  
+
+% all channels, multiple ranges/epochs
+ranges = [[0,    1000]; ...
+          [1000, 2000]; ...
+          [5000, 6000]];
+[metadata, signaldata] = readMef3('./mefSessionData/', [], [], 'samples', ranges);
 ```
+
 
 ```
 %  
