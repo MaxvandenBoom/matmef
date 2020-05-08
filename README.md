@@ -1,6 +1,8 @@
 # matmef
 Matlab wrapper for MEF 3.0 library
 
+This project was funded by the National Institute Of Mental Health of the National Institutes of Health Award Number R01MH122258 to Dora Hermes
+
 ## Introduction
 Several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.0 data
 
