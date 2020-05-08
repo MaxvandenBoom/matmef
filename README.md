@@ -1,13 +1,7 @@
 # matmef
 Matlab wrapper for MEF 3.0 library
 
-This project was funded by the National Institute Of Mental Health of the National Institutes of Health Award Number R01MH122258 to Dora Hermes
-
-## Introduction
-Several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.0 data
-
-- Written by Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
-- Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
+This project provides several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.0 data
 
 ## Using pre-compiled mex files
 1. Clone or download (and extract) the matmef repository
@@ -58,3 +52,10 @@ data = read_mef_ts_data('./mefSessionData/channelPath/');
 data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'samples', 0, 1000);  
 data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'time', 1578715810000000, 1578715832000000);  
 ```
+
+## Acknowledgements
+
+- Written by Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+- Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
+
+- This project was funded by the National Institute Of Mental Health of the National Institutes of Health Award Number R01MH122258 to Dora Hermes
