@@ -8,8 +8,7 @@ This project provides several Matlab mex functions that wrap around the MEF 3.0 
 2. Use the functions
 
 ## Building from source
-1. Clone the matmef repository using: `git clone --recurse-submodules https://github.com/MaxvandenBoom/matmef.git`
-   - Note: unfortunately git clone does not clone submodules by default, so make sure to add '--recurse-submodules' option
+1. Clone the matmef repository using: `git clone https://github.com/MaxvandenBoom/matmef.git`
 2. Start matlab and set the matmef folder as your working directory
 3. To compile the .mex files, run the following lines in matlab:
 
