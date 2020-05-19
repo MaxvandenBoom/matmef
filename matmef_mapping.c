@@ -863,10 +863,12 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				
 				break;
 			case MEFREC_CSti_TYPE_CODE:
-
-				mxArray *mat_csti = map_mef3_csti(rh);
-				if (mat_csti != NULL)
-					mxSetField(mat_records, i, "body", 			mat_csti);
+			
+				{
+					mxArray *mat_csti = map_mef3_csti(rh);
+					if (mat_csti != NULL)
+						mxSetField(mat_records, i, "body", 			mat_csti);
+				}
 				
 				break;
 			case MEFREC_ESti_TYPE_CODE:
