@@ -1,5 +1,0 @@
-[submodule "meflib"]
-	path = meflib
-	url = https://github.com/MaxvandenBoom/meflib
-	branch = multiplatform
-	update = rebase
