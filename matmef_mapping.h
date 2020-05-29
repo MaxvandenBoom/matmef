@@ -36,7 +36,6 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 
 mxArray *map_mef3_csti(RECORD_HEADER *rh);
 	
-void map_mef3_segment_universal_header_tostruct(UNIVERSAL_HEADER *universal_header, mxArray *mat_universal_header, int mat_index);
-mxArray *map_mef3_segment_universal_header(UNIVERSAL_HEADER *universal_header);
+mxArray *map_mef3_uh(UNIVERSAL_HEADER *universal_header);
 
 #endif   // MATMEF_MAPPING_
