@@ -6,7 +6,7 @@
 
 
 // Specification for Multiscale Electrophysiology Format (MEF) version 3.0
-// Copyright 2013, Mayo Foundation, Rochester MN. All rights reserved.
+// Copyright 2020, Mayo Foundation, Rochester MN. All rights reserved.
 // Written by Matt Stead, Ben Brinkmann, and Dan Crepeau.
 
 // Usage and modification of this source code is governed by the Apache 2.0 license.
@@ -2027,12 +2027,16 @@ size_t	e_fread(void *ptr, size_t size, size_t n_members, FILE *stream, si1 *path
 }
 
 
-si4	e_fseek(FILE *stream, size_t offset, si4 whence, si1 *path, const si1 *function, si4 line, ui4 behavior_on_fail)
+si4	e_fseek(FILE *stream, si8 offset, si4 whence, si1 *path, const si1 *function, si4 line, ui4 behavior_on_fail)
 {
 	if (behavior_on_fail == USE_GLOBAL_BEHAVIOR)
 		behavior_on_fail = MEF_globals->behavior_on_fail;
 	
+#ifndef _WIN32
 	if ((fseek(stream, offset, whence)) == -1) {
+#else
+    if ((_fseeki64(stream, offset, whence)) == -1) {
+#endif
 		if (!(behavior_on_fail & SUPPRESS_ERROR_OUTPUT)) {
 			#ifdef _WIN32
 				(void) fprintf(stderr, "%c\n\t%s() failed to move the file pointer to requested location (offset %lld, whence %d)\n", 7, __FUNCTION__, offset, whence);
@@ -3654,7 +3658,11 @@ si4	fps_open(FILE_PROCESSING_STRUCT *fps, const si1 *function, si4 line, ui4 beh
 	#ifndef _WIN32
 		si4		lock_type;
 	#endif
+#ifndef _WIN32
 	struct stat	sb;
+#else
+	struct _stat64 sb64;
+#endif
 	
 	
 	if (behavior_on_fail == USE_GLOBAL_BEHAVIOR)
@@ -3727,10 +3735,13 @@ si4	fps_open(FILE_PROCESSING_STRUCT *fps, const si1 *function, si4 line, ui4 beh
 			exit(1);
 	}
 	
-	// get file descriptor
-	fps->fd = fileno(fps->fp);
-	
-	#ifndef _WIN32
+	#ifdef _WIN32
+		// get file descriptor
+		fps->fd = _fileno(fps->fp);
+    #else
+		// get file descriptor
+		fps->fd = fileno(fps->fp);
+		
 		// lock
 		if (fps->directives.lock_mode != FPS_NO_LOCK_MODE) {
 			lock_type = FPS_NO_LOCK_TYPE;
@@ -3756,13 +3767,18 @@ si4	fps_open(FILE_PROCESSING_STRUCT *fps, const si1 *function, si4 line, ui4 beh
 				else if (behavior_on_fail & EXIT_ON_FAIL)
 					exit(1);
 			}
-			fps_lock(fps, lock_type, function, line, behavior_on_fail);
+			//fps_lock(fps, lock_type, function, line, behavior_on_fail);
 		}
 	#endif
-	
+
 	// get file length
+#ifndef _WIN32
 	fstat(fps->fd, &sb);
 	fps->file_length = sb.st_size;
+#else
+	_fstat64(fps->fd, &sb64);  // 64-bit necessary for file sizes greater than 4 GB
+	fps->file_length = sb64.st_size;
+#endif
 	
 	
 	return(0);
@@ -3779,8 +3795,8 @@ si4	fps_read(FILE_PROCESSING_STRUCT *fps, const si1 *function, si4 line, ui4 beh
 	
 	#ifndef _WIN32
 		// lock
-		if (fps->directives.lock_mode & FPS_READ_LOCK_ON_READ)
-			fps_lock(fps, F_RDLCK, function, line, behavior_on_fail);
+		//if (fps->directives.lock_mode & FPS_READ_LOCK_ON_READ)
+		//	fps_lock(fps, F_RDLCK, function, line, behavior_on_fail);
 	#endif
 	// read
 	if (fps->directives.io_bytes == FPS_FULL_FILE)
@@ -3791,8 +3807,8 @@ si4	fps_read(FILE_PROCESSING_STRUCT *fps, const si1 *function, si4 line, ui4 beh
 	
 	#ifndef _WIN32
 		// unlock
-		if (fps->directives.lock_mode & FPS_READ_LOCK_ON_READ)
-			fps_unlock(fps, function, line, behavior_on_fail);
+		//if (fps->directives.lock_mode & FPS_READ_LOCK_ON_READ)
+		//	fps_unlock(fps, function, line, behavior_on_fail);
 	#endif
 	
 	return(0);
@@ -3837,7 +3853,11 @@ si4	fps_read(FILE_PROCESSING_STRUCT *fps, const si1 *function, si4 line, ui4 beh
 si4	fps_write(FILE_PROCESSING_STRUCT *fps, const si1 *function, si4 line, ui4 behavior_on_fail)
 {
 	si8		o_bytes;
+#ifndef _WIN32
 	struct stat	sb;
+#else
+	struct _stat64 sb64;
+#endif
 	
         
 	if (behavior_on_fail == USE_GLOBAL_BEHAVIOR)
@@ -3845,8 +3865,8 @@ si4	fps_write(FILE_PROCESSING_STRUCT *fps, const si1 *function, si4 line, ui4 be
 	
 	#ifndef _WIN32
 		// lock
-		if (fps->directives.lock_mode & FPS_WRITE_LOCK_ON_WRITE)
-			fps_lock(fps, F_WRLCK, function, line, behavior_on_fail);
+		//if (fps->directives.lock_mode & FPS_WRITE_LOCK_ON_WRITE)
+		//	fps_lock(fps, F_WRLCK, function, line, behavior_on_fail);
 	#endif
 	
 	// write
@@ -3858,14 +3878,19 @@ si4	fps_write(FILE_PROCESSING_STRUCT *fps, const si1 *function, si4 line, ui4 be
 	
 	#ifndef _WIN32
 		// unlock
-		if (fps->directives.lock_mode & FPS_WRITE_LOCK_ON_WRITE)
-			fps_unlock(fps, function, line, behavior_on_fail);
+		//if (fps->directives.lock_mode & FPS_WRITE_LOCK_ON_WRITE)
+		//	fps_unlock(fps, function, line, behavior_on_fail);
 	#endif
         
 	// get file length
 	fflush(fps->fp);  // have to flush to update stat structure after write
+#ifndef _WIN32
 	fstat(fps->fd, &sb);
 	fps->file_length = sb.st_size;
+#else
+	_fstat64(fps->fd, &sb64);
+	fps->file_length = sb64.st_size;
+#endif
 	
 	
 	return(0);
@@ -3995,12 +4020,12 @@ void	free_session(SESSION *session, si4 free_session_structure)
 		si4 i, j;
 		si1 temp_str[MEF_FULL_FILE_NAME_BYTES];
 		si1 *ext;
-        struct _stat sb;
+		struct _stat64 sb64;
         si4 skip_segment;
         si1 temp_path[MEF_FULL_FILE_NAME_BYTES], temp_name[MEF_SEGMENT_BASE_FILE_NAME_BYTES], temp_extension[TYPE_BYTES];
 
 		// Windows structures
-        WIN32_FIND_DATA fdFile; 
+        WIN32_FIND_DATAA fdFile; 
 	    HANDLE hFind = NULL; 
 
 	    // free previous file list
@@ -4013,15 +4038,15 @@ void	free_session(SESSION *session, si4 free_session_structure)
 	    // get the files / directoris with required extension and count by building a mask
 	    *num_files = 0;
 	    sprintf(temp_path, "%s\\*.*", enclosing_directory); 
-	    if((hFind = FindFirstFile(temp_path, &fdFile)) == INVALID_HANDLE_VALUE) 
+	    if((hFind = FindFirstFileA(temp_path, &fdFile)) == INVALID_HANDLE_VALUE) 
 	    { 
 	        (void) UTF8_fprintf(stderr, "%c\n\t%s() failed to open directory \"%s\"\n", 7, __FUNCTION__, enclosing_directory);
 			return 0;
 	    } 
 
-	    while (FindNextFile(hFind, &fdFile)){
-	    	//Skip initial "." and ".." directories
-	        if((strcmp((si1 *) fdFile.cFileName, ".") != 0) && (strcmp((si1 *)fdFile.cFileName, "..") != 0))
+	    while (FindNextFileA(hFind, &fdFile)){
+	    	// Skip initial "." and ".." directories, and also any directory name beginning with a "."
+	        if (strncmp((si1 *) fdFile.cFileName, ".", 1) != 0)
 	        { 
 	        	sprintf(temp_path, "%s\\%s", enclosing_directory, (si1 *) fdFile.cFileName); 
 
@@ -4040,15 +4065,16 @@ void	free_session(SESSION *session, si4 free_session_structure)
 		
 	    // now read again and allocate and build
 	    sprintf(temp_path, "%s\\*.*", enclosing_directory);
-		hFind = FindFirstFile(temp_path, &fdFile);
+		hFind = FindFirstFileA(temp_path, &fdFile);
 		if ( file_list == NULL ){
 			file_list = (si1 **) e_calloc((size_t) *num_files, sizeof(si1 *), __FUNCTION__, __LINE__, USE_GLOBAL_BEHAVIOR);
 			i = 0;
-			while (FindNextFile(hFind, &fdFile)) {
+			while (FindNextFileA(hFind, &fdFile)) {
 				// Get extension
 
-				if((strcmp((si1 *) fdFile.cFileName, ".") != 0) && (strcmp((si1 *)fdFile.cFileName, "..") != 0)){
-
+				// Skip initial "." and ".." directories, and also any directory name beginning with a "."
+				if (strncmp((si1*)fdFile.cFileName, ".", 1) != 0) 
+				{
 					ext = strrchr((si1 *) fdFile.cFileName, '.');
 					if (ext != NULL && strlen(ext) != 1)
 						ext++;
@@ -4078,9 +4104,9 @@ void	free_session(SESSION *session, si4 free_session_structure)
 			                if (!strcmp(temp_extension, TIME_SERIES_CHANNEL_DIRECTORY_TYPE_STRING)){
 
 				                // get file length
-				                _stat(temp_str, &sb);
+				                _stat64(temp_str, &sb64);  // 64-bit necessary for file sizes greater than 4 GB
 
-				                if (sb.st_size <= UNIVERSAL_HEADER_BYTES)
+				                if (sb64.st_size <= UNIVERSAL_HEADER_BYTES)
 				                {
 				                    skip_segment = 1;
 				                    (*num_files)--;
@@ -4149,7 +4175,8 @@ void	free_session(SESSION *session, si4 free_session_structure)
 			if (ext != NULL && strlen(ext) != 1)
 				ext++;
 			
-			if (!((ext == NULL) || (ext == contents_list[n]->d_name)) &&  (!strcmp(ext, extension)))
+			// make sure 1) the file has an extension, 2) the extension is one we are searching for, 3) and that the directory name doesn't begin with a "."
+			if ((!((ext == NULL) || (ext == contents_list[n]->d_name)) && (!strcmp(ext, extension))) && strncmp(contents_list[n]->d_name, ".", 1))
 				++(*num_files);
 			++n;
 	    }
@@ -4165,7 +4192,8 @@ void	free_session(SESSION *session, si4 free_session_structure)
 				if (ext != NULL && strlen(ext) != 1)
 					ext++;
 				
-				if (!((ext == NULL) || (ext == contents_list[n]->d_name)) &&  (!strcmp(ext, extension))){
+				// make sure 1) the file has an extension, 2) the extension is one we are searching for, 3) and that the directory name doesn't begin with a "."
+				if ((!((ext == NULL) || (ext == contents_list[n]->d_name)) && (!strcmp(ext, extension))) && strncmp(contents_list[n]->d_name, ".", 1)) {
 					file_list[i] = (si1 *) e_malloc((size_t) MEF_FULL_FILE_NAME_BYTES, __FUNCTION__, __LINE__, USE_GLOBAL_BEHAVIOR);
 					MEF_strcpy(temp_str, enclosing_directory);
 					
@@ -5908,7 +5936,9 @@ SEGMENT	*read_MEF_segment(SEGMENT *segment, si1 *seg_path, si4 channel_type, si1
 			segment->time_series_data_fps = allocate_file_processing_struct(0, TIME_SERIES_DATA_FILE_TYPE_CODE, NULL, NULL, 0);
 			if (read_time_series_data == MEF_FALSE) {
 				segment->time_series_data_fps->directives.io_bytes = UNIVERSAL_HEADER_BYTES;
-				//segment->time_series_data_fps->directives.close_file = MEF_FALSE;
+#ifndef FORCE_CLOSE_AFTER_READ
+				segment->time_series_data_fps->directives.close_file = MEF_FALSE;
+#endif
 			}
 			(void) read_MEF_file(segment->time_series_data_fps, full_file_name, password, password_data, NULL, USE_GLOBAL_BEHAVIOR);
 			// update metadata if metadata conflicts with actual data
@@ -6613,8 +6643,11 @@ void 	RED_decode(RED_PROCESSING_STRUCT *rps)
 	} else if (block_header->flags & RED_LEVEL_2_ENCRYPTION_MASK) {
 		rps->directives.encryption_level = LEVEL_2_ENCRYPTION;
 		key = rps->password_data->level_2_encryption_key;
-	} else
+	} else {
 		rps->directives.encryption_level = NO_ENCRYPTION;
+		key = NULL;
+	}
+	
 	if (rps->directives.encryption_level > NO_ENCRYPTION) {
 		if (rps->password_data->access_level >= rps->directives.encryption_level) {
 			AES_decrypt(block_header->statistics, block_header->statistics, NULL, key);
@@ -6659,13 +6692,19 @@ void 	RED_decode(RED_PROCESSING_STRUCT *rps)
 	low_bound = in_byte >> (8 - EXTRA_BITS);
 	range = (ui4) 1 << EXTRA_BITS;
 	ui4_p2 = cumulative_counts + 256;
-	for (i = block_header->difference_bytes; i--;) {
-                while (range <= BOTTOM_VALUE) {
+	for (i = block_header->difference_bytes; i--;) { 
+		while (range <= BOTTOM_VALUE) {
 			low_bound = (low_bound << 8) | ((in_byte << EXTRA_BITS) & 0xff);
-                        in_byte = *ib_p++;
-                        low_bound |= in_byte >> (8 - EXTRA_BITS);
-                        range <<= 8;
-                }
+			// check to see if we are still within the bounds of the compressed data
+			// this check prevents an issue of buffer-overrun upon reading data
+			if ((ib_p - ((ui1*)rps->block_header)) <= (block_header->block_bytes - 1))
+				in_byte = *ib_p++;
+			else
+				in_byte = 0; // give it a dummy byte, since there is no more data in the block.
+			low_bound |= in_byte >> (8 - EXTRA_BITS);			
+			range <<= 8;
+          
+		}
 		temp_ui4 = low_bound / (range_per_count = range / scaled_total_counts);
 		cc = (temp_ui4 >= scaled_total_counts ? (scaled_total_counts - 1) : temp_ui4);
 		if (cc > cumulative_counts[128]) {

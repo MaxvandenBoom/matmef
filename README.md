@@ -22,7 +22,7 @@ This project provides several Matlab mex functions that wrap around the MEF 3.0 
 %  
 
 % metadata only  
-[metadata] = readMef3('./mefSessionData/');  
+[metadata] = readMef3('./mefSessionData/');
 
 % two channels  
 [metadata, signaldata] = readMef3('./mefSessionData/', [], {'Ch02', 'Ch07'});  
