@@ -1,7 +1,7 @@
 %	
 %   Read the MEF3 data from a time-series channel
 %	
-%   [data] = read_mef_ts_data(channel, rangeType, rangeStart, rangeEnd)
+%   [data] = read_mef_ts_data(channelPath, password, rangeType, rangeStart, rangeEnd)
 %	
 %   channelPath     = path (absolute or relative) to the MEF3 channel folder
 %   password        = password to the MEF3 data; Pass empty string/variable if not encrypted
