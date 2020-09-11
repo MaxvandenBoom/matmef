@@ -85,33 +85,55 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
 	
 	// 
-	// map indices (optional)
+	// read time-series and video indices (optional)
 	// 
 	
 	// Read indices flag
     si1 read_indices_flag = 0;	
 	
-	// check if a map indices input argument is given
+	// check if a read (ts/video) indices input argument is given
     if (nrhs > 2) {
-		
-		// check if not empty
 		if (!mxIsEmpty(prhs[2])) {
-
-			// check if single numeric or logical
 			if ((!mxIsNumeric(prhs[2]) && !mxIsLogical(prhs[2])) || mxGetNumberOfElements(prhs[2]) > 1) {
-				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidMapIndicesArg", "mapIndices input argument invalid, should be a single value logical or numeric");
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidReadIndicesArg", "readIndices input argument invalid, should be a single value logical or numeric");
 			}
 			
 			// retrieve the map indices flag value
 			int mat_read_indices_flag = mxGetScalar(prhs[2]);
-			
-			// check the value
 			if (mat_read_indices_flag != 0 && mat_read_indices_flag != 1) {
-				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidMapIndicesArg", "mapIndices input argument invalid, allowed values are 0, false, 1 or true");
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidReadIndicesArg", "readIndices input argument invalid, allowed values are 0, false, 1 or true");
 			}
 			
 			// set the flag
 			read_indices_flag = mat_read_indices_flag;
+			
+		}
+		
+	}
+
+	
+	// 
+	// read records (optional)
+	// 
+	
+	// Read indices flag
+    si1 read_records_flag = 0;	
+	
+	// check if a read records input argument is given
+    if (nrhs > 3) {
+		if (!mxIsEmpty(prhs[3])) {
+			if ((!mxIsNumeric(prhs[3]) && !mxIsLogical(prhs[3])) || mxGetNumberOfElements(prhs[3]) > 1) {
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidReadRecordsArg", "readRecords input argument invalid, should be a single value logical or numeric");
+			}
+			
+			// retrieve the read records flag value
+			int mat_read_records_flag = mxGetScalar(prhs[3]);
+			if (mat_read_records_flag != 0 && mat_read_records_flag != 1) {
+				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidReadRecordsArg", "readRecords input argument invalid, allowed values are 0, false, 1 or true");
+			}
+			
+			// set the flag
+			read_records_flag = mat_read_records_flag;
 			
 		}
 		
@@ -131,13 +153,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		MEF_globals->read_time_series_indices   = 0;
 		MEF_globals->read_video_indices         = 0;
 	}
-	MEF_globals->read_record_indices        = 1;
+	if (read_records_flag)
+		MEF_globals->read_record_indices        = 0;
 	SESSION *session = read_MEF_session(	NULL, 					// allocate new session object
 											session_path, 			// session filepath
 											password, 				// password
 											NULL, 					// empty password
 											MEF_FALSE, 				// do not read time series data
-											MEF_TRUE				// read record data
+											read_records_flag		// read record data
 										);
 	MEF_globals->behavior_on_fail = EXIT_ON_FAIL;
 	
