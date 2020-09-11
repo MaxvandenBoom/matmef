@@ -1,7 +1,7 @@
 %
 %   Retrieves the session metadata from a MEF3 file
 %   
-%   [metadata] = read_mef_session_metadata(fileName, password)
+%   [metadata] = read_mef_session_metadata(fileName, password, readIndices, readRecords)
 %	
 %   sessionPath     = path (absolute or relative) to the MEF3 session folder
 %   password        = password to the MEF3 data; Pass empty string/variable if not encrypted
