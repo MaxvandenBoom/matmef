@@ -25,7 +25,8 @@
  *
  * @param sessionPath	Path (absolute or relative) to the MEF3 session folder
  * @param password		Password to the MEF3 data; Pass empty string/variable if not encrypted
- * @param readIndices	flag whether to read and map time-series and video indices [0 or 1; default is 0]
+ * @param readIndices	Whether to read and map time-series and video indices [0 or 1; default is 0]
+ * @param readRecords	Whether to read the records [0 or 1; default is 0]
  * @return				Structure containing session metadata, channels metadata, segments metadata and records
  */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
@@ -117,7 +118,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// 
 	
 	// Read indices flag
-    si1 read_records_flag = 0;	
+    si1 read_records_flag = 0;
 	
 	// check if a read records input argument is given
     if (nrhs > 3) {
