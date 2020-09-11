@@ -5532,10 +5532,8 @@ CHANNEL	*read_MEF_channel(CHANNEL *channel, si1 *chan_path, si4 channel_type, si
 				channel->earliest_start_time = seg->metadata_fps->universal_header->start_time;
 			if (ABS(seg->metadata_fps->universal_header->end_time) > ABS(channel->latest_end_time))
 				channel->latest_end_time = seg->metadata_fps->universal_header->end_time;
-			if (seg->time_series_data_fps != NULL && (ABS(seg->time_series_data_fps->universal_header->end_time) < ABS(channel->latest_end_time)))
-				channel->latest_end_time = seg->time_series_data_fps->universal_header->end_time;
-			if (seg->time_series_indices_fps != NULL && (ABS(seg->time_series_indices_fps->universal_header->end_time) < ABS(channel->latest_end_time)))
-				channel->latest_end_time = seg->time_series_indices_fps->universal_header->end_time;
+			if (seg->video_indices_fps != NULL && (ABS(seg->video_indices_fps->universal_header->end_time) < ABS(channel->latest_end_time)))
+				channel->latest_end_time = seg->video_indices_fps->universal_header->end_time;
 			if (strcmp(channel->anonymized_name, seg->metadata_fps->universal_header->anonymized_name))
 				bzero(channel->anonymized_name, UNIVERSAL_HEADER_ANONYMIZED_NAME_BYTES);
 			if (seg->record_data_fps != NULL) {
@@ -5626,10 +5624,6 @@ CHANNEL	*read_MEF_channel(CHANNEL *channel, si1 *chan_path, si4 channel_type, si
 				channel->maximum_number_of_records = channel->record_data_fps->universal_header->number_of_entries;
 			if (channel->maximum_record_bytes < channel->record_data_fps->universal_header->maximum_entry_size)
 				channel->maximum_record_bytes = channel->record_data_fps->universal_header->maximum_entry_size;
-			if (ABS(channel->record_data_fps->universal_header->start_time) < ABS(channel->earliest_start_time))
-				channel->earliest_start_time = channel->record_data_fps->universal_header->start_time;
-			if (ABS(channel->record_data_fps->universal_header->end_time) > ABS(channel->latest_end_time))
-				channel->latest_end_time = channel->record_data_fps->universal_header->end_time;
 			MEF_strncpy(channel->anonymized_name, channel->record_data_fps->universal_header->anonymized_name, UNIVERSAL_HEADER_ANONYMIZED_NAME_BYTES);
 		}
 
