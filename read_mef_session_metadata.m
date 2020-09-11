@@ -5,7 +5,7 @@
 %	
 %   sessionPath     = path (absolute or relative) to the MEF3 session folder
 %   password        = password to the MEF3 data; Pass empty string/variable if not encrypted
-%   mapIndices      = flag whether indices should be mapped [0 or 1; default is 0]
+%   readIndices     = flag whether to read and map time-series and video indices [0 or 1; default is 0]
 %
 %   Returns: 
 %       metadata    = structure containing session metadata, channels metadata, segments metadata and records
@@ -20,4 +20,4 @@
 %   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 %   You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
-function metadata = read_mef_session_metadata(sessionPath, password, mapIndices)
+function metadata = read_mef_session_metadata(sessionPath, password, readIndices)

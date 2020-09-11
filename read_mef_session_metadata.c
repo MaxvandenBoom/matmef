@@ -25,7 +25,7 @@
  *
  * @param sessionPath	Path (absolute or relative) to the MEF3 session folder
  * @param password		Password to the MEF3 data; Pass empty string/variable if not encrypted
- * @param mapIndices	Flag whether indices should be mapped [0 or 1; default is 0]
+ * @param readIndices	flag whether to read and map time-series and video indices [0 or 1; default is 0]
  * @return				Structure containing session metadata, channels metadata, segments metadata and records
  */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
@@ -89,7 +89,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// 
 	
 	// Read indices flag
-    si1 map_indices_flag = 0;	
+    si1 read_indices_flag = 0;	
 	
 	// check if a map indices input argument is given
     if (nrhs > 2) {
@@ -103,15 +103,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			}
 			
 			// retrieve the map indices flag value
-			int mat_map_indices_flag = mxGetScalar(prhs[2]);
+			int mat_read_indices_flag = mxGetScalar(prhs[2]);
 			
 			// check the value
-			if (mat_map_indices_flag != 0 && mat_map_indices_flag != 1) {
+			if (mat_read_indices_flag != 0 && mat_read_indices_flag != 1) {
 				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidMapIndicesArg", "mapIndices input argument invalid, allowed values are 0, false, 1 or true");
 			}
 			
 			// set the flag
-			map_indices_flag = mat_map_indices_flag;
+			read_indices_flag = mat_read_indices_flag;
 			
 		}
 		
@@ -127,8 +127,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 	// read the session metadata
 	MEF_globals->behavior_on_fail = SUPPRESS_ERROR_OUTPUT;
-	MEF_globals->read_time_series_indices   = 0;
-	MEF_globals->read_video_indices         = 0;
+	if (read_indices_flag) {
+		MEF_globals->read_time_series_indices   = 0;
+		MEF_globals->read_video_indices         = 0;
+	}
 	MEF_globals->read_record_indices        = 1;
 	SESSION *session = read_MEF_session(	NULL, 					// allocate new session object
 											session_path, 			// session filepath
@@ -168,7 +170,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		
 		// map session object to matlab output struct
 		// and assign to the first return argument
-		plhs[0] = map_mef3_session(session, map_indices_flag);
+		plhs[0] = map_mef3_session(session, read_indices_flag);
 		
 	}		
 	
