@@ -5511,10 +5511,6 @@ CHANNEL	*read_MEF_channel(CHANNEL *channel, si1 *chan_path, si4 channel_type, si
 				memcpy(cmd1, smd1, METADATA_SECTION_1_BYTES);
 				memcpy(cvmd, svmd, METADATA_SECTION_2_BYTES);
 				memcpy(cmd3, smd3, METADATA_SECTION_3_BYTES);
-				if (ABS(channel->earliest_start_time) > ABS(seg->metadata_fps->universal_header->start_time))
-					channel->earliest_start_time = seg->metadata_fps->universal_header->start_time;
-				if (ABS(channel->latest_end_time) < ABS(seg->metadata_fps->universal_header->end_time))
-					channel->latest_end_time = seg->metadata_fps->universal_header->end_time;
 				if (seg->record_data_fps != NULL) {
 					if (channel->maximum_number_of_records < seg->record_data_fps->universal_header->number_of_entries)
 						channel->maximum_number_of_records = seg->record_data_fps->universal_header->number_of_entries;
