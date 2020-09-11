@@ -370,23 +370,31 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
 		
 		switch (segment->channel_type){
 			case TIME_SERIES_CHANNEL_TYPE:
-		
-				// create a time-series indices struct (for the segment) and assign it to the 'time_series_indices' field
-				mxSetField(	mat_segment, 
-							mat_index, 
-							"time_series_indices", 
-							map_mef3_ti(	segment->time_series_indices_fps->time_series_indices,
-											segment->time_series_indices_fps->universal_header->number_of_entries));
-				
+	
+				// check if the time-series indices are available
+				if ((segment->time_series_indices_fps != NULL) {
+					
+					// create a time-series indices struct (for the segment) and assign it to the 'time_series_indices' field
+					mxSetField(	mat_segment, 
+								mat_index, 
+								"time_series_indices", 
+								map_mef3_ti(	segment->time_series_indices_fps->time_series_indices,
+												segment->time_series_indices_fps->universal_header->number_of_entries));
+				}
+					
 				break;
 			case VIDEO_CHANNEL_TYPE:
 				
-				// create a video indices struct (for the segment) and assign it to the 'video_indices' field
-				mxSetField(	mat_segment, 
-							mat_index, 
-							"video_indices", 
-							map_mef3_vi(	segment->video_indices_fps->video_indices,
-											segment->video_indices_fps->universal_header->number_of_entries));
+				// check if the video indices are available
+				if ((segment->video_indices_fps != NULL) {
+					
+					// create a video indices struct (for the segment) and assign it to the 'video_indices' field
+					mxSetField(	mat_segment, 
+								mat_index, 
+								"video_indices", 
+								map_mef3_vi(	segment->video_indices_fps->video_indices,
+												segment->video_indices_fps->universal_header->number_of_entries));
+				}
 				
 				break;
 			default:
