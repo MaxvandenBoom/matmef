@@ -372,7 +372,7 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
 			case TIME_SERIES_CHANNEL_TYPE:
 	
 				// check if the time-series indices are available
-				if ((segment->time_series_indices_fps != NULL) {
+				if (segment->time_series_indices_fps != NULL) {
 					
 					// create a time-series indices struct (for the segment) and assign it to the 'time_series_indices' field
 					mxSetField(	mat_segment, 
@@ -386,7 +386,7 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
 			case VIDEO_CHANNEL_TYPE:
 				
 				// check if the video indices are available
-				if ((segment->video_indices_fps != NULL) {
+				if (segment->video_indices_fps != NULL) {
 					
 					// create a video indices struct (for the segment) and assign it to the 'video_indices' field
 					mxSetField(	mat_segment, 
