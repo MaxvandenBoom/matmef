@@ -127,6 +127,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 	// read the session metadata
 	MEF_globals->behavior_on_fail = SUPPRESS_ERROR_OUTPUT;
+	MEF_globals->read_time_series_indices   = 0;
+	MEF_globals->read_video_indices         = 0;
+	MEF_globals->read_record_indices        = 1;
 	SESSION *session = read_MEF_session(	NULL, 					// allocate new session object
 											session_path, 			// session filepath
 											password, 				// password
