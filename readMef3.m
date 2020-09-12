@@ -74,7 +74,7 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, va
 
     % read all the metadata in the session (including channels and segments)
     try
-        metadata = read_mef_session_metadata(sessPath, password, 0, 1);
+        metadata = read_mef_session_metadata(sessPath, password);
     catch e
         metadata = [];
         fprintf(2, '%s\nUnable to read MEF3 metadata\n', e.message);
