@@ -6,7 +6,7 @@
 %   sessionPath     = path (absolute or relative) to the MEF3 session folder
 %   password        = password to the MEF3 data; Pass empty string/variable if not encrypted
 %   readIndices     = whether to read and map time-series and video indices [0 or 1; default is 0]
-%   readRecords	    = whether to read the records [0 or 1; default is 0]
+%   readRecords	    = whether to read the records [0 or 1; default is 1]
 %
 %   Returns: 
 %       metadata    = structure containing session metadata, channels metadata, segments metadata and records
