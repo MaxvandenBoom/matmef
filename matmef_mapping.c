@@ -285,12 +285,46 @@ const char *FILE_PROCESSING_FIELDNAMES[]				= {
 
 
 // Record Type Structures
+const int MEFREC_EDFA_1_0_NUMFIELDS			= 1;
+const char *MEFREC_EDFA_1_0_FIELDNAMES[] 	= {	
+	"duration"
+};
+
+const int MEFREC_LNTP_1_0_NUMFIELDS			= 1;
+const char *MEFREC_LNTP_1_0_FIELDNAMES[] 	= {	
+	"length"
+};
+
+const int MEFREC_SEIZ_1_0_NUMFIELDS			= 8;
+const char *MEFREC_SEIZ_1_0_FIELDNAMES[] 	= {	
+	"earliest_onset",
+	"latest_offset",
+	"duration",
+	"number_of_channels",
+	"onset_code",
+	"marker_name_1",
+	"marker_name_2",
+	"annotation"
+};
+
 const int MEFREC_CSTI_1_0_NUMFIELDS			= 4;
 const char *MEFREC_CSTI_1_0_FIELDNAMES[] 	= {	
 	"task_type",
 	"stimulus_duration",
 	"stimulus_type",
 	"patient_response"
+};
+
+const int MEFREC_ESTI_1_0_NUMFIELDS			= 8;
+const char *MEFREC_ESTI_1_0_FIELDNAMES[] 	= {	
+	"amplitude",
+	"frequency",
+	"pulse_width",
+	"ampunit_code",
+	"mode_code",
+	"waveform",
+	"anode",
+	"catode"
 };
 
 const int MEFREC_CURS_1_0_NUMFIELDS			= 5;
@@ -858,31 +892,35 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 		type_code = *type_str_int;
 		switch (type_code) {
 			case MEFREC_Note_TYPE_CODE:
-				
-				if (rh->version_major == 1 && rh->version_minor == 0) {
-					si1 *body_p = (si1 *) rh + MEFREC_Note_1_0_TEXT_OFFSET;
-					mxSetField(mat_records, i, "body", 			mxCreateString(body_p));
-					
-				} else
-					mexPrintf("Warning: unrecognized Note version, skipping note body\n");
+				{			
+					mxArray *mat_note = map_mef3_note(rh);
+					if (mat_note != NULL)
+						mxSetField(mat_records, i, "body", 			mat_note);
+				}
 				
 				break;
 			case MEFREC_EDFA_TYPE_CODE:
-				
-				// TODO: need example with this type of records
-				mexPrintf("Warning: unimplemented record type, skipping body\n");
+				{
+					mxArray *mat_edfa = map_mef3_edfa(rh);
+					if (mat_edfa != NULL)
+						mxSetField(mat_records, i, "body", 			mat_edfa);
+				}
 				
 				break;
 			case MEFREC_LNTP_TYPE_CODE:
-				
-				// TODO: need example with this type of records
-				mexPrintf("Warning: unimplemented record type, skipping body\n");
+				{
+					mxArray *mat_lntp = map_mef3_lntp(rh);
+					if (mat_lntp != NULL)
+						mxSetField(mat_records, i, "body", 			mat_lntp);
+				}
 				
 				break;
 			case MEFREC_Seiz_TYPE_CODE:
-				
-				// TODO: need example with this type of records
-				mexPrintf("Warning: unimplemented record type, skipping body\n");
+				{
+					mxArray *mat_seiz = map_mef3_seiz(rh);
+					if (mat_seiz != NULL)
+						mxSetField(mat_records, i, "body", 			mat_seiz);
+				}
 				
 				break;
 			case MEFREC_CSti_TYPE_CODE:
@@ -894,9 +932,11 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				
 				break;
 			case MEFREC_ESti_TYPE_CODE:
-				
-				// TODO: need example with this type of records
-				mexPrintf("Warning: unimplemented record type, skipping body\n");
+				{
+					mxArray *mat_esti = map_mef3_esti(rh);
+					if (mat_esti != NULL)
+						mxSetField(mat_records, i, "body", 			mat_esti);
+				}
 				
 				break;
 			case MEFREC_Curs_TYPE_CODE:
@@ -939,6 +979,117 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 }
 
 /**
+ * 	Map a MEF record Note c-struct to a newly created matlab-struct
+ *
+ * 	@param rh			A pointer to the MEF record header of a Note c-struct
+ * 	@return				A pointer to the new matlab-struct
+ */
+mxArray *map_mef3_note(RECORD_HEADER *rh) {
+
+	if (rh->version_major == 1 && rh->version_minor == 0) {
+
+		// return the text
+		si1 *body_p = (si1 *) rh + MEFREC_Note_1_0_TEXT_OFFSET;
+		return mxCreateString(body_p);
+		
+	}
+	
+	// message
+	mexPrintf("Warning: unrecognized Note version, skipping Note body\n");
+	
+	// return failure
+	return NULL;
+}
+
+/**
+ * 	Map a MEF record EDFA c-struct to a newly created matlab-struct
+ *
+ * 	@param rh			A pointer to the MEF record header of a EDFA c-struct
+ * 	@return				A pointer to the new matlab-struct
+ */
+mxArray *map_mef3_edfa(RECORD_HEADER *rh) {
+
+	if (rh->version_major == 1 && rh->version_minor == 0) {
+		
+		MEFREC_EDFA_1_0 *edfa = (MEFREC_EDFA_1_0 *) ((ui1 *) rh + MEFREC_EDFA_1_0_OFFSET);
+		
+		mxArray *mat_edfa = mxCreateStructMatrix(1, 1, MEFREC_EDFA_1_0_NUMFIELDS, MEFREC_EDFA_1_0_FIELDNAMES);
+		mxSetField(mat_edfa, 0, "duration", 		mxInt64ByValue(edfa->duration));
+		
+		// return the struct
+		return mat_edfa;
+		
+	}
+	
+	// message
+	mexPrintf("Warning: unrecognized EDFA version, skipping EDFA body\n");
+	
+	// return failure
+	return NULL;
+}
+
+/**
+ * 	Map a MEF record LNTP c-struct to a newly created matlab-struct
+ *
+ * 	@param rh			A pointer to the MEF record header of a LNTP c-struct
+ * 	@return				A pointer to the new matlab-struct
+ */
+mxArray *map_mef3_lntp(RECORD_HEADER *rh) {
+
+	if (rh->version_major == 1 && rh->version_minor == 0) {
+		
+		MEFREC_LNTP_1_0 *lntp = (MEFREC_LNTP_1_0 *) ((ui1 *) rh + MEFREC_LNTP_1_0_OFFSET);
+		
+		mxArray *mat_lntp = mxCreateStructMatrix(1, 1, MEFREC_LNTP_1_0_NUMFIELDS, MEFREC_LNTP_1_0_FIELDNAMES);
+		mxSetField(mat_lntp, 0, "length", 			mxInt64ByValue(lntp->length));
+		
+		// return the struct
+		return mat_lntp;
+		
+	}
+	
+	// message
+	mexPrintf("Warning: unrecognized LNTP version, skipping LNTP body\n");
+	
+	// return failure
+	return NULL;
+}
+
+/**
+ * 	Map a MEF record Seiz c-struct to a newly created matlab-struct
+ *
+ * 	@param rh			A pointer to the MEF record header of a Seiz c-struct
+ * 	@return				A pointer to the new matlab-struct
+ */
+mxArray *map_mef3_seiz(RECORD_HEADER *rh) {
+
+	if (rh->version_major == 1 && rh->version_minor == 0) {
+		
+		MEFREC_Seiz_1_0 *seiz = (MEFREC_Seiz_1_0 *) ((ui1 *) rh + MEFREC_Seiz_1_0_OFFSET);
+		
+		mxArray *mat_seiz = mxCreateStructMatrix(1, 1, MEFREC_SEIZ_1_0_NUMFIELDS, MEFREC_SEIZ_1_0_FIELDNAMES);
+		mxSetField(mat_seiz, 0, "earliest_onset", 		mxInt64ByValue(seiz->earliest_onset));
+		mxSetField(mat_seiz, 0, "latest_offset", 		mxInt64ByValue(seiz->latest_offset));
+		mxSetField(mat_seiz, 0, "duration", 			mxInt64ByValue(seiz->duration));
+		mxSetField(mat_seiz, 0, "number_of_channels", 	mxInt32ByValue(seiz->number_of_channels));
+		mxSetField(mat_seiz, 0, "onset_code", 			mxInt32ByValue(seiz->onset_code));
+		mxSetField(mat_seiz, 0, "marker_name_1", 		mxCreateString(seiz->marker_name_1));
+		mxSetField(mat_seiz, 0, "marker_name_2", 		mxCreateString(seiz->marker_name_2));
+		mxSetField(mat_seiz, 0, "annotation", 			mxCreateString(seiz->annotation));
+		
+		// return the struct
+		return mat_seiz;
+		
+	}
+	
+	// message
+	mexPrintf("Warning: unrecognized Seiz version, skipping Seiz body\n");
+	
+	// return failure
+	return NULL;
+}
+
+/**
  * 	Map a MEF record CSti c-struct to a newly created matlab-struct
  *
  * 	@param rh			A pointer to the MEF record header of a CSti c-struct
@@ -948,14 +1099,12 @@ mxArray *map_mef3_csti(RECORD_HEADER *rh) {
 
 	if (rh->version_major == 1 && rh->version_minor == 0) {
 		
-		MEFREC_CSti_1_0 *cog_stim = (MEFREC_CSti_1_0 *) ((ui1 *) rh + MEFREC_CSti_1_0_OFFSET);
-		
+		MEFREC_CSti_1_0 *csti = (MEFREC_CSti_1_0 *) ((ui1 *) rh + MEFREC_CSti_1_0_OFFSET);
 		mxArray *mat_csti = mxCreateStructMatrix(1, 1, MEFREC_CSTI_1_0_NUMFIELDS, MEFREC_CSTI_1_0_FIELDNAMES);
-		
-		mxSetField(mat_csti, 0, "task_type", 				mxCreateString(cog_stim->task_type));
-		mxSetField(mat_csti, 0, "stimulus_duration", 		mxInt64ByValue(cog_stim->stimulus_duration));
-		mxSetField(mat_csti, 0, "stimulus_type", 			mxCreateString(cog_stim->stimulus_type));
-		mxSetField(mat_csti, 0, "patient_response", 		mxCreateString(cog_stim->patient_response));
+		mxSetField(mat_csti, 0, "task_type", 				mxCreateString(csti->task_type));
+		mxSetField(mat_csti, 0, "stimulus_duration", 		mxInt64ByValue(csti->stimulus_duration));
+		mxSetField(mat_csti, 0, "stimulus_type", 			mxCreateString(csti->stimulus_type));
+		mxSetField(mat_csti, 0, "patient_response", 		mxCreateString(csti->patient_response));
 		
 		// return the struct
 		return mat_csti;
@@ -964,6 +1113,39 @@ mxArray *map_mef3_csti(RECORD_HEADER *rh) {
 	
 	// message
 	mexPrintf("Warning: unrecognized CSti version, skipping CSti body\n");
+	
+	// return failure
+	return NULL;
+}
+
+/**
+ * 	Map a MEF record ESti c-struct to a newly created matlab-struct
+ *
+ * 	@param rh			A pointer to the MEF record header of a ESti c-struct
+ * 	@return				A pointer to the new matlab-struct
+ */
+mxArray *map_mef3_esti(RECORD_HEADER *rh) {
+
+	if (rh->version_major == 1 && rh->version_minor == 0) {
+		
+		MEFREC_ESti_1_0 *esti = (MEFREC_ESti_1_0 *) ((ui1 *) rh + MEFREC_ESti_1_0_OFFSET);
+		mxArray *mat_esti = mxCreateStructMatrix(1, 1, MEFREC_ESTI_1_0_NUMFIELDS, MEFREC_ESTI_1_0_FIELDNAMES);
+		mxSetField(mat_esti, 0, "amplitude", 				mxDoubleByValue(esti->amplitude));
+		mxSetField(mat_esti, 0, "frequency", 				mxDoubleByValue(esti->frequency));
+		mxSetField(mat_esti, 0, "pulse_width", 				mxDoubleByValue(esti->pulse_width));
+		mxSetField(mat_esti, 0, "ampunit_code", 			mxInt32ByValue(esti->ampunit_code));
+		mxSetField(mat_esti, 0, "mode_code", 				mxInt32ByValue(esti->mode_code));
+		mxSetField(mat_esti, 0, "waveform", 				mxCreateString(esti->waveform));
+		mxSetField(mat_esti, 0, "anode", 					mxCreateString(esti->anode));
+		mxSetField(mat_esti, 0, "catode", 					mxCreateString(esti->catode));
+		
+		// return the struct
+		return mat_esti;
+		
+	}
+	
+	// message
+	mexPrintf("Warning: unrecognized ESti version, skipping ESti body\n");
 	
 	// return failure
 	return NULL;
@@ -982,7 +1164,6 @@ mxArray *map_mef3_curs(RECORD_HEADER *rh) {
 		MEFREC_Curs_1_0 *cursor = (MEFREC_Curs_1_0 *) ((ui1 *) rh + MEFREC_Curs_1_0_OFFSET);
 		
 		mxArray *mat_curs = mxCreateStructMatrix(1, 1, MEFREC_CURS_1_0_NUMFIELDS, MEFREC_CURS_1_0_FIELDNAMES);
-		
 		mxSetField(mat_curs, 0, "id_number", 				mxInt64ByValue(cursor->id_number));
 		mxSetField(mat_curs, 0, "trace_timestamp", 			mxInt64ByValue(cursor->trace_timestamp));
 		mxSetField(mat_curs, 0, "latency", 					mxInt64ByValue(cursor->latency));
