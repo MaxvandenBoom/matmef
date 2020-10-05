@@ -35,6 +35,7 @@ mxArray *map_mef3_vi(VIDEO_INDEX *vi, si8 number_of_entries);
 mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT *rd_fps);
 
 mxArray *map_mef3_csti(RECORD_HEADER *rh);
+mxArray *map_mef3_curs(RECORD_HEADER *rh);
 	
 mxArray *map_mef3_uh(UNIVERSAL_HEADER *universal_header);
 

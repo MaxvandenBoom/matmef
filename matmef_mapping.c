@@ -293,6 +293,14 @@ const char *MEFREC_CSTI_1_0_FIELDNAMES[] 	= {
 	"patient_response"
 };
 
+const int MEFREC_CURS_1_0_NUMFIELDS			= 5;
+const char *MEFREC_CURS_1_0_FIELDNAMES[] 	= {	
+	"id_number",
+	"trace_timestamp",
+	"latency",
+	"value",
+	"name"
+};
 
 
 
@@ -878,7 +886,6 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				
 				break;
 			case MEFREC_CSti_TYPE_CODE:
-			
 				{
 					mxArray *mat_csti = map_mef3_csti(rh);
 					if (mat_csti != NULL)
@@ -890,6 +897,14 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				
 				// TODO: need example with this type of records
 				mexPrintf("Warning: unimplemented record type, skipping body\n");
+				
+				break;
+			case MEFREC_Curs_TYPE_CODE:
+				{
+					mxArray *mat_curs = map_mef3_curs(rh);
+					if (mat_curs != NULL)
+						mxSetField(mat_records, i, "body", 			mat_curs);
+				}
 				
 				break;
 			case MEFREC_SyLg_TYPE_CODE:
@@ -948,7 +963,39 @@ mxArray *map_mef3_csti(RECORD_HEADER *rh) {
 	}
 	
 	// message
-	mexPrintf("Warning: unrecognized Note version, skipping note body\n");
+	mexPrintf("Warning: unrecognized CSti version, skipping CSti body\n");
+	
+	// return failure
+	return NULL;
+}
+
+/**
+ * 	Map a MEF record Curs c-struct to a newly created matlab-struct
+ *
+ * 	@param rh			A pointer to the MEF record header of a Curs c-struct
+ * 	@return				A pointer to the new matlab-struct
+ */
+mxArray *map_mef3_curs(RECORD_HEADER *rh) {
+
+	if (rh->version_major == 1 && rh->version_minor == 0) {
+		
+		MEFREC_Curs_1_0 *cursor = (MEFREC_Curs_1_0 *) ((ui1 *) rh + MEFREC_Curs_1_0_OFFSET);
+		
+		mxArray *mat_curs = mxCreateStructMatrix(1, 1, MEFREC_CURS_1_0_NUMFIELDS, MEFREC_CURS_1_0_FIELDNAMES);
+		
+		mxSetField(mat_curs, 0, "id_number", 				mxInt64ByValue(cursor->id_number));
+		mxSetField(mat_curs, 0, "trace_timestamp", 			mxInt64ByValue(cursor->trace_timestamp));
+		mxSetField(mat_curs, 0, "latency", 					mxInt64ByValue(cursor->latency));
+		mxSetField(mat_curs, 0, "value", 					mxInt64ByValue(cursor->value));
+		mxSetField(mat_curs, 0, "name", 					mxCreateString(cursor->name));
+		
+		// return the struct
+		return mat_curs;
+		
+	}
+	
+	// message
+	mexPrintf("Warning: unrecognized Curs version, skipping Curs body\n");
 	
 	// return failure
 	return NULL;
