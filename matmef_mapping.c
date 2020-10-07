@@ -959,14 +959,12 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				break;
 			case MEFREC_UnRc_TYPE_CODE:
 				
-				mexPrintf("Error: \"%s\" (0x%x) is an unrecognized record type\n", rh->type_string, type_code);
-				return NULL;
-				
+				mexPrintf("Warning: \"%s\" (0x%x) is an unrecognized record type, skipping body\n", rh->type_string, type_code);
+
+				break;
 			default:
 				
-				mexPrintf("Error: \"%s\" (0x%x) is an unrecognized record type\n", rh->type_string, type_code);
-				return NULL;
-			
+				mexPrintf("Warning: \"%s\" (0x%x) is an unrecognized record type, skipping body\n", rh->type_string, type_code);
 		}
 		
 		// forward the record pointer to the next record 
