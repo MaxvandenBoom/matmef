@@ -41,6 +41,7 @@ mxArray *map_mef3_seiz(RECORD_HEADER *rh);
 mxArray *map_mef3_csti(RECORD_HEADER *rh);
 mxArray *map_mef3_esti(RECORD_HEADER *rh);
 mxArray *map_mef3_curs(RECORD_HEADER *rh);
+mxArray *map_mef3_epoc(RECORD_HEADER *rh);
 	
 mxArray *map_mef3_uh(UNIVERSAL_HEADER *universal_header);
 

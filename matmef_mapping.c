@@ -336,6 +336,16 @@ const char *MEFREC_CURS_1_0_FIELDNAMES[] 	= {
 	"name"
 };
 
+const int MEFREC_EPOC_1_0_NUMFIELDS			= 6;
+const char *MEFREC_EPOC_1_0_FIELDNAMES[] 	= {	
+	"id_number",
+	"timestamp",
+	"end_timestamp",
+	"duration",
+	"type",
+	"text"
+};
+
 
 
 ///
@@ -947,6 +957,14 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				}
 				
 				break;
+			case MEFREC_Epoc_TYPE_CODE:
+				{
+					mxArray *mat_epoc = map_mef3_epoc(rh);
+					if (mat_epoc != NULL)
+						mxSetField(mat_records, i, "body", 			mat_epoc);
+				}
+				
+				break;
 			case MEFREC_SyLg_TYPE_CODE:
 
 				if (rh->version_major == 1 && rh->version_minor == 0) {
@@ -1175,6 +1193,38 @@ mxArray *map_mef3_curs(RECORD_HEADER *rh) {
 	
 	// message
 	mexPrintf("Warning: unrecognized Curs version, skipping Curs body\n");
+	
+	// return failure
+	return NULL;
+}
+
+/**
+ * 	Map a MEF record Epoc c-struct to a newly created matlab-struct
+ *
+ * 	@param rh			A pointer to the MEF record header of a Epoc c-struct
+ * 	@return				A pointer to the new matlab-struct
+ */
+mxArray *map_mef3_epoc(RECORD_HEADER *rh) {
+
+	if (rh->version_major == 1 && rh->version_minor == 0) {
+		
+		MEFREC_Epoc_1_0 *epoc = (MEFREC_Epoc_1_0 *) ((ui1 *) rh + MEFREC_Epoc_1_0_OFFSET);
+		
+		mxArray *mat_epoc = mxCreateStructMatrix(1, 1, MEFREC_EPOC_1_0_NUMFIELDS, MEFREC_EPOC_1_0_FIELDNAMES);
+		mxSetField(mat_epoc, 0, "id_number", 				mxInt64ByValue(epoc->id_number));
+		mxSetField(mat_epoc, 0, "timestamp", 				mxInt64ByValue(epoc->timestamp));
+		mxSetField(mat_epoc, 0, "end_timestamp", 			mxInt64ByValue(epoc->end_timestamp));
+		mxSetField(mat_epoc, 0, "duration", 				mxInt64ByValue(epoc->duration));
+		mxSetField(mat_epoc, 0, "type", 					mxCreateString(epoc->type));
+		mxSetField(mat_epoc, 0, "text", 					mxCreateString(epoc->text));
+		
+		// return the struct
+		return mat_epoc;
+		
+	}
+	
+	// message
+	mexPrintf("Warning: unrecognized Epoc version, skipping Epoc body\n");
 	
 	// return failure
 	return NULL;
