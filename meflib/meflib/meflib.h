@@ -9,7 +9,7 @@
 
 
 // Specification for Multiscale Electrophysiology Format (MEF) version 3.0
-// Copyright 2020, Mayo Foundation, Rochester MN. All rights reserved.
+// Copyright 2021, Mayo Foundation, Rochester MN. All rights reserved.
 // Written by Matt Stead, Ben Brinkmann, and Dan Crepeau.
 
 // Usage and modification of this source code is governed by the Apache 2.0 license.
@@ -218,7 +218,11 @@ void	*e_realloc(void *ptr, size_t n_bytes, const si1 *function, si4 line, ui4 be
 #define TIME_STRING_BYTES			32
 #define MEF_BASE_FILE_NAME_BYTES		256	// utf8[63]
 #define MEF_SEGMENT_BASE_FILE_NAME_BYTES	(MEF_BASE_FILE_NAME_BYTES + 8)
-#define MEF_FULL_FILE_NAME_BYTES		1024	// utf8[255]
+#ifdef _WIN32
+#define MEF_FULL_FILE_NAME_BYTES	(_MAX_PATH * 4)
+#else
+#define MEF_FULL_FILE_NAME_BYTES	(PATH_MAX * 4)
+#endif
 #define PAD_BYTE_VALUE				0x7e	// ascii tilde ("~")
 #define FILE_NUMBERING_DIGITS			6
 #define NO_TYPE_CODE				0
@@ -928,7 +932,7 @@ FILE_PROCESSING_STRUCT	*read_MEF_file(FILE_PROCESSING_STRUCT *fps, si1 *file_nam
 SEGMENT			*read_MEF_segment(SEGMENT *segment, si1 *seg_path, si4 channel_type, si1 *password, PASSWORD_DATA *password_data, si1 read_time_series_data, si1 read_record_data);
 SESSION			*read_MEF_session(SESSION *session, si1 *sess_path, si1 *password, PASSWORD_DATA *password_data, si1 read_time_series_data, si1 read_record_data);
 si4			reallocate_file_processing_struct(FILE_PROCESSING_STRUCT *fps, si8 raw_data_bytes);
-si4                     remove_line_noise(si4 *data, si8 n_samps, sf8 sampling_frequency, sf8 line_frequency, sf8 *template);
+si4                     remove_line_noise(si4 *data, si8 n_samps, sf8 sampling_frequency, sf8 line_frequency, sf8 *template_array);
 void			remove_line_noise_adaptive(si4 *data, si8 n_samps, sf8 sampling_frequency, sf8 line_frequency, si4 n_cycles);
 void			remove_recording_time_offset(si8 *time);
 void			show_file_processing_struct(FILE_PROCESSING_STRUCT *fps);
