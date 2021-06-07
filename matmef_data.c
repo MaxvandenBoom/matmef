@@ -483,7 +483,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
     RED_PROCESSING_STRUCT *rps = (RED_PROCESSING_STRUCT *) calloc((size_t) 1, sizeof(RED_PROCESSING_STRUCT));
     rps->compression.mode = RED_DECOMPRESSION;
     rps->decompressed_ptr = rps->decompressed_data = decomp_data;
-    rps->difference_buffer = (si1 *) e_calloc((size_t) RED_MAX_DIFFERENCE_BYTES(max_samps), sizeof(ui1), __FUNCTION__, __LINE__, USE_GLOBAL_BEHAVIOR);
+    rps->difference_buffer = (si1 *) e_calloc((size_t) RED_MAX_DIFFERENCE_BYTES(max_samps) + 1, sizeof(ui1), __FUNCTION__, __LINE__, USE_GLOBAL_BEHAVIOR);
     
     // reset the pointer back to the start of the array
     cdp = compressed_data_buffer;
@@ -552,7 +552,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	//
     // decode blocks in between the first and the last
 	//
-	for (i=1;i<num_blocks-1;i++) {
+	for (i = 1; i < num_blocks - 1; i++) {
 		
 		// 
         rps->compressed_data = cdp;
