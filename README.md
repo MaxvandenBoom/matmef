@@ -52,9 +52,13 @@ data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'samples', 0, 1000)
 data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'time', 1578715810000000, 1578715832000000);  
 ```
 
+## Versions
+v1 - initial release for EEGLAB plugin
+
 ## Acknowledgements
 
 - Written by Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
 - Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
+- EEGLAB plugin code by Arnaud Delorme
 
 - This project was funded by the National Institute Of Mental Health of the National Institutes of Health Award Number R01MH122258 to Dora Hermes
