@@ -14,7 +14,7 @@
  */
 #include "mex_warninghelper.h"
 #include <stdarg.h>
-
+#include <string.h>
 
 /**
  * 	Output a warning, regardless of whether warnings
@@ -60,8 +60,8 @@ bool mxIsWarningEnabled(const char* warningId) {
                 const mxArray* state_field = mxGetField(mxCommandResponse, 0, "state");
                 if (mxIsChar(state_field)) {
                     char state_value[8] = {0};
-                    enabled = (0 == mxGetString(state_field, state_value, 8)) &&
-                              (0 == strcmp(state_value,"on"));
+                    enabled = (mxGetString(state_field, state_value, 8) == 0) &&
+                              (strcmp(state_value, "on") == 0);
                 }
             }
             mxDestroyArray(mxCommandResponse);
