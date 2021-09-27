@@ -15,6 +15,7 @@
  */
 #include "matmef_data.h"
 #include "mex.h"
+#include "mex_warninghelper.h"
 
 #include "meflib/meflib/meflib.c"
 #include "meflib/meflib/mefrec.c"
@@ -100,7 +101,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	
     // check/warning whether the conversion factor should be applied
     if (channel->metadata.time_series_section_2->units_conversion_factor != 1 && !apply_conv_factor) {
-        mexPrintf("the conversion factor of %f is not being applied to the raw data.\nMake sure to check and manually apply, or set apply_conv_factor to apply the conversion while loading.\n", channel->metadata.time_series_section_2->units_conversion_factor);
+        mxForceWarning("matmef:read_channel_data_from_object", "the conversion factor of %f is not being applied to the raw data.\nMake sure to check and manually apply, or set apply_conv_factor to apply the conversion while loading.", channel->metadata.time_series_section_2->units_conversion_factor);
     }
     
 	// check if the channel is indeed of a time-series channel
@@ -144,8 +145,8 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
             return NULL;
         }
 		
-        if (end_time > channel->latest_end_time)			mexPrintf("Warning: stop uutc later than latest end time. Will insert NaNs\n");
-        if (start_time < channel->earliest_start_time)		mexPrintf("Warning: start uutc earlier than earliest start time. Will insert NaNs\n");
+        if (end_time > channel->latest_end_time)			mxForceWarning("matmef:read_channel_data_from_object", "stop uutc later than latest end time. Will insert NaNs");
+        if (start_time < channel->earliest_start_time)		mxForceWarning("matmef:read_channel_data_from_object", "start uutc earlier than earliest start time. Will insert NaNs");
 		
     } else {
 		
