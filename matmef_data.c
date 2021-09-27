@@ -533,9 +533,14 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	cdp += rps->block_header->block_bytes;
 	
 	// 
-	if (range_type == RANGE_BY_TIME)
-		offset_into_output_buffer = (si4) ((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) + 0.5);
-	else
+	if (range_type == RANGE_BY_TIME) {
+		
+		if ((rps->block_header->start_time - start_time) >= 0)
+			offset_into_output_buffer = (si4) ((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) + 0.5);
+		else
+			offset_into_output_buffer = (si4) ((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) - 0.5);
+		
+	} else
 		offset_into_output_buffer = (si4) (channel->segments[start_segment].metadata_fps->metadata.time_series_section_2->start_sample +
 										   channel->segments[start_segment].time_series_indices_fps->time_series_indices[start_idx].start_sample) - start_samp;
 	
@@ -660,9 +665,14 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
         RED_decode(rps);
         
 		// 
-        if (range_type == RANGE_BY_TIME)
-            offset_into_output_buffer = (int)((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) + 0.5);
-        else
+        if (range_type == RANGE_BY_TIME) {
+            
+			if ((rps->block_header->start_time - start_time) >= 0)
+                offset_into_output_buffer = (si4) ((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) + 0.5);
+            else
+                offset_into_output_buffer = (si4) ((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) - 0.5);
+			
+        } else
             offset_into_output_buffer = sample_counter;
         
         // copy requested samples from last block to output buffer
