@@ -1,18 +1,21 @@
 %	    
 %   Read the MEF3 data from a time-series channel    
 %	    
-%   [data] = read_mef_ts_data(channelPath, password, rangeType, rangeStart, rangeEnd)    
+%   [data] = read_mef_ts_data(channelPath, password, rangeType, rangeStart, rangeEnd, applyConvFactor)    
 %	    
-%       channelPath = path (absolute or relative) to the MEF3 channel folder    
-%       password    = password to the MEF3 data; Pass empty string/variable if not encrypted    
-%       rangeType   = Modality that is used to define the data-range to read [either 'time' or 'samples']    
-%       rangeStart  = Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber)    
-%                     Pass -1 to start at the first sample of the timeseries    
-%       rangeEnd    = End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber)    
-%                     Pass -1 as value to end at the last sample of the timeseries    
+%       channelPath     = path (absolute or relative) to the MEF3 channel folder    
+%       password        = password to the MEF3 data; Pass empty string/variable if not encrypted. Default is ''.  
+%       rangeType       = Modality that is used to define the data-range to read [either 'time' or 'samples']. 
+%                         Default is 'samples'.
+%       rangeStart      = Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber)    
+%                         Pass -1 to start at the first sample of the timeseries. Default is -1, first sample
+%       rangeEnd        = End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber)    
+%                         Pass -1 as value to end at the last sample of the timeseries. Default is -1, last sample
+%       applyConvFactor = Apply the unit conversion factor to the raw data [0 = not apply, 1 = apply]
+%                         Default = 1 - Apply conversion factor
 %
 %   Returns:     
-%       data        = A vector of doubles holding the channel data    
+%       data            = A vector of doubles holding the channel data    
 %    
 %   Note:  When the rangeType is set to 'samples', the function simply returns the samples as they are    
 %          found (consecutively) in the datafile, without any regard for time or data gaps; Meaning     

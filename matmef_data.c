@@ -3,7 +3,7 @@
  * 	MEF 3.0 Library Matlab Wrapper
  * 	Functions to load data from MEF3 datafiles
  *	
- *  Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+ *  Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
  *  
  *	
@@ -25,14 +25,15 @@
  *  The range is defined as a type (RANGE_BY_SAMPLES or RANGE_BY_TIME), a startpoint and an endpoint.
  * 	
  *
- * 	@param channel_path		The channel filepath
- * 	@param password			Password for the MEF3 datafiles (no password = NULL or empty string)
- *	@param range_type		Modality that is used to define the data-range to read [either 'time' or 'samples']
- *	@param range_start		Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
- *	@param range_end		End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
- * 	@return					Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
+ * 	@param channel_path         The channel filepath
+ * 	@param password             Password for the MEF3 datafiles (no password = NULL or empty string)
+ *	@param range_type           Modality that is used to define the data-range to read [either 'time' or 'samples']
+ *	@param range_start          Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
+ *	@param range_end            End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
+ *  @param apply_conv_factor    Whether to apply the unit conversion factor from the channel metadata
+ * 	@return                     Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
  */
-mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end) {
+mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end, bool apply_conv_factor) {
 
 	// check if the password is empty, correct to NULL if it is
 	if (password != NULL && password[0] == '\0') {
@@ -68,7 +69,7 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
 	}
 	
 	// read the data by the channel object
-	mxArray *samples_read = read_channel_data_from_object(channel, range_type, range_start, range_end);
+	mxArray *samples_read = read_channel_data_from_object(channel, range_type, range_start, range_end, apply_conv_factor);
 			
 	// free the channel object memory
 	if (channel->number_of_segments > 0)	channel->segments[0].metadata_fps->directives.free_password_data = MEF_TRUE;
@@ -85,17 +86,23 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
  * 	
  *	Note: this function does not free the memory of the given channel object (that is up to the function's caller)
  *
- * 	@param channel			Pointer to the MEF channel object
- *	@param range_type		Modality that is used to define the data-range to read [either 'time' or 'samples']
- *	@param range_start		Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
- *	@param range_end		End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)	
- * 	@return					Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
+ * 	@param channel              Pointer to the MEF channel object
+ *	@param range_type           Modality that is used to define the data-range to read [either 'time' or 'samples']
+ *	@param range_start          Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
+ *	@param range_end            End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
+ *  @param apply_conv_factor    Whether to apply the unit conversion factor from the channel metadata
+ * 	@return                     Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
  */
-mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 range_start, si8 range_end) {
+mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 range_start, si8 range_end, bool apply_conv_factor) {
 	ui8     i, j;
 	ui8		num_blocks;
 	ui8		num_block_in_segment;
 	
+    // check/warning whether the conversion factor should be applied
+    if (channel->metadata.time_series_section_2->units_conversion_factor != 1 && !apply_conv_factor) {
+        mexPrintf("the conversion factor of %f is not being applied to the raw data.\nMake sure to check and manually apply, or set apply_conv_factor to apply the conversion while loading.\n", channel->metadata.time_series_section_2->units_conversion_factor);
+    }
+    
 	// check if the channel is indeed of a time-series channel
 	if (channel->channel_type != TIME_SERIES_CHANNEL_TYPE) {
 		mexPrintf("Error: not a time series channel, exiting...\n"); 
@@ -706,6 +713,18 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
     free (rps->difference_buffer);
     free (rps);
 	
+    // apply conversion factor
+    // TODO: might apply above, so data is only moved/manipulated once. But
+    //       this conversion hardly takes any time, so it is good for now
+    if (apply_conv_factor) {
+        double fac = channel->metadata.time_series_section_2->units_conversion_factor;
+        double *pData = mxGetPr(mat_array);
+        double *pEndData = pData + mxGetNumberOfElements(mat_array);
+        for(; pData < pEndData ; pData++) {
+            *pData = fac * *pData;
+        }
+    }
+    
 	// return the data
 	return mat_array;
 	
