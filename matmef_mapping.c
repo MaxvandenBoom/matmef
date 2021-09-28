@@ -1215,7 +1215,7 @@ mxArray *map_mef3_epoc(RECORD_HEADER *rh) {
 		mxSetField(mat_epoc, 0, "timestamp", 				mxInt64ByValue(epoc->timestamp));
 		mxSetField(mat_epoc, 0, "end_timestamp", 			mxInt64ByValue(epoc->end_timestamp));
 		mxSetField(mat_epoc, 0, "duration", 				mxInt64ByValue(epoc->duration));
-		mxSetField(mat_epoc, 0, "type", 					mxCreateString(epoc->type));
+		mxSetField(mat_epoc, 0, "type", 					mxCreateString(epoc->epoch_type));
 		mxSetField(mat_epoc, 0, "text", 					mxCreateString(epoc->text));
 		
 		// return the struct

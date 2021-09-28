@@ -27,8 +27,8 @@
 // Functions
 //
 
-mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end);
-mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 range_start, si8 range_end);
+mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end, bool apply_conv_factor);
+mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 range_start, si8 range_end, bool apply_conv_factor);
 
 si8 sample_for_uutc_c(si8 uutc, CHANNEL *channel);
 si8 uutc_for_sample_c(si8 sample, CHANNEL *channel);

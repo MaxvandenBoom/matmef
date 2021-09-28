@@ -3,7 +3,7 @@
  * 	MEF 3.0 Library Matlab Wrapper
  * 	Read the MEF3 data from a time-series channel
  *	
- *  Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+ *  Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
  *
  *  
@@ -21,12 +21,13 @@
 /**
  * Main entry point for 'read_mef_ts_data'
  *
- * @param channelPath	path (absolute or relative) to the MEF3 channel folder
- * @param password		Password to the MEF3 data; Pass empty string/variable if not encrypted
- * @param rangeType		Modality that is used to define the data-range to read [either 'time' or 'samples']
- * @param rangeStart	Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
- * @param rangeEnd		End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
- * @return				A vector of doubles holding the channel data
+ * @param channelPath       Path (absolute or relative) to the MEF3 channel folder
+ * @param password          Password to the MEF3 data; Pass empty string/variable if not encrypted
+ * @param rangeType         Modality that is used to define the data-range to read [either 'time' or 'samples' (default)]
+ * @param rangeStart        Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
+ * @param rangeEnd          End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
+ * @param applyConvFactor   Whether to apply the unit conversion factor to the raw data. [0 = not apply, 1 = apply (default)]
+ * @return                  A vector of doubles holding the channel data
  */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
@@ -95,7 +96,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	si8 range_start = -1;
 	si8 range_end = -1;
 	
-	// check if a range=type input argument is given
+	// check if a range-type input argument is given
     if (nrhs > 2) {
 		
 		// check valid range type
@@ -151,14 +152,28 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		
 	}
 	
+    
+    //
+    // Conversion factor
+    //
+    
+    bool apply_conv_factor = false;
+    if (nrhs > 5) {
+        apply_conv_factor = mxIsLogicalScalarTrue(prhs[5]);
+        if (mxIsNumeric(prhs[5]) || mxGetNumberOfElements(prhs[5]) == 1) {
+            apply_conv_factor = mxGetScalar(prhs[5]) == 1;
+        }
+    }
+    
+    
 	// 
 	// read the data
 	// 
-	mxArray *data = read_channel_data_from_path(channel_path, password, range_type, range_start, range_end);
+	mxArray *data = read_channel_data_from_path(channel_path, password, range_type, range_start, range_end, apply_conv_factor);
 	
 	// check for error
 	if (data == NULL)	mexErrMsgTxt("Error while reading channel data");
-
+    
 	// check if output is expected
 	if (nlhs > 0) {
 		

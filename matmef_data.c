@@ -3,7 +3,7 @@
  * 	MEF 3.0 Library Matlab Wrapper
  * 	Functions to load data from MEF3 datafiles
  *	
- *  Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+ *  Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
  *  
  *	
@@ -15,6 +15,7 @@
  */
 #include "matmef_data.h"
 #include "mex.h"
+#include "mex_warninghelper.h"
 
 #include "meflib/meflib/meflib.c"
 #include "meflib/meflib/mefrec.c"
@@ -25,14 +26,15 @@
  *  The range is defined as a type (RANGE_BY_SAMPLES or RANGE_BY_TIME), a startpoint and an endpoint.
  * 	
  *
- * 	@param channel_path		The channel filepath
- * 	@param password			Password for the MEF3 datafiles (no password = NULL or empty string)
- *	@param range_type		Modality that is used to define the data-range to read [either 'time' or 'samples']
- *	@param range_start		Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
- *	@param range_end		End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
- * 	@return					Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
+ * 	@param channel_path         The channel filepath
+ * 	@param password             Password for the MEF3 datafiles (no password = NULL or empty string)
+ *	@param range_type           Modality that is used to define the data-range to read [either 'time' or 'samples']
+ *	@param range_start          Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
+ *	@param range_end            End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
+ *  @param apply_conv_factor    Whether to apply the unit conversion factor from the channel metadata
+ * 	@return                     Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
  */
-mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end) {
+mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end, bool apply_conv_factor) {
 
 	// check if the password is empty, correct to NULL if it is
 	if (password != NULL && password[0] == '\0') {
@@ -68,7 +70,7 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
 	}
 	
 	// read the data by the channel object
-	mxArray *samples_read = read_channel_data_from_object(channel, range_type, range_start, range_end);
+	mxArray *samples_read = read_channel_data_from_object(channel, range_type, range_start, range_end, apply_conv_factor);
 			
 	// free the channel object memory
 	if (channel->number_of_segments > 0)	channel->segments[0].metadata_fps->directives.free_password_data = MEF_TRUE;
@@ -85,17 +87,23 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
  * 	
  *	Note: this function does not free the memory of the given channel object (that is up to the function's caller)
  *
- * 	@param channel			Pointer to the MEF channel object
- *	@param range_type		Modality that is used to define the data-range to read [either 'time' or 'samples']
- *	@param range_start		Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
- *	@param range_end		End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)	
- * 	@return					Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
+ * 	@param channel              Pointer to the MEF channel object
+ *	@param range_type           Modality that is used to define the data-range to read [either 'time' or 'samples']
+ *	@param range_start          Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
+ *	@param range_end            End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
+ *  @param apply_conv_factor    Whether to apply the unit conversion factor from the channel metadata
+ * 	@return                     Pointer to a matlab double matrix object (mxArray) containing the data, or NULL on failure
  */
-mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 range_start, si8 range_end) {
+mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 range_start, si8 range_end, bool apply_conv_factor) {
 	ui8     i, j;
 	ui8		num_blocks;
 	ui8		num_block_in_segment;
 	
+    // check/warning whether the conversion factor should be applied
+    if (channel->metadata.time_series_section_2->units_conversion_factor != 1 && !apply_conv_factor) {
+        mxForceWarning("matmef:read_channel_data_from_object", "the conversion factor of %f is not being applied to the raw data.\nMake sure to check and manually apply, or set apply_conv_factor to apply the conversion while loading.", channel->metadata.time_series_section_2->units_conversion_factor);
+    }
+    
 	// check if the channel is indeed of a time-series channel
 	if (channel->channel_type != TIME_SERIES_CHANNEL_TYPE) {
 		mexPrintf("Error: not a time series channel, exiting...\n"); 
@@ -137,8 +145,8 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
             return NULL;
         }
 		
-        if (end_time > channel->latest_end_time)			mexPrintf("Warning: stop uutc later than latest end time. Will insert NaNs\n");
-        if (start_time < channel->earliest_start_time)		mexPrintf("Warning: start uutc earlier than earliest start time. Will insert NaNs\n");
+        if (end_time > channel->latest_end_time)			mxForceWarning("matmef:read_channel_data_from_object", "stop uutc later than latest end time. Will insert NaNs");
+        if (start_time < channel->earliest_start_time)		mxForceWarning("matmef:read_channel_data_from_object", "start uutc earlier than earliest start time. Will insert NaNs");
 		
     } else {
 		
@@ -525,10 +533,16 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	cdp += rps->block_header->block_bytes;
 	
 	// 
-	if (range_type == RANGE_BY_TIME)
-		offset_into_output_buffer = (si4) ((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) + 0.5);
-	else
-		offset_into_output_buffer = (si4) channel->segments[start_segment].time_series_indices_fps->time_series_indices[start_idx].start_sample - start_samp;
+	if (range_type == RANGE_BY_TIME) {
+		
+		if ((rps->block_header->start_time - start_time) >= 0)
+			offset_into_output_buffer = (si4) ((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) + 0.5);
+		else
+			offset_into_output_buffer = (si4) ((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) - 0.5);
+		
+	} else
+		offset_into_output_buffer = (si4) (channel->segments[start_segment].metadata_fps->metadata.time_series_section_2->start_sample +
+										   channel->segments[start_segment].time_series_indices_fps->time_series_indices[start_idx].start_sample) - start_samp;
 	
 	// copy requested samples from first block to output buffer
 	// TODO: this loop could be optimized
@@ -651,9 +665,14 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
         RED_decode(rps);
         
 		// 
-        if (range_type == RANGE_BY_TIME)
-            offset_into_output_buffer = (int)((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) + 0.5);
-        else
+        if (range_type == RANGE_BY_TIME) {
+            
+			if ((rps->block_header->start_time - start_time) >= 0)
+                offset_into_output_buffer = (si4) ((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) + 0.5);
+            else
+                offset_into_output_buffer = (si4) ((((rps->block_header->start_time - start_time) / 1000000.0) * channel->metadata.time_series_section_2->sampling_frequency) - 0.5);
+			
+        } else
             offset_into_output_buffer = sample_counter;
         
         // copy requested samples from last block to output buffer
@@ -706,6 +725,18 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
     free (rps->difference_buffer);
     free (rps);
 	
+    // apply conversion factor
+    // TODO: might apply above, so data is only moved/manipulated once. But
+    //       this conversion hardly takes any time, so it is good for now
+    if (apply_conv_factor) {
+        double fac = channel->metadata.time_series_section_2->units_conversion_factor;
+        double *pData = mxGetPr(mat_array);
+        double *pEndData = pData + mxGetNumberOfElements(mat_array);
+        for(; pData < pEndData ; pData++) {
+            *pData = fac * *pData;
+        }
+    }
+    
 	// return the data
 	return mat_array;
 	
@@ -717,6 +748,7 @@ si8 sample_for_uutc_c(si8 uutc, CHANNEL *channel) {
     sf8 native_samp_freq;
     ui8 prev_sample_number;
     si8 prev_time, seg_start_sample;
+	si8 next_sample_number;
     
     native_samp_freq = channel->metadata.time_series_section_2->sampling_frequency;
     prev_sample_number = channel->segments[0].metadata_fps->metadata.time_series_section_2->start_sample;
@@ -724,9 +756,16 @@ si8 sample_for_uutc_c(si8 uutc, CHANNEL *channel) {
     
     for (j = 0; j < channel->number_of_segments; j++) {
         seg_start_sample = channel->segments[j].metadata_fps->metadata.time_series_section_2->start_sample;
+		
+		// initialize next_sample_number to end of current segment, in case we're on the last segment and we
+        // go all the way to the end of the segment. Otherwise this value will get overridden later on
+        next_sample_number = seg_start_sample + channel->segments[j].metadata_fps->metadata.time_series_section_2->number_of_samples;
+		
         for (i = 0; i < channel->segments[j].metadata_fps->metadata.time_series_section_2->number_of_blocks; ++i) {
-            if (channel->segments[j].time_series_indices_fps->time_series_indices[i].start_time > uutc)
+            if (channel->segments[j].time_series_indices_fps->time_series_indices[i].start_time > uutc) {
+				next_sample_number = channel->segments[j].time_series_indices_fps->time_series_indices[i].start_sample + seg_start_sample;
                 goto done;
+			}
             prev_sample_number = channel->segments[j].time_series_indices_fps->time_series_indices[i].start_sample + seg_start_sample;
             prev_time = channel->segments[j].time_series_indices_fps->time_series_indices[i].start_time;
         }
@@ -734,10 +773,12 @@ si8 sample_for_uutc_c(si8 uutc, CHANNEL *channel) {
     
 done:
     sample = prev_sample_number + (ui8) (((((sf8) (uutc - prev_time)) / 1000000.0) * native_samp_freq) + 0.5);
-    
+    if (sample > next_sample_number)
+        sample = next_sample_number;  // prevent it from going too far
+	
     return(sample);
 }
-			   
+
 
 si8 uutc_for_sample_c(si8 sample, CHANNEL *channel) {
     ui8 i, j, uutc;
