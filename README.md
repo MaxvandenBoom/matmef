@@ -52,9 +52,6 @@ data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'samples', 0, 1000)
 data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'time', 1578715810000000, 1578715832000000);  
 ```
 
-## Versions
-v1 - initial release for EEGLAB plugin
-
 ## Acknowledgements
 
 - Written by Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
