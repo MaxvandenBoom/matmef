@@ -14,7 +14,7 @@
  */
 #include "matmef_mapping.h"
 #include "mex.h"
-#include "mex_datahelper.h"
+#include "matmef_dataconverter.h"
 
 #include "meflib/meflib/meflib.h"
 

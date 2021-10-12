@@ -1,6 +1,6 @@
 /**
  * 	@file
- * 	Functions to ensure warnings are always shown in Matlab
+ * 	Various utility functions
  *	
  *  Copyright 2021, Max van den Boom
  *	mxIsWarningEnabled function by Pavel Holoborodko (https://undocumentedmatlab.com/articles/checking-status-of-warning-messages-in-mex)
@@ -12,7 +12,7 @@
  *  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  *  You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "mex_warninghelper.h"
+#include "mex_utils.h"
 #include <stdarg.h>
 #include <string.h>
 

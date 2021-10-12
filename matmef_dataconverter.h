@@ -1,5 +1,5 @@
-#ifndef MEX_DATAHELPER_
-#define MEX_DATAHELPER_
+#ifndef MATMEF_DATACONVERTER_
+#define MATMEF_DATACONVERTER_
 /**
  * 	@file - headers
  * 	Functions to convert primitive c-datatypes to matlab primitive (1x1) arrays/matrices
@@ -29,4 +29,4 @@ mxArray *mxDoubleByValue(sf8 value);
 mxArray *mxStringByUTF8Value(char *str);
 
 
-#endif   // MEX_DATAHELPER_
+#endif   // MATMEF_DATACONVERTER_

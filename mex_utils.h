@@ -1,8 +1,8 @@
-#ifndef MEX_WARNINGHELPER_
-#define MEX_WARNINGHELPER_
+#ifndef MEX_UTILS_
+#define MEX_UTILS_
 /**
  * 	@file - headers
- * 	Functions to ensure warnings are always shown in Matlab
+ * 	Various utility functions
  *	
  *  Copyright 2021, Max van den Boom
  *
@@ -18,4 +18,4 @@
 void mxForceWarning(const char* warningId, const char *message, ...);
 bool mxIsWarningEnabled(const char* warningId);
 
-#endif   // MEX_WARNINGHELPER_
+#endif   // MEX_UTILS_

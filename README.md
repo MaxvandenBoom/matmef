@@ -12,8 +12,8 @@ This project provides several Matlab mex functions that wrap around the MEF 3.0 
 2. Start matlab and set the matmef folder as your working directory
 3. To compile the .mex files, run the following lines in matlab:
 
-   - `mex read_mef_session_metadata.c matmef_mapping.c mex_datahelper.c`
-   - `mex read_mef_ts_data.c matmef_data.c mex_warninghelper.c`
+   - `mex read_mef_session_metadata.c matmef_mapping.c matmef_dataconverter.c`
+   - `mex read_mef_ts_data.c matmef_data.c mex_utils.c`
 
 ## Matlab usage examples
 ```
