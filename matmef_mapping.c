@@ -5,7 +5,6 @@
  *	
  *  Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
- *  Includes updates from Richard J. Cui - richard.cui@utoronto.ca (4 apr 2020)
  *	
  *  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -1232,7 +1231,7 @@ mxArray *map_mef3_epoc(RECORD_HEADER *rh) {
 
 /**
  * 	Map a MEF universal_header c-struct to a newly created matlab-struct
- *  (added by Richard J. Cui)
+ *  (contribution by Richard J. Cui, 4 apr 2020)
  *
  * 	@param universal_header		Pointer to the MEF universal_header c-struct
  * 	@return						Pointer to the new matlab-struct

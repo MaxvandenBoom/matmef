@@ -5,7 +5,6 @@
  * 	Functions to convert primitive c-datatypes to matlab primitive (1x1) arrays/matrices
  *	
  *  Copyright 2020, Max van den Boom
- *  Includes updates from Richard J. Cui - richard.cui@utoronto.ca (4 apr 2020)
  *
  *  
  *  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
