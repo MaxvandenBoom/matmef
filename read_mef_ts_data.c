@@ -15,7 +15,7 @@
  */
 #include <ctype.h>
 #include "mex.h"
-#include "matmef_data.h"
+#include "matmef_read.h"
 
 
 /**

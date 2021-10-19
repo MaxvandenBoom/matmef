@@ -1,5 +1,5 @@
-#ifndef MATMEF_DATA_
-#define MATMEF_DATA_
+#ifndef MATMEF_READ_
+#define MATMEF_READ_
 /**
  * 	@file - headers
  * 	MEF 3.0 Library Matlab Wrapper
@@ -37,5 +37,4 @@ si4 check_block_crc(ui1 *block_hdr_ptr, ui4 max_samps, ui1 *total_data_ptr, ui8 
 
 
 
-
-#endif   // MATMEF_DATA_
+#endif   // MATMEF_READ_

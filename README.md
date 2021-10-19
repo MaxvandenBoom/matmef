@@ -13,7 +13,7 @@ This project provides several Matlab mex functions that wrap around the MEF 3.0 
 3. To compile the .mex files, run the following lines in matlab:
 
    - `mex read_mef_session_metadata.c matmef_mapping.c matmef_dataconverter.c`
-   - `mex read_mef_ts_data.c matmef_data.c mex_utils.c`
+   - `mex read_mef_ts_data.c matmef_read.c mex_utils.c`
 
 ## Matlab usage examples
 ```
