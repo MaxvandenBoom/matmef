@@ -61,11 +61,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 		// check if the password input argument is not empty
 		if (!mxIsEmpty(prhs[1])) {
-				
+			
 			// check the password input argument data type
-			if (!mxIsChar(prhs[1])) {
+			if (!mxIsChar(prhs[1]))
 				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
-			}			
 			
 			// set the password
 			// TODO: check UTF-8
@@ -74,6 +73,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			password = strcpy(password_arr, mat_password);
 	
 		}
+		
+		// if the password is just the null character, then correct to a null pointer
+		if (password != NULL && password[0] == '\0')
+			password = NULL;
 		
 	}
 	

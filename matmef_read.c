@@ -36,10 +36,9 @@
  */
 mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end, bool apply_conv_factor) {
 
-	// check if the password is empty, correct to NULL if it is
-	if (password != NULL && password[0] == '\0') {
+	// if the password is just the null character, then correct to a null pointer
+	if (password != NULL && password[0] == '\0')
 		password = NULL;
-	}
 	
 	// initialize MEF library
 	(void) initialize_meflib();
@@ -71,7 +70,7 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
 	
 	// read the data by the channel object
 	mxArray *samples_read = read_channel_data_from_object(channel, range_type, range_start, range_end, apply_conv_factor);
-			
+	
 	// free the channel object memory
 	if (channel->number_of_segments > 0)	channel->segments[0].metadata_fps->directives.free_password_data = MEF_TRUE;
 	free_channel(channel, MEF_TRUE);

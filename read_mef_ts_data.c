@@ -72,7 +72,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			//char *mat_password = mxArrayToUTF8String(prhs[1]);
 			char *mat_password = mxArrayToString(prhs[1]);
 			password = strcpy(password_arr, mat_password);
-	
+			
+			// if the password is just the null character, then correct to a null pointer
+			if (password != NULL && password[0] == '\0')
+				password = NULL;
+			
 		}
 	}
 	
