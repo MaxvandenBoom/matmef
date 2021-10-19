@@ -24,8 +24,8 @@
  * @param channelPath       Path (absolute or relative) to the MEF3 channel folder
  * @param password          Password to the MEF3 data; Pass empty string/variable if not encrypted
  * @param rangeType         Modality that is used to define the data-range to read [either 'time' or 'samples' (default)]
- * @param rangeStart        Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
- * @param rangeEnd          End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
+ * @param rangeStart        Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for beginning/first)
+ * @param rangeEnd          End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for end/last)
  * @param applyConvFactor   Whether to apply the unit conversion factor to the raw data. [0 = not apply (default), 1 = apply]
  * @return                  A vector of doubles holding the channel data
  */
@@ -37,9 +37,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// 
 	
 	// check the channel path input argument
-    if (nrhs < 1)				mexErrMsgIdAndTxt( "MATLAB:read_mef_ts_data:noChannelPathArg", "channelPath input argument not set");
-	if(!mxIsChar(prhs[0]))		mexErrMsgIdAndTxt( "MATLAB:read_mef_ts_data:invalidChannelPathArg", "channelPath input argument invalid, should string (array of characters)");
-	if(mxIsEmpty(prhs[0]))		mexErrMsgIdAndTxt( "MATLAB:read_mef_ts_data:invalidChannelPathArg", "channelPath input argument invalid, argument is empty");
+    if (nrhs < 1)				mexErrMsgIdAndTxt("MATLAB:read_mef_ts_data:noChannelPathArg", "channelPath input argument not set");
+	if(!mxIsChar(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_ts_data:invalidChannelPathArg", "channelPath input argument invalid, should string (array of characters)");
+	if(mxIsEmpty(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_ts_data:invalidChannelPathArg", "channelPath input argument invalid, argument is empty");
 	
 	// set the channel path
 	si1 channel_path[MEF_FULL_FILE_NAME_BYTES];
@@ -65,7 +65,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		
 			// check the password input argument data type
 			if (!mxIsChar(prhs[1]))
-				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
 			
 			// set the password
 			// TODO: check UTF-8
@@ -94,11 +94,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		
 		// check valid range type
 		if (!mxIsChar(prhs[2]))
-			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeTypeArg", "range-type input argument invalid, should string (array of characters)");
+			mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidRangeTypeArg", "range-type input argument invalid, should string (array of characters)");
 		char *mat_range_type = mxArrayToString(prhs[2]);
 		for(int i = 0; mat_range_type[i]; i++)	mat_range_type[i] = tolower(mat_range_type[i]);
 		if (strcmp(mat_range_type, "time") != 0 && strcmp(mat_range_type, "samples") != 0)
-			mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeTypeArg", "range-type input argument invalid, allowed values are 'time' or 'samples'");
+			mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidRangeTypeArg", "range-type input argument invalid, allowed values are 'time' or 'samples'");
 		
 		// set the range type
 		if (strcmp(mat_range_type, "time") == 0)
@@ -108,15 +108,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		if (nrhs > 3) {
 			
 			// check if single numeric
-			if (!mxIsNumeric(prhs[3]) || mxGetNumberOfElements(prhs[3]) > 1)
-				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeStartArg", "range-start input argument invalid, should be a single value numeric (either -1 or >=0)");
+			if (mxIsEmpty(prhs[3]) || !mxIsNumeric(prhs[3]) || mxGetNumberOfElements(prhs[3]) > 1)
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidRangeStartArg", "range-start input argument invalid, should be a single value numeric: -1 for beginning/first, or >=0");
 			
 			// set the range-start value
 			range_start = mxGetScalar(prhs[3]);
             
             // check if -1 or positive value
             if (range_start != -1 && range_start < 0)
-				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeStartArg", "range-start input argument invalid, should be a single value numeric (either -1 or >=0)");
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidRangeStartArg", "range-start input argument invalid, should be a single value numeric: -1 for beginning/first, or >=0");
             
 		}
 		
@@ -124,15 +124,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		if (nrhs > 4) {
 			
 			// check if single numeric
-			if (!mxIsNumeric(prhs[4]) || mxGetNumberOfElements(prhs[4]) > 1)
-				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeEndArg", "range-end input argument invalid, should be a single value numeric (either -1 or >=0)");
+			if (mxIsEmpty(prhs[4]) || !mxIsNumeric(prhs[4]) || mxGetNumberOfElements(prhs[4]) > 1)
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidRangeEndArg", "range-end input argument invalid, should be a single value numeric: -1 for end/last, or >=0");
 			
 			// set the range-end value
 			range_end = mxGetScalar(prhs[4]);
             
             // check if -1 or positive value
             if (range_end != -1 && range_end < 0)
-				mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidRangeEndArg", "range-end input argument invalid, should be a single value numeric (either -1 or >=0)");
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidRangeEndArg", "range-end input argument invalid, should be a single value numeric: -1 for end/last, or >=0");
             
 		}
 		
@@ -146,7 +146,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     bool apply_conv_factor = false;
     if (nrhs > 5) {
 		if ((!mxIsLogicalScalar(prhs[5]) && !mxIsNumeric(prhs[5])) || mxGetNumberOfElements(prhs[5]) != 1)
-            mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidApplyConvFactorArg", "Apply conversion factor input argument invalid, should be a single value: 0 (false) or 1 (true)");
+            mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidApplyConvFactorArg", "Apply conversion factor input argument invalid, should be a single value: 0 (false) or 1 (true)");
         apply_conv_factor = mxIsLogicalScalarTrue(prhs[5]) || mxGetScalar(prhs[5]) == 1;
     }
     

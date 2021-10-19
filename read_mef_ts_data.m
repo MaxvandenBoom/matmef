@@ -8,9 +8,9 @@
 %       rangeType       = Modality that is used to define the data-range to read [either 'time' or 'samples'].
 %                         Default is 'samples'.
 %       rangeStart      = Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber)
-%                         Pass -1 to start at the first sample of the timeseries. Default is -1, first sample
+%                         Pass -1 to start at the beginning or first sample of the timeseries. Default is -1, beginning/first
 %       rangeEnd        = End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber)
-%                         Pass -1 as value to end at the last sample of the timeseries. Default is -1, last sample
+%                         Pass -1 as value to end at the end or last sample of the timeseries. Default is -1, end/last
 %       applyConvFactor = Apply the unit conversion factor to the raw data [0 = not apply, 1 = apply]
 %                         Default = 0 - Do not apply conversion factor
 %
