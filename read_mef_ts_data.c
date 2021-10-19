@@ -145,10 +145,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     
     bool apply_conv_factor = false;
     if (nrhs > 5) {
-        apply_conv_factor = mxIsLogicalScalarTrue(prhs[5]);
-        if (mxIsNumeric(prhs[5]) || mxGetNumberOfElements(prhs[5]) == 1) {
-            apply_conv_factor = mxGetScalar(prhs[5]) == 1;
-        }
+		if ((!mxIsLogicalScalar(prhs[5]) && !mxIsNumeric(prhs[5])) || mxGetNumberOfElements(prhs[5]) != 1)
+            mexErrMsgIdAndTxt( "MATLAB:read_mef_session_metadata:invalidApplyConvFactorArg", "Apply conversion factor input argument invalid, should be a single value: 0 (false) or 1 (true)");
+        apply_conv_factor = mxIsLogicalScalarTrue(prhs[5]) || mxGetScalar(prhs[5]) == 1;
     }
     
     
