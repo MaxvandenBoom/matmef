@@ -26,7 +26,7 @@
  * @param rangeType         Modality that is used to define the data-range to read [either 'time' or 'samples' (default)]
  * @param rangeStart        Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
  * @param rangeEnd          End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
- * @param applyConvFactor   Whether to apply the unit conversion factor to the raw data. [0 = not apply, 1 = apply (default)]
+ * @param applyConvFactor   Whether to apply the unit conversion factor to the raw data. [0 = not apply (default), 1 = apply]
  * @return                  A vector of doubles holding the channel data
  */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {

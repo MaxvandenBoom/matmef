@@ -12,7 +12,7 @@
 %       rangeEnd        = End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber)
 %                         Pass -1 as value to end at the last sample of the timeseries. Default is -1, last sample
 %       applyConvFactor = Apply the unit conversion factor to the raw data [0 = not apply, 1 = apply]
-%                         Default = 1 - Apply conversion factor
+%                         Default = 0 - Do not apply conversion factor
 %
 %   Returns:
 %       data            = A vector of doubles holding the channel data
@@ -23,7 +23,7 @@
 %          In contrast, the 'time' rangeType will return the data with NaN values in place for the missing samples.
 %
 %
-%   Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+%   Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
 %   Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
 
 %   This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
