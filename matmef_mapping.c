@@ -357,10 +357,10 @@ const char *MEFREC_EPOC_1_0_FIELDNAMES[] 	= {
  *	The given matlab-struct have multiple entries, the MEF
  *	struct will be mapped on the given index
  *
- * 	@param segment			Pointer to the MEF segment c-struct
- * 	@param map_indices_flag	
- * 	@param mat_segment		Pointer to the existing matlab-struct
- * 	@param mat_index		The index in the existing matlab-struct at which to map the data	
+ * 	@param segment				Pointer to the MEF segment c-struct
+ * 	@param map_indices_flag		Whether to map the time-series and video indices
+ * 	@param mat_segment			Pointer to the existing matlab-struct
+ * 	@param mat_index			The index in the existing matlab-struct at which to map the data	
  */
 void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *mat_segment, int mat_index) {
 
@@ -459,9 +459,9 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
 /**
  * 	Map a MEF segment c-struct to a newly created matlab-struct
  *
- * 	@param segment			Pointer to the MEF segment c-struct
- * 	@param map_indices_flag	
- * 	@return					Pointer to the new matlab-struct
+ * 	@param segment				Pointer to the MEF segment c-struct
+ * 	@param map_indices_flag		Whether to map the time-series and video indices
+ * 	@return						Pointer to the new matlab-struct
  */
 mxArray *map_mef3_segment(SEGMENT *segment, si1 map_indices_flag) {
 	mxArray *mat_segment = mxCreateStructMatrix(1, 1, SEGMENT_NUMFIELDS, SEGMENT_FIELDNAMES);
@@ -479,10 +479,10 @@ mxArray *map_mef3_segment(SEGMENT *segment, si1 map_indices_flag) {
  * 	
  *	note: this funtion also loops through segments
  *
- * 	@param channel			A pointer to the MEF channel c-struct
- * 	@param map_indices_flag	
- * 	@param mat_channel		A pointer to the existing matlab-struct
- * 	@param mat_index		The index in the existing matlab-struct at which to map the data	
+ * 	@param channel				A pointer to the MEF channel c-struct
+ * 	@param map_indices_flag		Whether to map the time-series and video indices
+ * 	@param mat_channel			A pointer to the existing matlab-struct
+ * 	@param mat_index			The index in the existing matlab-struct at which to map the data	
  */
 void map_mef3_channel_tostruct(CHANNEL *channel, si1 map_indices_flag, mxArray *mat_channel, int mat_index) {
 	si4   	i;
@@ -559,9 +559,9 @@ void map_mef3_channel_tostruct(CHANNEL *channel, si1 map_indices_flag, mxArray *
  * 	
  *	note: this funtion also loops through segments
  *
- * 	@param channel			A pointer to the MEF channel c-struct
- * 	@param map_indices_flag	
- * 	@return					A pointer to the new matlab-struct
+ * 	@param channel				A pointer to the MEF channel c-struct
+ * 	@param map_indices_flag		Whether to map the time-series and video indices
+ * 	@return						A pointer to the new matlab-struct
  */
 mxArray *map_mef3_channel(CHANNEL *channel, si1 map_indices_flag) {
 	mxArray *mat_channel = mxCreateStructMatrix(1, 1, CHANNEL_NUMFIELDS, CHANNEL_FIELDNAMES);
@@ -572,9 +572,9 @@ mxArray *map_mef3_channel(CHANNEL *channel, si1 map_indices_flag) {
 /**
  * 	Map a MEF session c-struct to a newly created matlab-struct
  *
- * 	@param session			A pointer to the MEF session c-struct
- * 	@param map_indices_flag	
- * 	@return					A pointer to the new matlab-struct
+ * 	@param session				A pointer to the MEF session c-struct
+ * 	@param map_indices_flag		Whether to map the time-series and video indices
+ * 	@return						A pointer to the new matlab-struct
  */
 mxArray *map_mef3_session(SESSION *session, si1 map_indices_flag) {
     si4   	i;
