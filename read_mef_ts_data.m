@@ -3,7 +3,7 @@
 %
 %   [data] = read_mef_ts_data(channelPath, password, rangeType, rangeStart, rangeEnd, applyConvFactor)
 %
-%       channelPath     = path (absolute or relative) to the MEF3 channel folder
+%       channelPath     = path (absolute or relative) to the MEF3 channel directory
 %       password        = password to the MEF3 data; Pass empty string/variable if not encrypted. Default is ''.
 %       rangeType       = Modality that is used to define the data-range to read [either 'time' or 'samples'].
 %                         Default is 'samples'.

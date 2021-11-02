@@ -15,6 +15,7 @@
  */
 #include <ctype.h>
 #include "mex.h"
+#include "matmef_dataconverter.h"
 #include "matmef_read.h"
 
 
@@ -66,14 +67,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			// check the password input argument data type
 			if (!mxIsChar(prhs[1]))
 				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
-			
-			// set the password
-			// TODO: check UTF-8
-			//char *mat_password = mxArrayToUTF8String(prhs[1]);
-			char *mat_password = mxArrayToString(prhs[1]);
-			password = strcpy(password_arr, mat_password);
-			
-			// if the password is just the null character, then correct to a null pointer
+
+			// convert password (matlab char-array to UTF-8 character string)
+			if (!cpyMxStringToUtf8CharString(prhs[1], password_arr, PASSWORD_BYTES))
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, could not convert matlab char-array to UTF-8 bytes");
+			password = password_arr;
 			if (password != NULL && password[0] == '\0')
 				password = NULL;
 			
@@ -155,8 +153,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// read the data
 	// 
 	mxArray *data = read_channel_data_from_path(channel_path, password, range_type, range_start, range_end, apply_conv_factor);
-	
-	// check for error
 	if (data == NULL)	
 		mexErrMsgTxt("Error while reading channel data");
     

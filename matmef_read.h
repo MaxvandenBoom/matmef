@@ -3,7 +3,7 @@
 /**
  * 	@file - headers
  * 	MEF 3.0 Library Matlab Wrapper
- * 	Functions to load data from MEF3 datafiles
+ * 	Functions to load data from MEF3 files
  *	
  *  Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)

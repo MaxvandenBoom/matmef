@@ -1,7 +1,7 @@
 /**
  * 	@file
  * 	MEF 3.0 Library Matlab Wrapper
- * 	Functions to load data from MEF3 datafiles
+ * 	Functions to load data from MEF3 files
  *	
  *  Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
@@ -26,8 +26,8 @@
  *  The range is defined as a type (RANGE_BY_SAMPLES or RANGE_BY_TIME), a startpoint and an endpoint.
  * 	
  *
- * 	@param channel_path         The channel filepath
- * 	@param password             Password for the MEF3 datafiles (no password = NULL or empty string)
+ * 	@param channel_path         The path to the channel directory
+ * 	@param password             Password for the MEF3 datafiles (no password = NULL)
  *	@param range_type           Modality that is used to define the data-range to read [either 'time' or 'samples']
  *	@param range_start          Start-point for the reading of data (either as an epoch/unix timestamp or samplenumber; -1 for first)
  *	@param range_end            End-point to stop the of reading data (either as an epoch/unix timestamp or samplenumber; -1 for last)
@@ -49,22 +49,22 @@ mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool rang
 	
 	// check the number of segments
 	if (channel->number_of_segments == 0) {
-		mexPrintf("Error: no segments in channel, most likely due to an invalid channel folder, exiting...\n"); 
+		mexPrintf("Error: no segments in channel, most likely due to an invalid channel folder, exiting...\n");
         return NULL;
 	}
 	
 	// check if the data is encrypted and/or the correctness of password
 	if (channel->metadata.section_1->section_2_encryption > 0 || channel->metadata.section_1->section_2_encryption > 0) {
 		if (password == NULL)
-			mexPrintf("Error: data is encrypted, but no password is given, exiting...\n"); 
+			mexPrintf("Error: data is encrypted, but no password is given, exiting...\n");
 		else
-			mexPrintf("Error: wrong password for encrypted data, exiting...\n"); 
+			mexPrintf("Error: wrong password for encrypted data, exiting...\n");
 		return NULL;
 	}
 	
 	// check if the channel is indeed of a time-series channel
 	if (channel->channel_type != TIME_SERIES_CHANNEL_TYPE) {
-		mexPrintf("Error: not a time series channel, exiting...\n"); 
+		mexPrintf("Error: not a time series channel, exiting...\n");
 		return NULL;
 	}
 	
@@ -653,9 +653,9 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 			mexPrintf("Error: RED block %lu has 0 bytes, or CRC failed, data likely corrupt...", start_idx + i);
 
 			//
-			free (compressed_data_buffer);
-			free (decomp_data);
-			free (temp_data_buf);
+			free(compressed_data_buffer);
+			free(decomp_data);
+			free(temp_data_buf);
 			return NULL;
 			
         }

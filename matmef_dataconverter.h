@@ -24,9 +24,10 @@ mxArray *mxUint32ByValue(ui4 value);
 mxArray *mxInt32ByValue(si4 value);
 mxArray *mxUint64ByValue(ui8 value);
 mxArray *mxInt64ByValue(si8 value);
-
 mxArray *mxDoubleByValue(sf8 value);
-mxArray *mxStringByUTF8Value(char *str);
+mxArray *mxStringByUtf8CharString(char *str);
+
+bool cpyMxStringToUtf8CharString(mxArray *mat_str, char *str, int strSize);
 
 
 #endif   // MATMEF_DATACONVERTER_
