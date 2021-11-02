@@ -1147,7 +1147,7 @@ mxArray *map_mef3_esti(RECORD_HEADER *rh) {
 		mxArray *mat_esti = mxCreateStructMatrix(1, 1, MEFREC_ESTI_1_0_NUMFIELDS, MEFREC_ESTI_1_0_FIELDNAMES);
 		mxSetField(mat_esti, 0, "amplitude", 				mxDoubleByValue(esti->amplitude));
 		mxSetField(mat_esti, 0, "frequency", 				mxDoubleByValue(esti->frequency));
-		mxSetField(mat_esti, 0, "pulse_width", 				mxDoubleByValue(esti->pulse_width));
+		mxSetField(mat_esti, 0, "pulse_width", 				mxInt64ByValue(esti->pulse_width));
 		mxSetField(mat_esti, 0, "ampunit_code", 			mxInt32ByValue(esti->ampunit_code));
 		mxSetField(mat_esti, 0, "mode_code", 				mxInt32ByValue(esti->mode_code));
 		mxSetField(mat_esti, 0, "waveform", 				mxCreateString(esti->waveform));
@@ -1182,7 +1182,7 @@ mxArray *map_mef3_curs(RECORD_HEADER *rh) {
 		mxSetField(mat_curs, 0, "id_number", 				mxInt64ByValue(cursor->id_number));
 		mxSetField(mat_curs, 0, "trace_timestamp", 			mxInt64ByValue(cursor->trace_timestamp));
 		mxSetField(mat_curs, 0, "latency", 					mxInt64ByValue(cursor->latency));
-		mxSetField(mat_curs, 0, "value", 					mxInt64ByValue(cursor->value));
+		mxSetField(mat_curs, 0, "value", 					mxDoubleByValue(cursor->value));
 		mxSetField(mat_curs, 0, "name", 					mxCreateString(cursor->name));
 		
 		// return the struct
