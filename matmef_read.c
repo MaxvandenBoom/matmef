@@ -517,7 +517,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 		// incorrect crc
 		
 		// message
-		mexPrintf("Error: RED block %lu has 0 bytes, or CRC failed, data likely corrupt...", start_idx);
+		mexPrintf("Error: RED block %lu has 0 bytes, or CRC failed, data likely corrupt...\n", start_idx);
 
 		//
         free (compressed_data_buffer);
@@ -579,7 +579,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 			// incorrect crc
 						
 			// message
-			mexPrintf("Error: RED block %lu has 0 bytes, or CRC failed, data likely corrupt...", start_idx + i);
+			mexPrintf("Error: RED block %lu has 0 bytes, or CRC failed, data likely corrupt...\n", start_idx + i);
 
 			//
 			free (compressed_data_buffer);
@@ -614,7 +614,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	
 				// message
 				// TODO: better fix for buffer overflow, should not happen
-				mexPrintf("Error: buffer overflow prevented, this should be fixed in the code");
+				mexPrintf("Error: buffer overflow prevented, this should be fixed in the code\n");
 
 				//
 				free (compressed_data_buffer);
@@ -650,7 +650,7 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 			// incorrect crc
 			
 			// message
-			mexPrintf("Error: RED block %lu has 0 bytes, or CRC failed, data likely corrupt...", start_idx + i);
+			mexPrintf("Error: RED block %lu has 0 bytes, or CRC failed, data likely corrupt...\n", start_idx + i);
 
 			//
 			free(compressed_data_buffer);
