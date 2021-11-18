@@ -42,8 +42,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
 	// set the session path
 	si1 session_path[MEF_FULL_FILE_NAME_BYTES];
-	MEF_strncpy(session_path, mxArrayToString(prhs[0]), MEF_FULL_FILE_NAME_BYTES);
-	
+	char *mat_session_path = mxArrayToString(prhs[0]);
+	MEF_strncpy(session_path, mat_session_path, MEF_FULL_FILE_NAME_BYTES);
+	mxFree(mat_session_path);
 	
 	// 
 	// password (optional)

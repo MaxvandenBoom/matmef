@@ -44,8 +44,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
 	// set the channel path
 	si1 channel_path[MEF_FULL_FILE_NAME_BYTES];
-	MEF_strncpy(channel_path, mxArrayToString(prhs[0]), MEF_FULL_FILE_NAME_BYTES);
-	
+	char *mat_channel_path = mxArrayToString(prhs[0]);
+	MEF_strncpy(channel_path, mat_channel_path, MEF_FULL_FILE_NAME_BYTES);
+	mxFree(mat_channel_path);
 
 	// 
 	// password (optional)
@@ -101,6 +102,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		// set the range type
 		if (strcmp(mat_range_type, "time") == 0)
 			range_type = RANGE_BY_TIME;
+		mxFree(mat_range_type);
 		
 		// check if a range-start input argument is given
 		if (nrhs > 3) {
