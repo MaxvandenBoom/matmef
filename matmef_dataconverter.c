@@ -208,12 +208,13 @@ mxArray *mxDoubleByValue(sf8 value) {
  * Create a matlab char array based on a MEF UTF-8 character string
  * (force/indicate UTF-8 encoding; depending on the OS locale matlab might be stuck on windows-1252) 
  *
+ * Note: Make sure the given char array pointer has a NULL-character at the end, else 'strlen' might crash
+ *
  * @param str		The char array to store in the matlab variable
  * @return			The mxArray containing the char array
  */
 mxArray *mxStringByUtf8CharString(char *str) {
-	
-	// TODO: try UTF-8 strings, function exists but need set to test
+	if (str == NULL)	return mxCreateString("");
 	
 	// retrieve the number of bytes in the (UTF-8) input string
 	// note: this might be differt then the actual number of characters
@@ -236,7 +237,8 @@ mxArray *mxStringByUtf8CharString(char *str) {
 	mexCallMATLAB(1, lhs, 2, rhs, "native2unicode");
 	
 	// free the memory
-	mxFree(mat_uint8);
+	mxDestroyArray(rhs[1]);
+	mxDestroyArray(mat_uint8);
 	
 	// return matlab array (should now be a matlab UTF-8 string)
 	return lhs[0];
