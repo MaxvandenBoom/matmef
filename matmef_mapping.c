@@ -718,7 +718,6 @@ mxArray *map_mef3_tmd2(TIME_SERIES_METADATA_SECTION_2 *tmd2) {
 
     mxArray *mat_md = mxCreateStructMatrix(1, 1, TIME_SERIES_METADATA_SECTION_2_NUMFIELDS, TIME_SERIES_METADATA_SECTION_2_FIELDNAMES);
 	
-	
 	mxSetField(mat_md, 0, "channel_description", 			mxCreateString(tmd2->channel_description));
 	mxSetField(mat_md, 0, "session_description", 			mxCreateString(tmd2->session_description));
 	
@@ -751,9 +750,9 @@ mxArray *map_mef3_tmd2(TIME_SERIES_METADATA_SECTION_2 *tmd2) {
 }
 
 /**
- * 	Map a MEF section 2 video-series metadata c-struct to a newly created matlab-struct
+ * 	Map a MEF section 2 video metadata c-struct to a newly created matlab-struct
  *
- * 	@param vmd2			A pointer to the MEF section 2 video-series metadata c-struct
+ * 	@param vmd2			A pointer to the MEF section 2 video metadata c-struct
  * 	@return				A pointer to the new matlab-struct
  */
 mxArray *map_mef3_vmd2(VIDEO_METADATA_SECTION_2 *vmd2) {
@@ -904,7 +903,7 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				{			
 					mxArray *mat_note = map_mef3_note(rh);
 					if (mat_note != NULL)
-						mxSetField(mat_records, i, "body", 			mat_note);
+						mxSetField(mat_records, i, "body", 	mat_note);
 				}
 				
 				break;
@@ -912,7 +911,7 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				{
 					mxArray *mat_edfa = map_mef3_edfa(rh);
 					if (mat_edfa != NULL)
-						mxSetField(mat_records, i, "body", 			mat_edfa);
+						mxSetField(mat_records, i, "body", 	mat_edfa);
 				}
 				
 				break;
@@ -920,7 +919,7 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				{
 					mxArray *mat_lntp = map_mef3_lntp(rh);
 					if (mat_lntp != NULL)
-						mxSetField(mat_records, i, "body", 			mat_lntp);
+						mxSetField(mat_records, i, "body", 	mat_lntp);
 				}
 				
 				break;
@@ -928,7 +927,7 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				{
 					mxArray *mat_seiz = map_mef3_seiz(rh);
 					if (mat_seiz != NULL)
-						mxSetField(mat_records, i, "body", 			mat_seiz);
+						mxSetField(mat_records, i, "body", 	mat_seiz);
 				}
 				
 				break;
@@ -936,7 +935,7 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				{
 					mxArray *mat_csti = map_mef3_csti(rh);
 					if (mat_csti != NULL)
-						mxSetField(mat_records, i, "body", 			mat_csti);
+						mxSetField(mat_records, i, "body", 	mat_csti);
 				}
 				
 				break;
@@ -944,7 +943,7 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				{
 					mxArray *mat_esti = map_mef3_esti(rh);
 					if (mat_esti != NULL)
-						mxSetField(mat_records, i, "body", 			mat_esti);
+						mxSetField(mat_records, i, "body", 	mat_esti);
 				}
 				
 				break;
@@ -952,7 +951,7 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				{
 					mxArray *mat_curs = map_mef3_curs(rh);
 					if (mat_curs != NULL)
-						mxSetField(mat_records, i, "body", 			mat_curs);
+						mxSetField(mat_records, i, "body", 	mat_curs);
 				}
 				
 				break;
@@ -960,7 +959,7 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 				{
 					mxArray *mat_epoc = map_mef3_epoc(rh);
 					if (mat_epoc != NULL)
-						mxSetField(mat_records, i, "body", 			mat_epoc);
+						mxSetField(mat_records, i, "body", 	mat_epoc);
 				}
 				
 				break;
@@ -968,7 +967,7 @@ mxArray *map_mef3_records(FILE_PROCESSING_STRUCT *ri_fps, FILE_PROCESSING_STRUCT
 
 				if (rh->version_major == 1 && rh->version_minor == 0) {
 					si1 *log_entry = (si1 *) rh + MEFREC_SyLg_1_0_TEXT_OFFSET;
-					mxSetField(mat_records, i, "body", 			mxCreateString(log_entry));
+					mxSetField(mat_records, i, "body", 		mxCreateString(log_entry));
 					
 				} else
 					mexPrintf("Warning: unrecognized SyLg version, skipping SyLg body\n");

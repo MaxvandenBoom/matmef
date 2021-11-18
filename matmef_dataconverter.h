@@ -4,7 +4,7 @@
  * 	@file - headers
  * 	Functions to convert primitive c-datatypes to matlab primitive (1x1) arrays/matrices
  *	
- *  Copyright 2020, Max van den Boom
+ *  Copyright 2021, Max van den Boom
  *
  *  
  *  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
@@ -16,10 +16,10 @@
 #include "mex.h"
 #include "meflib/meflib/meflib.h"
 
-mxArray *mxUint8ArrayByValue(ui1 *array, int num_bytes);
 
 mxArray *mxUint8ByValue(ui1 value);
 mxArray *mxInt8ByValue(si1 value);
+mxArray *mxUint8ArrayByValue(ui1 *array, int numBytes);
 mxArray *mxUint32ByValue(ui4 value);
 mxArray *mxInt32ByValue(si4 value);
 mxArray *mxUint64ByValue(ui8 value);
@@ -27,7 +27,7 @@ mxArray *mxInt64ByValue(si8 value);
 mxArray *mxDoubleByValue(sf8 value);
 mxArray *mxStringByUtf8CharString(char *str);
 
-bool cpyMxStringToUtf8CharString(mxArray *mat_str, char *str, int strSize);
+bool cpyMxStringToUtf8CharString(const mxArray *mat, char *str, int strSize);
 
 
 #endif   // MATMEF_DATACONVERTER_
