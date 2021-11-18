@@ -164,6 +164,25 @@ mxArray *mxInt64ByValue(si8 value) {
 	
 }
 
+/**
+ * Create a (1x1 real) double matrix based on a MEF sf4 (signed 4 byte float) variable
+ *
+ * @param value		The value to store in the matlab variable
+ * @return			The mxArray containing the value
+ */
+mxArray *mxSingleByValue(sf4 value) {
+	
+	// create the matlab variable (1x1 real single matrix) and retrieve the pointer to the allocated memory
+	mxArray *retArr = mxCreateNumericMatrix(1, 1, mxSINGLE_CLASS, mxREAL);
+	mxSingle *data = (mxSingle *)mxGetData(retArr);
+	
+	// transfer the value to the matlab (allocated memory)
+	*data = (mxSingle)value;
+	
+	// return the matlab variable
+	return retArr;
+	
+}
 
 /**
  * Create a (1x1 real) double matrix based on a MEF sf8 (signed 8 byte float) variable

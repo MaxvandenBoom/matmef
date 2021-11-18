@@ -24,6 +24,7 @@ mxArray *mxUint32ByValue(ui4 value);
 mxArray *mxInt32ByValue(si4 value);
 mxArray *mxUint64ByValue(ui8 value);
 mxArray *mxInt64ByValue(si8 value);
+mxArray *mxSingleByValue(sf4 value);
 mxArray *mxDoubleByValue(sf8 value);
 mxArray *mxStringByUtf8CharString(char *str);
 
