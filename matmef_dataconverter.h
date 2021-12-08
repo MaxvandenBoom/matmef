@@ -2,7 +2,7 @@
 #define MATMEF_DATACONVERTER_
 /**
  * 	@file - headers
- * 	Functions to convert primitive c-datatypes to matlab primitive (1x1) arrays/matrices
+ * 	Functions to convert primitive c-datatypes to matlab primitive (1x1) arrays/matrices and vice versa
  *	
  *  Copyright 2021, Max van den Boom
  *
@@ -19,7 +19,7 @@
 
 mxArray *mxUint8ByValue(ui1 value);
 mxArray *mxInt8ByValue(si1 value);
-mxArray *mxUint8ArrayByValue(ui1 *array, int numBytes);
+mxArray *mxUint8ArrayByValue(ui1 *values, int numBytes);
 mxArray *mxUint32ByValue(ui4 value);
 mxArray *mxInt32ByValue(si4 value);
 mxArray *mxUint64ByValue(ui8 value);
@@ -29,6 +29,10 @@ mxArray *mxDoubleByValue(sf8 value);
 mxArray *mxStringByUtf8CharString(char *str);
 
 bool cpyMxStringToUtf8CharString(const mxArray *mat, char *str, int strSize);
+
+bool getInputArgAsBool(const mxArray *mat, const char *argName, bool *pVar);
+bool getInputArgAsInt64(const mxArray *mat, const char *argName, si8 minValue, si8 maxValue, si8 *pVar);
+bool getInputArgAsUint64(const mxArray *mat, const char *argName, ui8 maxValue, ui8 *pVar);
 
 
 #endif   // MATMEF_DATACONVERTER_

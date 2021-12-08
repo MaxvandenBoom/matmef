@@ -37,9 +37,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// 
 	
 	// check the session path input argument
-    if (nrhs < 1)				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:noSessionPathArg", "sessionPath input argument not set");
-	if (!mxIsChar(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidSessionPathArg", "sessionPath input argument invalid, should string (array of characters)");
-	if (mxIsEmpty(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidSessionPathArg", "sessionPath input argument invalid, argument is empty");
+    if (nrhs < 1)				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:noSessionPathArg", "'sessionPath' input argument not set");
+	if (!mxIsChar(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidSessionPathArg", "'sessionPath' input argument invalid, should string (array of characters)");
+	if (mxIsEmpty(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidSessionPathArg", "'sessionPath' input argument invalid, argument is empty");
 	
 	// set the session path
 	si1 session_path[MEF_FULL_FILE_NAME_BYTES];
@@ -51,8 +51,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// password (optional)
 	// 
 	
-	si1 *password = NULL;
-	si1 password_arr[PASSWORD_BYTES] = {0};
+	si1 password[PASSWORD_BYTES] = {0};
 	
 	// check if a password input argument is given
     if (nrhs > 1) {
@@ -66,14 +65,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			
 			// check the password input argument data type
 			if (!mxIsChar(prhs[1]))
-				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, should string (array of characters)");
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidPasswordArg", "'password' input argument invalid, should string (array of characters)");
 
 			// convert password (matlab char-array to UTF-8 character string)
-			if (!cpyMxStringToUtf8CharString(prhs[1], password_arr, PASSWORD_BYTES))
-				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidPasswordArg", "password input argument invalid, could not convert matlab char-array to UTF-8 bytes");
-			password = password_arr;
-			if (password != NULL && password[0] == '\0')
-				password = NULL;
+			if (!cpyMxStringToUtf8CharString(prhs[1], password, PASSWORD_BYTES))
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidPasswordArg", "'password' input argument invalid, could not convert matlab char-array to UTF-8 bytes");
 
 		}
 		
@@ -92,12 +88,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		if (!mxIsEmpty(prhs[2])) {
 			
 			if ((!mxIsNumeric(prhs[2]) && !mxIsLogical(prhs[2])) || mxGetNumberOfElements(prhs[2]) > 1)
-				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadIndicesArg", "readIndices input argument invalid, should be a single value logical or numeric");
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadIndicesArg", "'readIndices' input argument invalid, should be a single value logical or numeric");
 			
 			// retrieve the map indices flag value
 			int mat_read_indices_flag = mxGetScalar(prhs[2]);
 			if (mat_read_indices_flag != 0 && mat_read_indices_flag != 1)
-				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadIndicesArg", "readIndices input argument invalid, allowed values are 0, false, 1 or true");
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadIndicesArg", "'readIndices' input argument invalid, allowed values are 0, false, 1 or true");
 			
 			// set the flag
 			read_indices_flag = mat_read_indices_flag;
@@ -118,12 +114,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		if (!mxIsEmpty(prhs[3])) {
 			
 			if ((!mxIsNumeric(prhs[3]) && !mxIsLogical(prhs[3])) || mxGetNumberOfElements(prhs[3]) > 1)
-				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadRecordsArg", "readRecords input argument invalid, should be a single value logical or numeric");
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadRecordsArg", "'readRecords' input argument invalid, should be a single value logical or numeric");
 			
 			// retrieve the read records flag value
 			int mat_read_records_flag = mxGetScalar(prhs[3]);
 			if (mat_read_records_flag != 0 && mat_read_records_flag != 1)
-				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadRecordsArg", "readRecords input argument invalid, allowed values are 0, false, 1 or true");
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadRecordsArg", "'readRecords' input argument invalid, allowed values are 0, false, 1 or true");
 			
 			// set the flag
 			read_records_flag = mat_read_records_flag;
@@ -147,12 +143,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	}
 	if (!read_records_flag)
 		MEF_globals->read_record_indices        = 0;
-	SESSION *session = read_MEF_session(	NULL, 					// allocate new session object
-											session_path, 			// session filepath
-											password, 				// password
-											NULL, 					// empty password
-											MEF_FALSE, 				// do not read time series data
-											read_records_flag		// read record data
+	SESSION *session = read_MEF_session(	NULL, 															// allocate new session object
+											session_path, 													// session filepath
+											(password[0] == '\0') ? NULL : password,                        // password
+											NULL, 															// empty password
+											MEF_FALSE, 														// do not read time series data
+											read_records_flag												// read record data
 										);
 	MEF_globals->behavior_on_fail = EXIT_ON_FAIL;
 	
@@ -163,7 +159,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	if (session->time_series_metadata.section_1 != NULL) {
 		if (session->time_series_metadata.section_1->section_2_encryption > 0 || session->time_series_metadata.section_1->section_2_encryption > 0) {
 			free_session(session, MEF_TRUE);
-			if (password == NULL)
+			if (password[0] == '\0')
 				mexErrMsgTxt("Error: data is encrypted, but no password is given, exiting...");
 			else
 				mexErrMsgTxt("Error: wrong password for encrypted data, exiting...");
@@ -173,7 +169,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	if (session->video_metadata.section_1 != NULL) {
 		if (session->video_metadata.section_1->section_2_encryption > 0 || session->video_metadata.section_1->section_2_encryption > 0) {
 			free_session(session, MEF_TRUE);
-			if (password == NULL)
+			if (password[0] == '\0')
 				mexErrMsgTxt("Error: data is encrypted, but no password is given, exiting...");
 			else
 				mexErrMsgTxt("Error: wrong password for encrypted data, exiting...");

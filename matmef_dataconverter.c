@@ -1,6 +1,6 @@
 /**
  * 	@file
- * 	Functions to convert primitive c-datatypes to matlab primitive (1x1) arrays/matrices
+ * 	Functions to convert primitive c-datatypes to matlab primitive (1x1) arrays/matrices and vice versa
  *	
  *  Copyright 2021, Max van den Boom
  *
@@ -63,21 +63,21 @@ mxArray *mxInt8ByValue(si1 value) {
 
 /**
  * Create a (1xN real) Uint8 vector/matrix based on a MEF array of ui1 (unsigned 1 byte int) values
- * (contributed by Richard J. Cui, 4 apr 2020)
+ * (contributed by Richard J. Cui, 4 apr 2020; updates by Max, 2020-2021)
  *
- * @param array			The array to store in the matlab variable
- * @param numbytes		The number of values in the array to transfer
+ * @param values		The array of values to store in the matlab variable
+ * @param numBytes		The number of values in the array to transfer
  * @return				The mxArray containing the array
  */
-mxArray *mxUint8ArrayByValue(ui1 *array, int numBytes) {
+mxArray *mxUint8ArrayByValue(ui1 *values, int numBytes) {
     int i;
 	
 	// create the matlab variable (1x1 real double matrix)
 	mxArray *retArr = mxCreateNumericMatrix(1, numBytes, mxUINT8_CLASS, mxREAL);
 	
 	// transfer the values to the matlab (allocated memory)
-	unsigned char *ucp = (unsigned char *)mxGetData(retArr);
-	for (i = 0; i < numBytes; i++)		ucp[i] = array[i];
+	mxUint8 *data = (mxUint8 *)mxGetData(retArr);
+	for (i = 0; i < numBytes; i++)		data[i] = values[i];
     
 	// return the matlab variable
 	return retArr;
@@ -292,4 +292,231 @@ bool cpyMxStringToUtf8CharString(const mxArray *mat, char *str, int strSize) {
 	
 	// return success
 	return true;
+	
+}
+
+
+
+//
+// Functions that check and convert a matlab input argument matrix with a single value
+// 
+
+/**
+ * Check and extract a boolean value from a matlab input argument matrix
+ *
+ * @param mat   	The matlab array with a single value to check and extract
+ * @param argName   The name of the input argument (used in error messages)
+ * @param pVar  	Pointer to a boolean variable to store the value in
+ * @return			True if a valid single numeric boolean value was extracted, false elsewise
+ */
+bool getInputArgAsBool(const mxArray *mat, const char *argName, bool *pVar) {
+	
+	// check the input matrix
+	if (mxIsEmpty(mat)) {
+		mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is empty, should be 0 (false) or 1 (true)", argName);
+		return false;
+	}
+	if (!mxIsLogicalScalar(mat) && !mxIsNumeric(mat)) {
+		mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is not numeric or logical, should be 0 (false) or 1 (true)", argName);
+		return false;
+	}
+	if (mxGetNumberOfElements(mat) != 1) {
+		mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument invalid, should be a single numeric or logical value", argName);
+		return false;
+	}
+	
+	// assign the value and return succes
+	*pVar = (mxIsLogicalScalarTrue(mat) || mxGetScalar(mat) == 1);
+	return true;
+	
+}
+
+/**
+ * Check and extract a single MEF si8 (signed 8 byte int) value from a matlab input argument matrix
+ *
+ * @param mat   	The matlab array with a single value to check and extract
+ * @param argName   The name of the input argument (used in error messages)
+ * @param minValue  The minimum integer value (also used to determine whether the double data-type can be used)
+ * @param maxValue  The maximum integer value (also used to determine whether the double data-type can be used)
+ * @param pVar  	Pointer to a si8 variable to store the value in
+ * @return			True if a valid single numeric si8 value was extracted, false elsewise
+ */
+bool getInputArgAsInt64(const mxArray *mat, const char *argName, si8 minValue, si8 maxValue, si8 *pVar) {
+	
+	// check the input matrix
+	if (mxIsEmpty(mat)) {
+		if (minValue == -1)
+			mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is empty, should be -1, 0 or a positive integer (1, 2, ...)", argName);
+		else
+			mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is empty, should be a numeric value", argName);
+		return false;
+	}
+	if (!mxIsNumeric(mat)) {
+		if (minValue == -1)
+			mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is not numeric, should be -1, 0 or a positive integer (1, 2, ...)", argName);
+		else
+			mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is not numeric", argName);
+		return false;
+	}
+	if (mxGetNumberOfElements(mat) != 1) {
+		mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument invalid, should be a single numeric value", argName);
+		return false;
+	}
+	
+	// try to retrieve the value as an si8
+	si8 mat_si8 = 0;
+	mxClassID classID = mxGetClassID(mat);
+    if (classID == mxINT64_CLASS) {
+        // same type, just use the value
+        
+        mat_si8 = (si8)*(mxInt64 *)mxGetData(mat);
+        
+        
+    } else if (classID == mxDOUBLE_CLASS) {
+
+        // retrieve the value as a scalar first
+        double dbl_mat = mxGetScalar(mat);
+
+        // check if we only allow a negative value of -1 and the value is indeed -1
+        // (if the value that is passed is -1 then there is no risk of imprecision)
+        if (minValue == -1 && dbl_mat == -1) {
+            // allow only -1 and value is -1
+
+            mat_si8 = -1;
+
+        } else {
+            // elsewise
+
+            // check if the value that we are trying to retrieve from the double can is smaller or
+            // larger than what a double variable can contain without losing precision (<= 2^53; so <= 9007199254740992)
+            if (classID == mxDOUBLE_CLASS && (dbl_mat < -9007199254740992 || dbl_mat > 9007199254740992)) {
+                mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument data-type is invalid. The argument is a double; because the argument might require a value smaller than -2^53 or larger than 2^53, using a double for input could result in a loss of precision. Instead pass the value as an signed 64-bit integer (e.g. 'int64(1024)')", argName);
+                return false;				
+            }
+
+            // check the scalar
+            if (mxIsNaN(dbl_mat) || mxIsInf(dbl_mat)) {
+                mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is NaN or Inf, should be an integer", argName);
+                return false;
+            }
+            if (floor(dbl_mat) != dbl_mat) {
+                mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is a fraction, should be an integer", argName);
+                return false;
+            }
+
+            // transfer to si8 variable
+            mat_si8 = (si8)dbl_mat;
+            
+        }
+        
+    } else {
+
+        if (minValue < -9007199254740992 || maxValue > 9007199254740992)
+            mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument data-type (%s) is invalid, should be int64", argName, mxGetClassName(mat));
+        else
+            mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument data-type (%s) is invalid, should be an int64 or double", argName, mxGetClassName(mat));
+        return false;
+
+	}
+	
+	// check the value
+	if (mat_si8 < minValue) {
+		mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is invalid, the numeric value cannot be smaller than %lld", argName, minValue);
+		return false;
+	}
+	if (mat_si8 > maxValue) {
+		mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is invalid, the numeric value cannot be greater than %lld", argName, maxValue);
+		return false;
+	}
+	
+	// assign the value and return succes
+	*pVar = mat_si8;
+	return true;
+	
+}
+
+/**
+ * Check and extract a single MEF ui8 (unsigned 8 byte int) value from a matlab input argument matrix
+ *
+ * @param mat   	The matlab array with a single value to check and extract
+ * @param argName   The name of the input argument (used in error messages)
+ * @param maxValue  The maximum integer value (also used to determine whether the double data-type can be used)
+ * @param pVar  	Pointer to a ui8 variable to store the value in
+ * @return			True if a valid single numeric si8 value was extracted, false elsewise
+ */
+bool getInputArgAsUint64(const mxArray *mat, const char *argName, ui8 maxValue, ui8 *pVar) {
+	
+	// check the input matrix
+	if (mxIsEmpty(mat)) {
+		mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is empty", argName);
+		return false;
+	}
+	if (!mxIsNumeric(mat)) {
+		mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is not numeric, should be 0 or a positive integer (1, 2, ...)", argName);
+		return false;
+	}
+	if (mxGetNumberOfElements(mat) != 1) {
+		mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument invalid, should be a single numeric value", argName);
+		return false;
+	}
+	
+	// try to retrieve the value as an ui8
+	ui8 mat_ui8 = 0;
+	mxClassID classID = mxGetClassID(mat);
+	if (classID == mxUINT64_CLASS) {
+        // same type, just use the value
+        
+        mat_ui8 = (ui8)*(mxUint64 *)mxGetData(mat);
+        
+    } else if (classID == mxDOUBLE_CLASS) {
+
+        // 
+        // check if the value that we are trying to retrieve from the double can is larger than
+        // what a double variable can contain without losing precision (<= 2^53; so <= 9007199254740992)
+        if (classID == mxDOUBLE_CLASS && mat_ui8 > 9007199254740992) {
+            mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument data-type is invalid. The argument is a double; because the argument might require a value larger than 2^53, using a double for input could result in a loss of precision. Instead pass the value as an unsigned 64-bit integer (e.g. 'uint64(1024)')", argName);
+            return false;				
+        }
+
+        // retrieve the value as a scalar first
+        double dbl_mat = mxGetScalar(mat);
+
+        // check the scalar
+        if (mxIsNaN(dbl_mat) || mxIsInf(dbl_mat)) {
+            mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is NaN or Inf, should be 0 or a positive integer (1, 2, ...)", argName);
+            return false;
+        }
+        if (floor(dbl_mat) != dbl_mat) {
+            mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is a fraction, should be 0 or a positive integer (1, 2, ...)", argName);
+            return false;
+        }
+
+        // transfer to ui8 variable
+        mat_ui8 = (ui8)dbl_mat;
+        
+    } else {
+
+        if (maxValue > 9007199254740992)
+            mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument data-type (%s) is invalid, should be uint64", argName, mxGetClassName(mat));
+        else
+            mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument data-type (%s) is invalid, should be an uint64 or double", argName, mxGetClassName(mat));
+
+        return false;
+
+	}
+	
+	// check the value
+	if (mat_ui8 < 0) {
+		mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is negative, should be 0 or a positive integer (1, 2, ...)", argName);
+		return false;
+	}
+	if (mat_ui8 > maxValue) {
+		mexErrMsgIdAndTxt("MATLAB:matmef_utils:invalidArg", "'%s' input argument is invalid, the numeric value cannot be greater than %llu", argName, maxValue);
+		return false;
+	}
+	
+	// assign the value and return succes
+	*pVar = mat_ui8;
+	return true;
+	
 }

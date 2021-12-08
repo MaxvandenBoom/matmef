@@ -256,7 +256,7 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, va
                 for iRange = 1:size(ranges, 1)
 
                     % read the signal
-                    signal = read_mef_ts_data(channelPath, password, rangeType, ranges(iRange, 1), ranges(iRange, 2), true)';
+                    signal = read_mef_ts_data(channelPath, password, rangeType, int64(ranges(iRange, 1)), int64(ranges(iRange, 2)), true)';
 
                     % on the first read, initialize the array
                     % note: we cannot beforehand determine the size of matrix because of potential

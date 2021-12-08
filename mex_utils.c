@@ -1,6 +1,6 @@
 /**
  * 	@file
- * 	Various utility functions
+ * 	General utility functions
  *	
  *  Copyright 2021, Max van den Boom
  *	mxIsWarningEnabled function by Pavel Holoborodko (https://undocumentedmatlab.com/articles/checking-status-of-warning-messages-in-mex)

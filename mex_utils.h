@@ -2,7 +2,7 @@
 #define MEX_UTILS_
 /**
  * 	@file - headers
- * 	Various utility functions
+ * 	General utility functions
  *	
  *  Copyright 2021, Max van den Boom
  *
