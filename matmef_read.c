@@ -37,8 +37,7 @@
 mxArray *read_channel_data_from_path(si1 *channel_path, si1 *password, bool range_type, si8 range_start, si8 range_end, bool apply_conv_factor) {
 
 	// if the password is just the null character, then correct to a null pointer
-	if (password != NULL && password[0] == '\0')
-		password = NULL;
+	if (password != NULL && password[0] == '\0')	password = NULL;
 	
 	// initialize MEF library
 	(void) initialize_meflib();
@@ -127,11 +126,11 @@ mxArray *read_channel_data_from_object(CHANNEL *channel, bool range_type, si8 ra
 	
 	// check if valid data range
     if (range_type == RANGE_BY_TIME && start_time >= end_time) {
-		mexPrintf("Error: start time later than end time, exiting...\n");
+		mexPrintf("Error: start-time (%lld) later than end-time (%lld), exiting...\n", start_time, end_time);
         return NULL;
     }
     if (range_type == RANGE_BY_SAMPLES && start_samp >= end_samp) {
-        mexPrintf("Error: start sample larger than end sample, exiting...\n");
+        mexPrintf("Error: start-sample (%lld) larger than end-sample (%lld), exiting...\n", start_samp, end_samp);
         return NULL;
     }
 	
