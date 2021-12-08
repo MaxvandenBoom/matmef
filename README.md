@@ -48,8 +48,8 @@ ranges = [[0,    1000]; ...
   
 session = read_mef_session_metadata('./mefSessionData/', [], 1);  
 data = read_mef_ts_data('./mefSessionData/channelPath/');  
-data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'samples', 0, 1000);  
-data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'time', 1578715810000000, 1578715832000000);  
+data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'samples', int64(0), int64(1000));
+data = read_mef_ts_data('./mefSessionData/channelPath/', [], 'time', int64(1578715810000000), int64(1578715832000000));
 ```
 
 ## Acknowledgements
