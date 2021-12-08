@@ -25,7 +25,7 @@
 
 
 // Universal Header Structures
-const int UNIVERSAL_HEADER_NUMFIELDS		= 21;
+const int UNIVERSAL_HEADER_NUMFIELDS		= 20;
 const char *UNIVERSAL_HEADER_FIELDNAMES[] 	= {	
 	"header_CRC",
 	"body_CRC",
@@ -46,7 +46,7 @@ const char *UNIVERSAL_HEADER_FIELDNAMES[] 	= {
 	"provenance_UUID",
 	"level_1_password_validation_field",
 	"level_2_password_validation_field",
-	"protected_region",
+	//"protected_region",			// (not mapped, reserved, should not be used by end users)
 	"discretionary_region"
 };
 
@@ -124,15 +124,15 @@ const char *SESSION_FIELDNAMES[] 	= {
 
 
 // Metadata Structures
-const int METADATA_SECTION_1_NUMFIELDS		= 4;
+const int METADATA_SECTION_1_NUMFIELDS		= 3;
 const char *METADATA_SECTION_1_FIELDNAMES[] = {
 	"section_2_encryption",
 	"section_3_encryption",
-	"protected_region",				// (not mapped)
-	"discretionary_region"			// (not mapped)
+	//"protected_region",			// (not mapped, reserved, should not be used by end users)
+	"discretionary_region"
 };
 
-const int TIME_SERIES_METADATA_SECTION_2_NUMFIELDS		= 27;
+const int TIME_SERIES_METADATA_SECTION_2_NUMFIELDS		= 26;
 const char *TIME_SERIES_METADATA_SECTION_2_FIELDNAMES[] = {
 	// type-independent fields
 	"channel_description",			// utf8[511];
@@ -161,11 +161,11 @@ const char *TIME_SERIES_METADATA_SECTION_2_FIELDNAMES[] = {
 	"maximum_contiguous_blocks",
 	"maximum_contiguous_block_bytes",
 	"maximum_contiguous_samples",
-	"protected_region",				// (not mapped)
-	"discretionary_region"			// (not mapped)
+	//"protected_region",			// (not mapped, reserved, should not be used by end users)
+	"discretionary_region"
 };
 
-const int VIDEO_METADATA_SECTION_2_NUMFIELDS		= 12;
+const int VIDEO_METADATA_SECTION_2_NUMFIELDS		= 11;
 const char *VIDEO_METADATA_SECTION_2_FIELDNAMES[] 	= {
 	// type-independent fields
 	"channel_description",			// utf8[511]
@@ -179,11 +179,11 @@ const char *VIDEO_METADATA_SECTION_2_FIELDNAMES[] 	= {
 	"maximum_clip_bytes",
 	"video_format",
 	"video_file_CRC",
-	"protected_region",				// (not mapped)
-	"discretionary_region"			// (not mapped)
+	//"protected_region",			// (not mapped, reserved, should not be used by end users)
+	"discretionary_region"
 };
 
-const int METADATA_SECTION_3_NUMFIELDS		= 10;
+const int METADATA_SECTION_3_NUMFIELDS		= 9;
 const char *METADATA_SECTION_3_FIELDNAMES[] = {
 	"recording_time_offset",
 	"DST_start_time",
@@ -193,8 +193,8 @@ const char *METADATA_SECTION_3_FIELDNAMES[] = {
 	"subject_name_2",				// utf8[31]
 	"subject_ID",					// utf8[31]
 	"recording_location",			// utf8[127]
-	"protected_region",				// (not mapped)
-	"discretionary_region"			// (not mapped)
+	//"protected_region",			// (not mapped, reserved, should not be used by end users)
+	"discretionary_region"
 };
 
 const int METADATA_NUMFIELDS 		= 3;
@@ -231,7 +231,7 @@ const char *RECORD_INDEX_FIELDNAMES[] 	= {
 
 
 // Block Indices Structures
-const int TIME_SERIES_INDEX_NUMFIELDS		= 11;
+const int TIME_SERIES_INDEX_NUMFIELDS		= 9;
 const char *TIME_SERIES_INDEX_FIELDNAMES[] 	= {	
 	"file_offset",
 	"start_time",
@@ -240,24 +240,24 @@ const char *TIME_SERIES_INDEX_FIELDNAMES[] 	= {
 	"block_bytes",
 	"maximum_sample_value",
 	"minimum_sample_value",
-	"protected_region",					// (not mapped)
+	//"protected_region",				// (not mapped, reserved, should not be used by end users)
 	"RED_block_flags",
-	"RED_block_protected_region",		// (not mapped)
-	"RED_block_discretionary_region"	// (not mapped)
+	//"RED_block_protected_region",		// (not mapped, reserved, should not be used by end users)
+	"RED_block_discretionary_region"
 };
 
 
 // Frame Indices Structures
-const int VIDEO_INDEX_NUMFIELDS			= 8;
-const char *VIDEO_INDEX_FIELDNAMES[] 	= {	
+const int VIDEO_INDEX_NUMFIELDS			= 9;
+const char *VIDEO_INDEX_FIELDNAMES[] 	= {
 	"start_time",
 	"end_time",
 	"start_frame",
 	"end_frame",
 	"file_offset",
 	"clip_bytes",
-	"protected_region",					// (not mapped)
-	"discretionary_region"				// (not mapped)
+	//"protected_region",				// (not mapped, reserved, should not be used by end users)
+	"discretionary_region"
 };
 
 
@@ -703,6 +703,7 @@ mxArray *map_mef3_md1(METADATA_SECTION_1 *md1) {
     mxArray *mat_md = mxCreateStructMatrix(1, 1, METADATA_SECTION_1_NUMFIELDS, METADATA_SECTION_1_FIELDNAMES);
 	mxSetField(mat_md, 0, "section_2_encryption", 			mxInt8ByValue(md1->section_2_encryption));
 	mxSetField(mat_md, 0, "section_3_encryption", 			mxInt8ByValue(md1->section_3_encryption));
+	mxSetField(mat_md, 0, "discretionary_region", 			mxUint8ArrayByValue(md1->discretionary_region, METADATA_SECTION_1_DISCRETIONARY_REGION_BYTES));
 
 	// return the struct
 	return mat_md;
@@ -744,6 +745,7 @@ mxArray *map_mef3_tmd2(TIME_SERIES_METADATA_SECTION_2 *tmd2) {
 	mxSetField(mat_md, 0, "maximum_contiguous_blocks", 		mxInt64ByValue(tmd2->maximum_contiguous_blocks));
 	mxSetField(mat_md, 0, "maximum_contiguous_block_bytes", mxInt64ByValue(tmd2->maximum_contiguous_block_bytes));
 	mxSetField(mat_md, 0, "maximum_contiguous_samples", 	mxInt64ByValue(tmd2->maximum_contiguous_samples));
+	mxSetField(mat_md, 0, "discretionary_region", 			mxUint8ArrayByValue(tmd2->discretionary_region, TIME_SERIES_METADATA_SECTION_2_DISCRETIONARY_REGION_BYTES));
 	
 	// return the struct
 	return mat_md;
@@ -769,7 +771,8 @@ mxArray *map_mef3_vmd2(VIDEO_METADATA_SECTION_2 *vmd2) {
 	mxSetField(mat_md, 0, "number_of_clips", 				mxInt64ByValue(vmd2->number_of_clips));
 	mxSetField(mat_md, 0, "maximum_clip_bytes", 			mxInt64ByValue(vmd2->maximum_clip_bytes));
 	mxSetField(mat_md, 0, "video_format", 					mxCreateString(vmd2->video_format));
-	//mxSetField(mat_md, 0, "video_file_CRC", 				mxUint32ByValue(vmd2->video_file_CRC));			// TODO: check with valid value, leave empty for now
+	mxSetField(mat_md, 0, "video_file_CRC", 				mxUint32ByValue(vmd2->video_file_CRC));
+	mxSetField(mat_md, 0, "discretionary_region", 			mxUint8ArrayByValue(vmd2->discretionary_region, VIDEO_METADATA_SECTION_2_DISCRETIONARY_REGION_BYTES));
 	
 	// return the struct
 	return mat_md;
@@ -793,6 +796,7 @@ mxArray *map_mef3_md3(METADATA_SECTION_3 *md3) {
 	mxSetField(mat_md, 0, "subject_name_2", 				mxCreateString(md3->subject_name_2));
 	mxSetField(mat_md, 0, "subject_ID", 					mxCreateString(md3->subject_ID));
 	mxSetField(mat_md, 0, "recording_location", 			mxCreateString(md3->recording_location));
+	mxSetField(mat_md, 0, "discretionary_region", 			mxUint8ArrayByValue(md3->discretionary_region, METADATA_SECTION_3_DISCRETIONARY_REGION_BYTES));
 	
 	// return the struct
 	return mat_md;
@@ -809,14 +813,15 @@ mxArray *map_mef3_ti(TIME_SERIES_INDEX *ti, si8 number_of_entries) {
 	for (i = 0; i < number_of_entries; ++i) {
 		TIME_SERIES_INDEX *cur_ti = ti + i;
 		
-		mxSetField(mat_ti, i, "file_offset", 				mxInt64ByValue(cur_ti->file_offset));
-		mxSetField(mat_ti, i, "start_time", 				mxInt64ByValue(cur_ti->start_time));
-		mxSetField(mat_ti, i, "start_sample", 				mxInt64ByValue(cur_ti->start_sample));
-		mxSetField(mat_ti, i, "number_of_samples", 			mxUint32ByValue(cur_ti->number_of_samples));
-		mxSetField(mat_ti, i, "block_bytes", 				mxUint32ByValue(cur_ti->block_bytes));
-		mxSetField(mat_ti, i, "maximum_sample_value", 		mxInt32ByValue(cur_ti->maximum_sample_value));
-		mxSetField(mat_ti, i, "minimum_sample_value", 		mxInt32ByValue(cur_ti->minimum_sample_value));
-        mxSetField(mat_ti, i, "RED_block_flags", 			mxUint8ByValue(cur_ti->RED_block_flags));
+		mxSetField(mat_ti, i, "file_offset", 					mxInt64ByValue(cur_ti->file_offset));
+		mxSetField(mat_ti, i, "start_time", 					mxInt64ByValue(cur_ti->start_time));
+		mxSetField(mat_ti, i, "start_sample", 					mxInt64ByValue(cur_ti->start_sample));
+		mxSetField(mat_ti, i, "number_of_samples", 				mxUint32ByValue(cur_ti->number_of_samples));
+		mxSetField(mat_ti, i, "block_bytes", 					mxUint32ByValue(cur_ti->block_bytes));
+		mxSetField(mat_ti, i, "maximum_sample_value", 			mxInt32ByValue(cur_ti->maximum_sample_value));
+		mxSetField(mat_ti, i, "minimum_sample_value", 			mxInt32ByValue(cur_ti->minimum_sample_value));
+        mxSetField(mat_ti, i, "RED_block_flags", 				mxUint8ByValue(cur_ti->RED_block_flags));
+		mxSetField(mat_ti, i, "RED_block_discretionary_region", mxUint8ArrayByValue(cur_ti->RED_block_discretionary_region, RED_BLOCK_DISCRETIONARY_REGION_BYTES));
 	}	
 	
 	// return the struct
@@ -840,6 +845,7 @@ mxArray *map_mef3_vi(VIDEO_INDEX *vi, si8 number_of_entries) {
 		mxSetField(mat_vi, i, "end_frame", 					mxUint32ByValue(cur_vi->end_frame));
 		mxSetField(mat_vi, i, "file_offset", 				mxInt64ByValue(cur_vi->file_offset));
 		mxSetField(mat_vi, i, "clip_bytes", 				mxInt64ByValue(cur_vi->clip_bytes));
+		mxSetField(mat_vi, i, "discretionary_region", 		mxUint8ArrayByValue(cur_vi->discretionary_region, VIDEO_INDEX_DISCRETIONARY_REGION_BYTES));
 		
 	}	
 	
@@ -1258,7 +1264,6 @@ mxArray *map_mef3_uh(UNIVERSAL_HEADER *universal_header) {
     mxSetField(mat_uh, 0, "provenance_UUID", 				mxUint8ArrayByValue(universal_header->provenance_UUID, UUID_BYTES));
     mxSetField(mat_uh, 0, "level_1_password_validation_field", mxUint8ArrayByValue(universal_header->level_1_password_validation_field, PASSWORD_VALIDATION_FIELD_BYTES));
     mxSetField(mat_uh, 0, "level_2_password_validation_field", mxUint8ArrayByValue(universal_header->level_2_password_validation_field, PASSWORD_VALIDATION_FIELD_BYTES));
-    mxSetField(mat_uh, 0, "protected_region", 				mxUint8ArrayByValue(universal_header->protected_region, UNIVERSAL_HEADER_PROTECTED_REGION_BYTES)); 
     mxSetField(mat_uh, 0, "discretionary_region", 			mxUint8ArrayByValue(universal_header->discretionary_region, UNIVERSAL_HEADER_DISCRETIONARY_REGION_BYTES));
     
 	// return the struct
