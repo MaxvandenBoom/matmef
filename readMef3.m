@@ -38,10 +38,13 @@
 %       [metadata, signaldata] = readMef3('./mefSessionData/', [], [], 'samples', ranges);
 %
 %
-%   Note:  When the rangeType is set to 'samples', the function simply returns the samples as they are
-%          found (consecutively) in the datafile, without any regard for time or data gaps; Meaning 
-%          that, if there is a time-gap between samples, then these will not appear in the result returned.
-%          In contrast, the 'time' rangeType will return the data with NaN values in place for the missing samples.
+%   Note:    When the rangeType is set to 'samples', the function simply returns the samples as they are
+%            found (consecutively) in the datafile, without any regard for time or data gaps; Meaning 
+%            that, if there is a time-gap between samples, then these will not appear in the result returned.
+%            In contrast, the 'time' rangeType will return the data with NaN values in place for the missing samples.
+%
+%   Note 2:  Since this is a high-level read function, the data that is returned has the unit conversion factor applied
+%            Use the low-level read function to read the raw data without applying the unit conversion factor
 %
 %
 %   Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
