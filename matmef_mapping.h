@@ -17,6 +17,10 @@
 #include "mex.h"
 #include "meflib/meflib/meflib.h"
 
+mxArray *create_init_matlab_uh();
+mxArray *create_init_matlab_tmd2();
+mxArray *create_init_matlab_vmd2();
+mxArray *create_init_matlab_md3();
 
 void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *mat_segment, int mat_index);
 mxArray *map_mef3_segment(SEGMENT *segment, si1 map_indices_flag);

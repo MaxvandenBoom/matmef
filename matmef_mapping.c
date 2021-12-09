@@ -348,6 +348,142 @@ const char *MEFREC_EPOC_1_0_FIELDNAMES[] 	= {
 
 
 ///
+// Functions to create new and initialized matlab-structs
+///
+
+/**
+ * 	Create and initialize a new MEF universal-header matlab-struct
+ *
+ * 	@return				A pointer to the new matlab-struct
+ */
+mxArray *create_init_matlab_uh() {
+	
+    mxArray *mat_uh = mxCreateStructMatrix(1, 1, UNIVERSAL_HEADER_NUMFIELDS, UNIVERSAL_HEADER_FIELDNAMES);
+	
+	mxSetField(mat_uh, 0, "header_CRC", 					mxUint32ByValue(UNIVERSAL_HEADER_HEADER_CRC_NO_ENTRY));
+	mxSetField(mat_uh, 0, "body_CRC", 						mxUint32ByValue(UNIVERSAL_HEADER_BODY_CRC_NO_ENTRY));
+	mxSetField(mat_uh, 0, "file_type_string", 				mxCreateString(""));
+	mxSetField(mat_uh, 0, "mef_version_major", 				mxUint8ByValue(UNIVERSAL_HEADER_MEF_VERSION_MAJOR_NO_ENTRY));
+	mxSetField(mat_uh, 0, "mef_version_minor", 				mxUint8ByValue(UNIVERSAL_HEADER_MEF_VERSION_MINOR_NO_ENTRY));
+	mxSetField(mat_uh, 0, "byte_order_code", 				mxUint8ByValue(UNIVERSAL_HEADER_BYTE_ORDER_CODE_NO_ENTRY));
+	mxSetField(mat_uh, 0, "start_time", 					mxInt64ByValue(UNIVERSAL_HEADER_START_TIME_NO_ENTRY));
+	mxSetField(mat_uh, 0, "end_time", 						mxInt64ByValue(UNIVERSAL_HEADER_END_TIME_NO_ENTRY));
+	mxSetField(mat_uh, 0, "number_of_entries", 				mxInt64ByValue(UNIVERSAL_HEADER_NUMBER_OF_ENTRIES_NO_ENTRY));
+	mxSetField(mat_uh, 0, "maximum_entry_size", 			mxInt64ByValue(UNIVERSAL_HEADER_MAXIMUM_ENTRY_SIZE_NO_ENTRY));
+	mxSetField(mat_uh, 0, "segment_number", 				mxInt32ByValue(UNIVERSAL_HEADER_SEGMENT_NUMBER_NO_ENTRY));
+	mxSetField(mat_uh, 0, "channel_name", 					mxCreateString(""));
+	mxSetField(mat_uh, 0, "session_name", 					mxCreateString(""));
+	mxSetField(mat_uh, 0, "anonymized_name", 				mxCreateString(""));
+	mxSetField(mat_uh, 0, "level_UUID", 					mxCreateNumericMatrix(1, UUID_BYTES, mxUINT8_CLASS, mxREAL));
+	mxSetField(mat_uh, 0, "file_UUID", 						mxCreateNumericMatrix(1, UUID_BYTES, mxUINT8_CLASS, mxREAL));
+	mxSetField(mat_uh, 0, "provenance_UUID", 				mxCreateNumericMatrix(1, UUID_BYTES, mxUINT8_CLASS, mxREAL));
+	mxSetField(mat_uh, 0, "level_1_password_validation_field", 	mxCreateNumericMatrix(1, PASSWORD_VALIDATION_FIELD_BYTES, mxUINT8_CLASS, mxREAL));
+	mxSetField(mat_uh, 0, "level_2_password_validation_field", 	mxCreateNumericMatrix(1, PASSWORD_VALIDATION_FIELD_BYTES, mxUINT8_CLASS, mxREAL));
+	mxSetField(mat_uh, 0, "discretionary_region", 			mxCreateNumericMatrix(1, UNIVERSAL_HEADER_DISCRETIONARY_REGION_BYTES, mxUINT8_CLASS, mxREAL));
+	
+	// return the struct
+	return mat_uh;
+}
+
+/**
+ * 	Create and initialize a new MEF time-series section 2 metadata matlab-struct
+ *
+ * 	@return				A pointer to the new matlab-struct
+ */
+mxArray *create_init_matlab_tmd2() {
+	
+    mxArray *mat_md = mxCreateStructMatrix(1, 1, TIME_SERIES_METADATA_SECTION_2_NUMFIELDS, TIME_SERIES_METADATA_SECTION_2_FIELDNAMES);
+	
+	// type-independent fields
+	mxSetField(mat_md, 0, "channel_description", 			mxCreateString(""));
+	mxSetField(mat_md, 0, "session_description", 			mxCreateString(""));
+	mxSetField(mat_md, 0, "recording_duration", 			mxInt64ByValue(METADATA_RECORDING_DURATION_NO_ENTRY));
+	
+	// type-specific fields
+	mxSetField(mat_md, 0, "reference_description", 			mxCreateString(""));
+	mxSetField(mat_md, 0, "acquisition_channel_number", 	mxInt64ByValue(TIME_SERIES_METADATA_ACQUISITION_CHANNEL_NUMBER_NO_ENTRY));
+	mxSetField(mat_md, 0, "sampling_frequency", 			mxDoubleByValue(TIME_SERIES_METADATA_SAMPLING_FREQUENCY_NO_ENTRY));
+	mxSetField(mat_md, 0, "low_frequency_filter_setting", 	mxDoubleByValue(TIME_SERIES_METADATA_LOW_FREQUENCY_FILTER_SETTING_NO_ENTRY));
+	mxSetField(mat_md, 0, "high_frequency_filter_setting", 	mxDoubleByValue(TIME_SERIES_METADATA_HIGH_FREQUENCY_FILTER_SETTING_NO_ENTRY));
+	mxSetField(mat_md, 0, "notch_filter_frequency_setting", mxDoubleByValue(TIME_SERIES_METADATA_NOTCH_FILTER_FREQUENCY_SETTING_NO_ENTRY));
+	mxSetField(mat_md, 0, "AC_line_frequency", 				mxDoubleByValue(TIME_SERIES_METADATA_AC_LINE_FREQUENCY_NO_ENTRY));
+	mxSetField(mat_md, 0, "units_conversion_factor", 		mxDoubleByValue(TIME_SERIES_METADATA_UNITS_CONVERSION_FACTOR_NO_ENTRY));
+	mxSetField(mat_md, 0, "units_description", 				mxCreateString(""));
+	mxSetField(mat_md, 0, "maximum_native_sample_value", 	mxDoubleByValue(TIME_SERIES_METADATA_MAXIMUM_NATIVE_SAMPLE_VALUE_NO_ENTRY));
+	mxSetField(mat_md, 0, "minimum_native_sample_value", 	mxDoubleByValue(TIME_SERIES_METADATA_MINIMUM_NATIVE_SAMPLE_VALUE_NO_ENTRY));
+	mxSetField(mat_md, 0, "start_sample", 					mxInt64ByValue(TIME_SERIES_METADATA_START_SAMPLE_NO_ENTRY));
+	mxSetField(mat_md, 0, "number_of_samples", 				mxInt64ByValue(TIME_SERIES_METADATA_NUMBER_OF_SAMPLES_NO_ENTRY));
+	mxSetField(mat_md, 0, "number_of_blocks", 				mxInt64ByValue(TIME_SERIES_METADATA_NUMBER_OF_BLOCKS_NO_ENTRY));
+	mxSetField(mat_md, 0, "maximum_block_bytes", 			mxInt64ByValue(TIME_SERIES_METADATA_MAXIMUM_BLOCK_BYTES_NO_ENTRY));
+	mxSetField(mat_md, 0, "maximum_block_samples", 			mxUint32ByValue(TIME_SERIES_METADATA_MAXIMUM_BLOCK_SAMPLES_NO_ENTRY));
+	mxSetField(mat_md, 0, "maximum_difference_bytes", 		mxUint32ByValue(TIME_SERIES_METADATA_MAXIMUM_DIFFERENCE_BYTES_NO_ENTRY));	
+	mxSetField(mat_md, 0, "block_interval", 				mxInt64ByValue(TIME_SERIES_METADATA_BLOCK_INTERVAL_NO_ENTRY));
+	mxSetField(mat_md, 0, "number_of_discontinuities", 		mxInt64ByValue(TIME_SERIES_METADATA_NUMBER_OF_DISCONTINUITIES_NO_ENTRY));
+	mxSetField(mat_md, 0, "maximum_contiguous_blocks", 		mxInt64ByValue(TIME_SERIES_METADATA_MAXIMUM_CONTIGUOUS_BLOCKS_NO_ENTRY));
+	mxSetField(mat_md, 0, "maximum_contiguous_block_bytes", mxInt64ByValue(TIME_SERIES_METADATA_MAXIMUM_CONTIGUOUS_BLOCK_BYTES_NO_ENTRY));
+	mxSetField(mat_md, 0, "maximum_contiguous_samples", 	mxInt64ByValue(TIME_SERIES_METADATA_MAXIMUM_CONTIGUOUS_SAMPLES_NO_ENTRY));
+    mxSetField(mat_md, 0, "discretionary_region", 			mxCreateNumericMatrix(1, TIME_SERIES_METADATA_SECTION_2_DISCRETIONARY_REGION_BYTES, mxUINT8_CLASS, mxREAL));
+	
+	// return the struct
+	return mat_md;
+}
+
+/**
+ * 	Create and initialize a new MEF video section 2 metadata matlab-struct
+ *
+ * 	@return				A pointer to the new matlab-struct
+ */
+mxArray *create_init_matlab_vmd2() {
+	
+    mxArray *mat_md = mxCreateStructMatrix(1, 1, VIDEO_METADATA_SECTION_2_NUMFIELDS, VIDEO_METADATA_SECTION_2_FIELDNAMES);
+	
+	// type-independent fields
+	mxSetField(mat_md, 0, "channel_description", 			mxCreateString(""));
+	mxSetField(mat_md, 0, "session_description", 			mxCreateString(""));
+	mxSetField(mat_md, 0, "recording_duration", 			mxInt64ByValue(METADATA_RECORDING_DURATION_NO_ENTRY));
+	
+	// type-specific fields
+	mxSetField(mat_md, 0, "horizontal_resolution", 			mxInt64ByValue(VIDEO_METADATA_HORIZONTAL_RESOLUTION_NO_ENTRY));
+	mxSetField(mat_md, 0, "vertical_resolution", 			mxInt64ByValue(VIDEO_METADATA_VERTICAL_RESOLUTION_NO_ENTRY));
+	mxSetField(mat_md, 0, "frame_rate", 					mxDoubleByValue(VIDEO_METADATA_FRAME_RATE_NO_ENTRY));
+	mxSetField(mat_md, 0, "number_of_clips", 				mxInt64ByValue(VIDEO_METADATA_NUMBER_OF_CLIPS_NO_ENTRY));
+	mxSetField(mat_md, 0, "maximum_clip_bytes", 			mxInt64ByValue(VIDEO_METADATA_MAXIMUM_CLIP_BYTES_NO_ENTRY));
+	mxSetField(mat_md, 0, "video_format", 					mxCreateString(""));
+	mxSetField(mat_md, 0, "video_file_CRC", 				mxUint32ByValue(VIDEO_METADATA_VIDEO_FILE_CRC_NO_ENTRY));
+    mxSetField(mat_md, 0, "discretionary_region", 			mxCreateNumericMatrix(1, VIDEO_METADATA_SECTION_2_DISCRETIONARY_REGION_BYTES, mxUINT8_CLASS, mxREAL));
+	
+	// return the struct
+	return mat_md;
+	
+}
+
+/**
+ * 	Create and initialize a new MEF section 3 metadata matlab-struct
+ *
+ * 	@return				A pointer to the new matlab-struct
+ */
+mxArray *create_init_matlab_md3() {
+	
+    mxArray *mat_md = mxCreateStructMatrix(1, 1, METADATA_SECTION_3_NUMFIELDS, METADATA_SECTION_3_FIELDNAMES);
+	
+	mxSetField(mat_md, 0, "recording_time_offset", 			mxInt64ByValue(METADATA_RECORDING_TIME_OFFSET_NO_ENTRY));
+	mxSetField(mat_md, 0, "DST_start_time", 				mxInt64ByValue(METADATA_DST_START_TIME_NO_ENTRY));
+	mxSetField(mat_md, 0, "DST_end_time", 					mxInt64ByValue(METADATA_DST_END_TIME_NO_ENTRY));
+	mxSetField(mat_md, 0, "GMT_offset", 					mxInt32ByValue(GMT_OFFSET_NO_ENTRY));
+	mxSetField(mat_md, 0, "subject_name_1", 				mxCreateString(""));
+	mxSetField(mat_md, 0, "subject_name_2", 				mxCreateString(""));
+	mxSetField(mat_md, 0, "subject_ID", 					mxCreateString(""));
+	mxSetField(mat_md, 0, "recording_location", 			mxCreateString(""));
+    mxSetField(mat_md, 0, "discretionary_region", 			mxCreateNumericMatrix(1, METADATA_SECTION_3_DISCRETIONARY_REGION_BYTES, mxUINT8_CLASS, mxREAL));
+	
+	// return the struct
+	return mat_md;
+	
+}
+
+
+
+///
 // Functions to map c-objects to matlab-structs
 ///
 
