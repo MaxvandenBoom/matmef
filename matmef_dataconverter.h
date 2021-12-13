@@ -40,6 +40,18 @@ bool cpyMxSingleToVar(const mxArray *mat, sf4 *var);
 bool cpyMxDoubleToVar(const mxArray *mat, sf8 *var);
 bool cpyMxStringToUtf8CharString(const mxArray *mat, char *str, int strSize);
 
+mxArray *retrieveMxField(const mxArray *pm, const char *fieldname);
+bool cpyMxFieldUint8ToVar(const mxArray *pm, const char *fieldname, ui1 *var);
+bool cpyMxFieldInt8ToVar(const mxArray *pm, const char *fieldname, si1 *var);
+bool cpyMxFieldUint8ArrayToVar(const mxArray *pm, const char *fieldname, ui1 *var, int varBytes);
+bool cpyMxFieldUint32ToVar(const mxArray *pm, const char *fieldname, ui4 *var);
+bool cpyMxFieldInt32ToVar(const mxArray *pm, const char *fieldname, si4 *var);
+bool cpyMxFieldUint64ToVar(const mxArray *pm, const char *fieldname, ui8 *var);
+bool cpyMxFieldInt64ToVar(const mxArray *pm, const char *fieldname, si8 *var);
+bool cpyMxFieldSingleToVar(const mxArray *pm, const char *fieldname, sf4 *var);
+bool cpyMxFieldDoubleToVar(const mxArray *pm, const char *fieldname, sf8 *var);
+bool cpyMxFieldStringToUtf8CharString(const mxArray *pm, const char *fieldname, char *str, int strSize);
+
 bool getInputArgAsBool(const mxArray *mat, const char *argName, bool *pVar);
 bool getInputArgAsInt64(const mxArray *mat, const char *argName, si8 minValue, si8 maxValue, si8 *pVar);
 bool getInputArgAsUint64(const mxArray *mat, const char *argName, ui8 maxValue, ui8 *pVar);

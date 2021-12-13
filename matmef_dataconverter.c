@@ -556,6 +556,277 @@ bool cpyMxStringToUtf8CharString(const mxArray *mat, char *str, int strSize) {
 
 
 //
+// Functions that copy data from a matlab-struct field to C data-types
+// 
+
+/**
+ * Retrieve a matlab field from a struct-matrix
+ *
+ * @param pm   		Pointer to the matlab struct-matrix that holds the field
+ * @param fieldname The name of the field in the matlab struct-matrix to retrieve
+ * @return			The matlab matrix in the field if successful, NULL on error
+ */
+mxArray *retrieveMxField(const mxArray *pm, const char *fieldname) {
+	mxArray *field = mxGetField(pm, 0, fieldname);
+	if (field == NULL)
+		mexPrintf("Error: could not map field '%s', field does not exist in the structure\n", fieldname);
+	return field;
+}
+ 
+/**
+ * Copy the value from a matlab field (being a 1x1 real, Uint8 matrix) in a struct-matrix to an existing MEF ui1 (unsigned 1 byte int) variable
+ *
+ * @param pm   		Pointer to the matlab struct-matrix that holds the field
+ * @param fieldname The name of the field in the matlab struct-matrix to copy the value from
+ * @param var	    A pointer to the destination MEF ui1 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxFieldUint8ToVar(const mxArray *pm, const char *fieldname, ui1 *var) {
+	
+	// retrieve the field
+	const mxArray *field = retrieveMxField(pm, fieldname);
+	if (field == NULL)	return false;
+	
+	// copy the value
+	if (!cpyMxUint8ToVar(field, var)) {
+		mexPrintf("Error: could not copy the value from struct-field '%s', exiting...\n", fieldname);
+		return false;
+	}
+	
+	// return success
+	return true;
+	
+}
+
+/**
+ * Copy the value from a matlab field (being a 1x1 real, Int8 matrix) in a struct-matrix to an existing MEF si1 (signed 1 byte int) variable
+ *
+ * @param pm   		Pointer to the matlab struct-matrix that holds the field
+ * @param fieldname The name of the field in the matlab struct-matrix to copy the value from
+ * @param var	    A pointer to the destination MEF si1 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxFieldInt8ToVar(const mxArray *pm, const char *fieldname, si1 *var) {
+	
+	// retrieve the field
+	const mxArray *field = retrieveMxField(pm, fieldname);
+	if (field == NULL)	return false;
+	
+	// copy the value
+	if (!cpyMxInt8ToVar(field, var)) {
+		mexPrintf("Error: could not copy the value from struct-field '%s', exiting...\n", fieldname);
+		return false;
+	}
+	
+	// return success
+	return true;
+	
+}
+
+/**
+ * Copy the values from a matlab field (being a 1x1 real, Uint8 vector/matrix) in a struct-matrix into an existing MEF ui1 (unsigned 1 byte int) array variable
+ *
+ * @param pm   			Pointer to the matlab struct-matrix that holds the field
+ * @param fieldname 	The name of the field in the matlab struct-matrix to copy the values from
+ * @param var	    	A pointer to the destination MEF ui1 array variable
+ * @param varBytes		The number of values that the destination MEF ui1 array variable can hold
+ * @return				True if successfully tranferred, false on error
+ */
+bool cpyMxFieldUint8ArrayToVar(const mxArray *pm, const char *fieldname, ui1 *var, int varBytes) {
+	
+	// retrieve the field
+	const mxArray *field = retrieveMxField(pm, fieldname);
+	if (field == NULL)	return false;
+	
+	// copy the values
+	if (!cpyMxUint8ArrayToVar(field, var, varBytes)) {
+		mexPrintf("Error: could not copy the values from struct-field '%s', exiting...\n", fieldname);
+		return false;
+	}
+	
+	// return success
+	return true;
+	
+}
+
+/**
+ * Copy the value from a matlab field (being a 1x1 real, Uint32 matrix) in a struct-matrix to an existing MEF ui4 (unsigned 4 byte int) variable
+ *
+ * @param pm   		Pointer to the matlab struct-matrix that holds the field
+ * @param fieldname The name of the field in the matlab struct-matrix to copy the value from
+ * @param var	    A pointer to the destination MEF ui4 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxFieldUint32ToVar(const mxArray *pm, const char *fieldname, ui4 *var) {
+	
+	// retrieve the field
+	const mxArray *field = retrieveMxField(pm, fieldname);
+	if (field == NULL)	return false;
+	
+	// copy the value
+	if (!cpyMxUint32ToVar(field, var)) {
+		mexPrintf("Error: could not copy the value from struct-field '%s', exiting...\n", fieldname);
+		return false;
+	}
+	
+	// return success
+	return true;
+	
+}
+
+/**
+ * Copy the value from a matlab field (being a 1x1 real, Int32 matrix) in a struct-matrix to an existing MEF si4 (signed 4 byte int) variable
+ *
+ * @param pm   		Pointer to the matlab struct-matrix that holds the field
+ * @param fieldname The name of the field in the matlab struct-matrix to copy the value from
+ * @param var	    A pointer to the destination MEF si4 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxFieldInt32ToVar(const mxArray *pm, const char *fieldname, si4 *var) {
+	
+	// retrieve the field
+	const mxArray *field = retrieveMxField(pm, fieldname);
+	if (field == NULL)	return false;
+	
+	// copy the value
+	if (!cpyMxInt32ToVar(field, var)) {
+		mexPrintf("Error: could not copy the value from struct-field '%s', exiting...\n", fieldname);
+		return false;
+	}
+	
+	// return success
+	return true;
+	
+}
+
+/**
+ * Copy the value from a matlab field (being a 1x1 real, UInt64 matrix) in a struct-matrix to an existing MEF ui8 (unsigned 8 byte int) variable
+ *
+ * @param pm   		Pointer to the matlab struct-matrix that holds the field
+ * @param fieldname The name of the field in the matlab struct-matrix to copy the value from
+ * @param var	    A pointer to the destination MEF ui8 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxFieldUint64ToVar(const mxArray *pm, const char *fieldname, ui8 *var) {
+	
+	// retrieve the field
+	const mxArray *field = retrieveMxField(pm, fieldname);
+	if (field == NULL)	return false;
+	
+	// copy the value
+	if (!cpyMxUint64ToVar(field, var)) {
+		mexPrintf("Error: could not copy the value from struct-field '%s', exiting...\n", fieldname);
+		return false;
+	}
+	
+	// return success
+	return true;
+	
+}
+
+/**
+ * Copy the value from a matlab field (being a 1x1 real, Int64 matrix) in a struct-matrix to an existing MEF si8 (signed 8 byte int) variable
+ *
+ * @param pm   		Pointer to the matlab struct-matrix that holds the field
+ * @param fieldname The name of the field in the matlab struct-matrix to copy the value from
+ * @param var	    A pointer to the destination MEF si8 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxFieldInt64ToVar(const mxArray *pm, const char *fieldname, si8 *var) {
+	
+	// retrieve the field
+	const mxArray *field = retrieveMxField(pm, fieldname);
+	if (field == NULL)	return false;
+	
+	// copy the value
+	if (!cpyMxInt64ToVar(field, var)) {
+		mexPrintf("Error: could not copy the value from struct-field '%s', exiting...\n", fieldname);
+		return false;
+	}
+	
+	// return success
+	return true;
+	
+}
+
+/**
+ * Copy the value from a matlab field (being a 1x1 real, single float matrix) in a struct-matrix to an existing MEF sf4 (signed 4 byte float) variable
+ *
+ * @param pm   		Pointer to the matlab struct-matrix that holds the field
+ * @param fieldname The name of the field in the matlab struct-matrix to copy the value from
+ * @param var	    A pointer to the destination MEF sf4 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxFieldSingleToVar(const mxArray *pm, const char *fieldname, sf4 *var) {
+	
+	// retrieve the field
+	const mxArray *field = retrieveMxField(pm, fieldname);
+	if (field == NULL)	return false;
+	
+	// copy the value
+	if (!cpyMxSingleToVar(field, var)) {
+		mexPrintf("Error: could not copy the value from struct-field '%s', exiting...\n", fieldname);
+		return false;
+	}
+	
+	// return success
+	return true;
+	
+}
+
+/**
+ * Copy the value from a matlab field (being a 1x1 real, double float matrix) in a struct-matrix to an existing MEF sf8 (signed 8 byte float) variable
+ *
+ * @param pm   		Pointer to the matlab struct-matrix that holds the field
+ * @param fieldname The name of the field in the matlab struct-matrix to copy the value from
+ * @param var	    A pointer to the destination MEF sf8 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxFieldDoubleToVar(const mxArray *pm, const char *fieldname, sf8 *var) {
+	
+	// retrieve the field
+	const mxArray *field = retrieveMxField(pm, fieldname);
+	if (field == NULL)	return false;
+	
+	// copy the value
+	if (!cpyMxDoubleToVar(field, var)) {
+		mexPrintf("Error: could not copy the value from struct-field '%s', exiting...\n", fieldname);
+		return false;
+	}
+	
+	// return success
+	return true;
+	
+}
+
+/**
+ * Copy the value from a matlab field (being a char array) in a struct-matrix to an existing MEF UTF-8 character string with a maximum size
+ *
+ * @param pm   		Pointer to the matlab struct-matrix that holds the field
+ * @param fieldname The name of the field in the matlab struct-matrix to copy the value from
+ * @param str	    A pointer to the destination MEF UTF-8 character string
+ * @param strSize   The (maximum) size of the destination MEF UTF-8 character string in bytes
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxFieldStringToUtf8CharString(const mxArray *pm, const char *fieldname, char *str, int strSize) {
+	
+	// retrieve the field
+	const mxArray *field = retrieveMxField(pm, fieldname);
+	if (field == NULL)	return false;
+	
+	// copy the UTF-8 string
+	if (!cpyMxStringToUtf8CharString(field, str, strSize)) {
+		mexPrintf("Error: could not copy the value from struct-field '%s', exiting...\n", fieldname);
+		return false;
+	}
+	
+	// return success
+	return true;
+	
+}
+
+
+//
 // Functions that check and convert a matlab input argument matrix with a single value
 // 
 
