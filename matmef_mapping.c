@@ -51,15 +51,15 @@ const char *UNIVERSAL_HEADER_FIELDNAMES[] 	= {
 };
 
 // Session, Channel, Segment Processing Structures
-const int SEGMENT_NUMFIELDS			= 11;
+const int SEGMENT_NUMFIELDS			= 12;
 const char *SEGMENT_FIELDNAMES[] 	= {	
 	"channel_type",
-	//"metadata_fps",				// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'metadata' field
+	//"metadata_fps",				// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'metadata_uh' field
 	//"time_series_data_fps",		// instead of mapping the FILE_PROCESSING_STRUCT object, the data held within is mapped to the 'time_series_data_uh' field
-	//"time_series_indices_fps",	// instead of mapping the FILE_PROCESSING_STRUCT object, the indices held within are mapped to the 'time_series_indices' field
-	//"video_indices_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the indices held within are mapped to the 'video_indices' field
-	//"record_data_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the records-data held within is mapped to the 'records' field
-	//"record_indices_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the records-indices held within are mapped to the 'records' field
+	//"time_series_indices_fps",	// instead of mapping the FILE_PROCESSING_STRUCT object, the (number of) time-series indices are mapped to the 'time_series_indices' field
+	//"video_indices_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the (number of) video indices are mapped to the 'video_indices' field
+	//"record_data_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the (number of) data-records are mapped to the 'records' field
+	//"record_indices_fps",			// instead of mapping the FILE_PROCESSING_STRUCT object, the (number of) records-indices held within are mapped to the 'records' field
 	"name",							// just base name, no extension
 	"path",							// full path to enclosing directory (channel directory)
 	"channel_name",					// just base name, no extension
@@ -71,6 +71,7 @@ const char *SEGMENT_FIELDNAMES[] 	= {
 	"time_series_indices",
 	"video_indices",
 	"records",
+	"metadata_uh",
 	"time_series_data_uh"
 };
 
@@ -510,8 +511,10 @@ void map_mef3_segment_tostruct(SEGMENT *segment, si1 map_indices_flag, mxArray *
 	
 	
 	//
-	// file processing struct
+	// universal headers (from file processing struct)
 	//
+	
+	mxSetField(mat_segment, mat_index, "metadata_uh", 					map_mef3_uh(segment->metadata_fps->universal_header));
 	if (segment->channel_type == TIME_SERIES_CHANNEL_TYPE)
 		mxSetField(mat_segment, mat_index, "time_series_data_uh", 		map_mef3_uh(segment->time_series_data_fps->universal_header));
 
