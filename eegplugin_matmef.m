@@ -11,8 +11,15 @@
 
 function versionstr = eegplugin_matmef(fig, trystrs, catchstrs)
 
-    %global EEG
-    versionstr = '1.1.0';
+    % retrieve the version
+    try 
+        versionstr = fileread('VERSION');
+    catch 
+        disp('eegplugin_matmef cannot find the ''VERSION'' file');
+        return
+    end
+    
+    % check input arguments
     if nargin < 3
         disp('eegplugin_matmef requires 3 arguments');
         return
