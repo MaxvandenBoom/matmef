@@ -13,6 +13,7 @@
  */
 #include "matmef_dataconverter.h"
 #include "mex.h"
+#include "mex_utils.h"
 #include "meflib/meflib/meflib.h"
 
 
@@ -243,6 +244,263 @@ mxArray *mxStringByUtf8CharString(char *str) {
 	// return matlab array (should now be a matlab UTF-8 string)
 	return lhs[0];
 	
+}
+
+
+
+//
+// Functions that copy data from a matlab-array to C data-types
+// 
+
+/**
+ * Check whether the input matrix is numeric with a single value
+ *
+ * @param mat   	The matlab array to check
+ * @return			True if the matrix has a single numeric value, false elsewise
+ */
+bool checkSingleNumericValue(const mxArray *mat) {
+	if (mxIsEmpty(mat) || !mxIsNumeric(mat) || mxGetNumberOfElements(mat) > 1) {
+		mexPrintf("Error: invalid input matrix, cannot transfer the matlab-array value to a C-variable (input is empty, not numeric or has more than 1 element), exiting...\n");
+		return false;
+	}
+	return true;
+}
+
+/**
+ * Copy a matlab (1x1 real) Uint8 matrix value to an existing MEF ui1 (unsigned 1 byte int) variable
+ *
+ * @param mat   	The source matlab array
+ * @param var	    A pointer to the destination MEF ui1 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxUint8ToVar(const mxArray *mat, ui1 *var) {
+	
+	// check the input
+	if (!checkSingleNumericValue(mat))
+		return false;
+
+	if (mxGetClassID(mat) != mxUINT8_CLASS) {
+		mexPrintf("Error: could not copy the matlab-array value to a C-variable (input is not of the 'uint8' data-type), exiting...\n");
+		return false;
+	}
+	
+	// copy and return success
+	mxUint8 *mat_data = (mxUint8 *)mxGetData(mat);
+	*var = *mat_data;
+	return true;
+	
+}
+
+/**
+ * Copy a matlab (1x1 real) Int8 matrix value to an existing MEF si1 (signed 1 byte int) variable
+ *
+ * @param mat   	The source matlab array
+ * @param var	    A pointer to the destination MEF si1 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxInt8ToVar(const mxArray *mat, si1 *var) {
+	
+	// check the input
+	if (!checkSingleNumericValue(mat))
+		return false;
+
+	if (mxGetClassID(mat) != mxINT8_CLASS) {
+		mexPrintf("Error: could not copy the matlab-array value to a C-variable (input is not of the 'int8' data-type), exiting...\n");
+		return false;
+	}
+	
+	// copy and return success
+	mxInt8 *mat_data = (mxInt8 *)mxGetData(mat);
+	*var = *mat_data;
+	return true;
+
+}
+
+/**
+ * Copy the values from a matlab (1x1 real) Uint8 vector/matrix into an existing MEF ui1 (unsigned 1 byte int) array variable
+ *
+ * @param mat   		The source matlab array
+ * @param var	    	A pointer to the destination MEF ui1 array variable
+ * @param varBytes		The number of values that the destination MEF ui1 array variable can hold
+ * @return				True if successfully tranferred, false on error
+ */
+bool cpyMxUint8ArrayToVar(const mxArray *mat, ui1 *var, int varBytes) {
+	
+	// check the input
+	if (mxIsEmpty(mat) || !mxIsNumeric(mat) || mxGetNumberOfElements(mat) < 1) {
+		mexPrintf("Error: invalid input matrix, cannot transfer the matlab-array values into a C-array (input is empty, not numeric or does not have more any elements), exiting...\n");
+		return false;
+	}
+
+	if (mxGetClassID(mat) != mxUINT8_CLASS) {
+		mexPrintf("Error: could not copy the matlab-array values into a C-array (input is not of the 'uint8' data-type), exiting...\n");
+		return false;
+	}
+	
+	// check if the number of elements matches
+	size_t numElements = mxGetNumberOfElements(mat);
+	if (numElements != varBytes) {
+		mexPrintf("Error: could not copy the matlab-array values into a C-array (the input array should be the same size as the C-array; the input has %i values, while the C-array is %i bytes), exiting...\n", numElements, varBytes);
+		return false;
+	}
+	
+	// copy and return success
+	mxUint8 *mat_data = (mxUint8 *)mxGetData(mat);
+	for (int i = 0; i < numElements; i++)
+		var[i] = mat_data[i];	
+	
+	return true;
+	
+}
+
+/**
+ * Copy a matlab (1x1 real) Uint32 matrix value to an existing MEF ui4 (unsigned 4 byte int) variable
+ *
+ * @param mat   	The source matlab array
+ * @param var	    A pointer to the destination MEF ui4 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxUint32ToVar(const mxArray *mat, ui4 *var) {
+	
+	// check the input
+	if (!checkSingleNumericValue(mat))
+		return false;
+
+	if (mxGetClassID(mat) != mxUINT32_CLASS) {
+		mexPrintf("Error: could not copy the matlab-array value to a C-variable (input is not of the 'uint32' data-type), exiting...\n");
+		return false;
+	}
+	
+	// copy and return success
+	mxUint32 *mat_data = (mxUint32 *)mxGetData(mat);
+	*var = *mat_data;
+	return true;
+	
+}
+
+/**
+ * Copy a matlab (1x1 real) Int32 matrix value to an existing MEF si4 (signed 4 byte int) variable
+ *
+ * @param mat   	The source matlab array
+ * @param var	    A pointer to the destination MEF si4 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxInt32ToVar(const mxArray *mat, si4 *var) {
+	
+	// check the input
+	if (!checkSingleNumericValue(mat))
+		return false;
+
+	if (mxGetClassID(mat) != mxINT32_CLASS) {
+		mexPrintf("Error: could not copy the matlab-array value to a C-variable (input is not of the 'int32' data-type), exiting...\n");
+		return false;
+	}
+	
+	// copy and return success
+	mxInt32 *mat_data = (mxInt32 *)mxGetData(mat);
+	*var = *mat_data;
+	return true;
+
+}
+
+/**
+ * Copy a matlab (1x1 real) Uint64 matrix value to an existing MEF ui8 (unsigned 8 byte int) variable
+ *
+ * @param mat   	The source matlab array
+ * @param var	    A pointer to the destination MEF ui8 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxUint64ToVar(const mxArray *mat, ui8 *var) {
+	
+	// check the input
+	if (!checkSingleNumericValue(mat))
+		return false;
+
+	if (mxGetClassID(mat) != mxUINT64_CLASS) {
+		mexPrintf("Error: could not copy the matlab-array value to a C-variable (input is not of the 'uint64' data-type), exiting...\n");
+		return false;
+	}
+	
+	// copy and return success
+	mxUint64 *mat_data = (mxUint64 *)mxGetData(mat);
+	*var = *mat_data;
+	return true;
+	
+}
+
+/**
+ * Copy a matlab (1x1 real) Int64 matrix value to an existing MEF si8 (signed 8 byte int) variable
+ *
+ * @param mat   	The source matlab array
+ * @param var	    A pointer to the destination MEF si8 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxInt64ToVar(const mxArray *mat, si8 *var) {
+	
+	// check the input
+	if (!checkSingleNumericValue(mat))
+		return false;
+
+	if (mxGetClassID(mat) != mxINT64_CLASS) {
+		mexPrintf("Error: could not copy the matlab-array value to a C-variable (input is not of the 'int64' data-type), exiting...\n");
+		return false;
+	}
+	
+	// copy and return success
+	mxInt64 *mat_data = (mxInt64 *)mxGetData(mat);
+	*var = *mat_data;
+	return true;
+
+}
+
+/**
+ * Copy a matlab (1x1 real) single float matrix value to an existing MEF sf4 (signed 4 byte float) variable
+ *
+ * @param mat   	The source matlab array
+ * @param var	    A pointer to the destination MEF sf4 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxSingleToVar(const mxArray *mat, sf4 *var) {
+	
+	// check the input
+	if (!checkSingleNumericValue(mat))
+		return false;
+
+	if (mxGetClassID(mat) != mxSINGLE_CLASS) {
+		mexPrintf("Error: could not copy the matlab-array value to a C-variable (input is not of the 'single' data-type), exiting...\n");
+		return false;
+	}
+	
+	// copy and return success
+	mxSingle *mat_data = (mxSingle *)mxGetData(mat);
+	*var = *mat_data;
+	return true;
+
+}
+
+/**
+ * Copy a matlab (1x1 real) double float matrix value to an existing MEF sf8 (signed 8 byte float) variable
+ *
+ * @param mat   	The source matlab array
+ * @param var	    A pointer to the destination MEF sf8 variable
+ * @return			True if successfully tranferred, false on error
+ */
+bool cpyMxDoubleToVar(const mxArray *mat, sf8 *var) {
+	
+	// check the input
+	if (!checkSingleNumericValue(mat))
+		return false;
+
+	if (mxGetClassID(mat) != mxDOUBLE_CLASS) {
+		mexPrintf("Error: could not copy the matlab-array value to a C-variable (input is not of the 'double' data-type), exiting...\n");
+		return false;
+	}
+	
+	// copy and return success
+	mxDouble *mat_data = (mxDouble *)mxGetData(mat);
+	*var = *mat_data;
+	return true;
+
 }
 
 /**

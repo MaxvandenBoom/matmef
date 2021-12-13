@@ -28,6 +28,16 @@ mxArray *mxSingleByValue(sf4 value);
 mxArray *mxDoubleByValue(sf8 value);
 mxArray *mxStringByUtf8CharString(char *str);
 
+bool checkSingleNumericValue(const mxArray *mat);
+bool cpyMxUint8ToVar(const mxArray *mat, ui1 *var);
+bool cpyMxInt8ToVar(const mxArray *mat, si1 *var);
+bool cpyMxUint8ArrayToVar(const mxArray *mat, ui1 *var, int varBytes);
+bool cpyMxUint32ToVar(const mxArray *mat, ui4 *var);
+bool cpyMxInt32ToVar(const mxArray *mat, si4 *var);
+bool cpyMxUint64ToVar(const mxArray *mat, ui8 *var);
+bool cpyMxInt64ToVar(const mxArray *mat, si8 *var);
+bool cpyMxSingleToVar(const mxArray *mat, sf4 *var);
+bool cpyMxDoubleToVar(const mxArray *mat, sf8 *var);
 bool cpyMxStringToUtf8CharString(const mxArray *mat, char *str, int strSize);
 
 bool getInputArgAsBool(const mxArray *mat, const char *argName, bool *pVar);
