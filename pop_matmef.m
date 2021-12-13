@@ -18,7 +18,7 @@ if nargin < 1
     
     % pop up window
     % -------------
-    fileName = uigetdir('*', 'Select a MEF folder');
+    fileName = uigetdir('*', 'Select a MEF3 folder');
     if isempty(fileName), return; end
     
 end
