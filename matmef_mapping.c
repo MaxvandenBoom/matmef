@@ -1409,3 +1409,95 @@ mxArray *map_mef3_uh(UNIVERSAL_HEADER *universal_header) {
 	return mat_uh;
 	
 }
+
+
+
+///
+// Functions to map matlab-structs to existing c-objects
+///
+
+
+/**
+ * 	Map MEF time-series section 2 metadata from a matlab-struct to an existing c-struct
+ *
+ * 	@param mat_tmd2		A pointer to the source matlab-struct with the MEF time-series section 2 metadata 
+ * 	@param tmd2			A pointer to the destination c-struct
+ */
+bool map_matlab_tmd2(mxArray *mat_tmd2, TIME_SERIES_METADATA_SECTION_2 *tmd2) {
+	
+	if (!cpyMxFieldStringToUtf8CharString(mat_tmd2, "channel_description", tmd2->channel_description, METADATA_CHANNEL_DESCRIPTION_BYTES))		return false;
+	if (!cpyMxFieldStringToUtf8CharString(mat_tmd2, "session_description", tmd2->session_description, METADATA_SESSION_DESCRIPTION_BYTES))		return false;
+	if (!cpyMxFieldInt64ToVar(mat_tmd2, "recording_duration", &tmd2->recording_duration))														return false;
+	if (!cpyMxFieldStringToUtf8CharString(mat_tmd2, "reference_description", tmd2->reference_description, TIME_SERIES_METADATA_REFERENCE_DESCRIPTION_BYTES))	return false;
+	if (!cpyMxFieldInt64ToVar(mat_tmd2, "acquisition_channel_number", &tmd2->acquisition_channel_number))										return false;
+	if (!cpyMxFieldDoubleToVar(mat_tmd2, "sampling_frequency", &tmd2->sampling_frequency))														return false;
+	if (!cpyMxFieldDoubleToVar(mat_tmd2, "low_frequency_filter_setting", &tmd2->low_frequency_filter_setting))									return false;
+	if (!cpyMxFieldDoubleToVar(mat_tmd2, "high_frequency_filter_setting", &tmd2->high_frequency_filter_setting))								return false;
+	if (!cpyMxFieldDoubleToVar(mat_tmd2, "notch_filter_frequency_setting", &tmd2->notch_filter_frequency_setting))								return false;
+	if (!cpyMxFieldDoubleToVar(mat_tmd2, "AC_line_frequency", &tmd2->AC_line_frequency))														return false;
+	if (!cpyMxFieldDoubleToVar(mat_tmd2, "units_conversion_factor", &tmd2->units_conversion_factor))											return false;
+	if (!cpyMxFieldStringToUtf8CharString(mat_tmd2, "units_description", tmd2->units_description, TIME_SERIES_METADATA_UNITS_DESCRIPTION_BYTES))	return false;
+	if (!cpyMxFieldDoubleToVar(mat_tmd2, "maximum_native_sample_value", &tmd2->maximum_native_sample_value))									return false;
+	if (!cpyMxFieldDoubleToVar(mat_tmd2, "minimum_native_sample_value", &tmd2->minimum_native_sample_value))									return false;
+	if (!cpyMxFieldInt64ToVar(mat_tmd2, "start_sample", &tmd2->start_sample))																	return false;
+	if (!cpyMxFieldInt64ToVar(mat_tmd2, "number_of_samples", &tmd2->number_of_samples))															return false;
+	if (!cpyMxFieldInt64ToVar(mat_tmd2, "number_of_blocks", &tmd2->number_of_blocks))															return false;
+	if (!cpyMxFieldInt64ToVar(mat_tmd2, "maximum_block_bytes", &tmd2->maximum_block_bytes))														return false;
+	if (!cpyMxFieldUint32ToVar(mat_tmd2, "maximum_block_samples", &tmd2->maximum_block_samples))												return false;
+	if (!cpyMxFieldUint32ToVar(mat_tmd2, "maximum_difference_bytes", &tmd2->maximum_difference_bytes))											return false;	
+	if (!cpyMxFieldInt64ToVar(mat_tmd2, "block_interval", &tmd2->block_interval))																return false;
+	if (!cpyMxFieldInt64ToVar(mat_tmd2, "number_of_discontinuities", &tmd2->number_of_discontinuities))											return false;
+	if (!cpyMxFieldInt64ToVar(mat_tmd2, "maximum_contiguous_blocks", &tmd2->maximum_contiguous_blocks))											return false;
+	if (!cpyMxFieldInt64ToVar(mat_tmd2, "maximum_contiguous_block_bytes", &tmd2->maximum_contiguous_block_bytes))								return false;
+	if (!cpyMxFieldInt64ToVar(mat_tmd2, "maximum_contiguous_samples", &tmd2->maximum_contiguous_samples))										return false;
+	if (!cpyMxFieldUint8ArrayToVar(mat_tmd2, "discretionary_region", tmd2->discretionary_region, TIME_SERIES_METADATA_SECTION_2_DISCRETIONARY_REGION_BYTES))	return false;
+	
+	// return success
+	return true;
+}
+
+/**
+ * 	Map MEF video section 2 metadata from a matlab-struct to an existing c-struct
+ *
+ * 	@param mat_vmd2		A pointer to the source matlab-struct with the MEF video section 2 metadata 
+ * 	@param vmd2			A pointer to the destination c-struct
+ */
+bool map_matlab_vmd2(mxArray *mat_vmd2, VIDEO_METADATA_SECTION_2 *vmd2) {
+	
+	if (!cpyMxFieldStringToUtf8CharString(mat_vmd2, "channel_description", vmd2->channel_description, METADATA_CHANNEL_DESCRIPTION_BYTES))		return false;
+	if (!cpyMxFieldStringToUtf8CharString(mat_vmd2, "session_description", vmd2->session_description, METADATA_SESSION_DESCRIPTION_BYTES))		return false;
+	if (!cpyMxFieldInt64ToVar(mat_vmd2, "recording_duration", &vmd2->recording_duration))														return false;
+	if (!cpyMxFieldInt64ToVar(mat_vmd2, "horizontal_resolution", &vmd2->horizontal_resolution))													return false;
+	if (!cpyMxFieldInt64ToVar(mat_vmd2, "vertical_resolution", &vmd2->vertical_resolution))														return false;
+	if (!cpyMxFieldDoubleToVar(mat_vmd2, "frame_rate", &vmd2->frame_rate))																		return false;
+	if (!cpyMxFieldInt64ToVar(mat_vmd2, "number_of_clips", &vmd2->number_of_clips))																return false;
+	if (!cpyMxFieldInt64ToVar(mat_vmd2, "maximum_clip_bytes", &vmd2->maximum_clip_bytes))														return false;
+	if (!cpyMxFieldStringToUtf8CharString(mat_vmd2, "video_format", vmd2->video_format, VIDEO_METADATA_VIDEO_FORMAT_BYTES))						return false;
+	if (!cpyMxFieldUint32ToVar(mat_vmd2, "video_file_CRC", &vmd2->video_file_CRC))																return false;
+	if (!cpyMxFieldUint8ArrayToVar(mat_vmd2, "discretionary_region", vmd2->discretionary_region, VIDEO_METADATA_SECTION_2_DISCRETIONARY_REGION_BYTES))	return false;
+	
+	// return success
+	return true;
+}
+
+/**
+ * 	Map MEF section 3 metadata from a matlab-struct to an existing c-struct
+ *
+ * 	@param mat_md3		A pointer to the source matlab-struct with the MEF section 3 metadata 
+ * 	@param md3			A pointer to the destination c-struct
+ */
+bool map_matlab_md3(mxArray *mat_md3, METADATA_SECTION_3 *md3) {
+	
+	if (!cpyMxFieldInt64ToVar(mat_md3, "recording_time_offset", &md3->recording_time_offset))											return false;
+	if (!cpyMxFieldInt64ToVar(mat_md3, "DST_start_time", &md3->DST_start_time))															return false;
+	if (!cpyMxFieldInt64ToVar(mat_md3, "DST_end_time", &md3->DST_end_time))																return false;
+	if (!cpyMxFieldInt32ToVar(mat_md3, "GMT_offset", &md3->GMT_offset))																	return false;
+	if (!cpyMxFieldStringToUtf8CharString(mat_md3, "subject_name_1", md3->subject_name_1, METADATA_SUBJECT_NAME_BYTES))					return false;
+	if (!cpyMxFieldStringToUtf8CharString(mat_md3, "subject_name_2", md3->subject_name_2, METADATA_SUBJECT_NAME_BYTES))					return false;
+	if (!cpyMxFieldStringToUtf8CharString(mat_md3, "subject_ID", md3->subject_ID, METADATA_SUBJECT_ID_BYTES))							return false;
+	if (!cpyMxFieldStringToUtf8CharString(mat_md3, "recording_location", md3->recording_location, METADATA_RECORDING_LOCATION_BYTES))	return false;
+	if (!cpyMxFieldUint8ArrayToVar(mat_md3, "discretionary_region", md3->discretionary_region, METADATA_SECTION_3_DISCRETIONARY_REGION_BYTES))	return false;
+	
+	// return success
+	return true;
+}

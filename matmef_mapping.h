@@ -48,4 +48,8 @@ mxArray *map_mef3_epoc(RECORD_HEADER *rh);
 	
 mxArray *map_mef3_uh(UNIVERSAL_HEADER *universal_header);
 
+bool map_matlab_tmd2(mxArray *mat_tmd2, TIME_SERIES_METADATA_SECTION_2 *tmd2);
+bool map_matlab_vmd2(mxArray *mat_vmd2, VIDEO_METADATA_SECTION_2 *vmd2);
+bool map_matlab_md3(mxArray *mat_md3, METADATA_SECTION_3 *md3);
+
 #endif   // MATMEF_MAPPING_
