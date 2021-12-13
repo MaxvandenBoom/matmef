@@ -1049,3 +1049,149 @@ bool getInputArgAsUint64(const mxArray *mat, const char *argName, ui8 maxValue, 
 	return true;
 	
 }
+
+
+//
+// Miscellous functions
+// 
+
+/**
+ * Transfer fields from a source struct-matrix into an existing destination-matrix
+ * The destination matrix is expected to already contain the fields to be transfer, so that the data-type
+ * of the fields can be checked (should be the same, elsewise the transfer will fail). Upon match by field-name
+ * and data-type of the field, the value of the field in the destination matrix will be overwritten
+ *
+ * @param src   	Pointer to the matlab struct-matrix that holds the fields to be transferred
+ * @param dst	    A pointer to the destination matlab struct-matrix in which the field values should be updated
+ * @return			True if successfully tranferred, false on error
+ */
+bool transferMxFields(const mxArray *src, mxArray *dst) {
+	
+	// transfer the fields from the user
+	int iSrc, iDst;
+	const char  *fieldName;
+	int srcNumFields = mxGetNumberOfFields(src);
+	int dstNumFields = mxGetNumberOfFields(dst);
+	
+	for (iSrc = 0; iSrc < srcNumFields; iSrc++) {
+		
+		// retrieve the field name in the source struct
+		fieldName = mxGetFieldNameByNumber(src, iSrc);
+		
+		// find the field in the target struct
+		for (iDst = 0; iDst < dstNumFields; iDst++) {
+			if (strcmp(fieldName, mxGetFieldNameByNumber(dst, iDst)) == 0) {
+				break;
+			}
+		}
+		if (dstNumFields == 0 || iDst == dstNumFields) {
+			mxForceWarning("matmef:dataconverter", "unknown field '%s' in input struct, ignoring field", fieldName);
+		} else {
+			
+			// retrieve the fields
+			mxArray *srcField = mxGetField(src, 0, fieldName);
+			mxArray *dstField = mxGetField(dst, 0, fieldName);
+			if (srcField == NULL) {
+				mexPrintf("Error: the field '%s' in the input struct is empty. Either remove field or make sure it has a valid value, exiting...\n", fieldName);
+				return false;
+			}
+			if (dstField == NULL) {
+				mexPrintf("Error: the field '%s' in the destination struct is empty, exiting...\n", fieldName);
+				return false;
+			}
+			
+			// retrieve the source field data-type			
+			mxClassID srcClassID = mxGetClassID(srcField);
+		
+			// retrieve and check the number of elements in the field (only when numeric)
+			size_t srcNumElements = mxGetNumberOfElements(srcField);
+			size_t dstNumElements = mxGetNumberOfElements(dstField);
+			if (srcClassID != mxCHAR_CLASS) {
+				if (srcNumElements == 0) {
+					mexPrintf("Error: empty numeric array in field '%s' of the input struct (either remove the field or provide a valid value), exiting...\n", fieldName);
+					return false;
+				} else if (srcNumElements != dstNumElements) {
+					mexPrintf("Error: invalid number of elements in field '%s' of the input struct, the number of elements of the field is '%i' but should be '%i', exiting...\n", fieldName, srcNumElements, dstNumElements);
+					return false;
+				}
+			}
+			
+			// check if the field data-types match
+			if (srcClassID == mxGetClassID(dstField)) {
+				// matching data-types
+				
+				// transfer the value
+				switch(srcClassID) {
+					
+					case mxUINT8_CLASS:
+						
+						if (srcNumElements == 1) {
+							*(mxUint8 *)mxGetData(dstField) = *(mxUint8 *)mxGetData(srcField);
+							
+						} else {
+							mxUint8 *srcArray = (mxUint8 *)mxGetData(srcField);
+							mxUint8 *dstArray = (mxUint8 *)mxGetData(dstField);
+							for (int i = 0; i < srcNumElements; i++)
+								dstArray[i] = srcArray[i];
+							
+						}
+						break;
+					
+					case mxINT8_CLASS:
+						*(mxInt8 *)mxGetData(dstField) = *(mxInt8 *)mxGetData(srcField);
+						break;
+					
+					case mxUINT32_CLASS:
+						*(mxUint32 *)mxGetData(dstField) = *(mxUint32 *)mxGetData(srcField);
+						break;
+					
+					case mxINT32_CLASS:
+						*(mxInt32 *)mxGetData(dstField) = *(mxInt32 *)mxGetData(srcField);
+						break;
+					
+					case mxUINT64_CLASS:
+						*(mxUint64 *)mxGetData(dstField) = *(mxUint64 *)mxGetData(srcField);
+						break;
+					
+					case mxINT64_CLASS:
+						*(mxInt64 *)mxGetData(dstField) = *(mxInt64 *)mxGetData(srcField);
+						break;
+					
+					case mxSINGLE_CLASS:
+						*(mxSingle *)mxGetData(dstField) = *(mxSingle *)mxGetData(srcField);
+						break;
+					
+					case mxDOUBLE_CLASS:
+						*(mxDouble *)mxGetData(dstField) = *(mxDouble *)mxGetData(srcField);
+						break;
+					
+					case mxCHAR_CLASS:
+					
+						// Note: The field is updated with a newly created mxArray (based on the source character array), this
+						//       is done because the lengths of the source and destination character arrays might differ
+						//       so we cannot simply move the values from one mxArray to another mxArray
+						mxSetField(dst, 0, fieldName, mxStringByUtf8CharString(mxArrayToUTF8String(srcField)));
+						
+						break;
+
+                    default:
+                        break;
+					
+				}
+				
+			} else {
+				// mismatch in data-types 
+				
+				// message and return failure
+				mexPrintf("Error: wrong data-type for field '%s' in input struct, the data-type of the field is '%s' but should be '%s', exiting...\n", fieldName, mxGetClassName(srcField), mxGetClassName(dstField));
+				return false;
+			}
+			
+		}
+
+	}
+	
+	// return success
+	return true;
+	
+}

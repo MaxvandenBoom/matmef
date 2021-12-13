@@ -56,5 +56,6 @@ bool getInputArgAsBool(const mxArray *mat, const char *argName, bool *pVar);
 bool getInputArgAsInt64(const mxArray *mat, const char *argName, si8 minValue, si8 maxValue, si8 *pVar);
 bool getInputArgAsUint64(const mxArray *mat, const char *argName, ui8 maxValue, ui8 *pVar);
 
+bool transferMxFields(const mxArray *src, mxArray *dst);
 
 #endif   // MATMEF_DATACONVERTER_
