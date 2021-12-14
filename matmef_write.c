@@ -178,3 +178,260 @@ bool write_metadata(si1 *segment_path, si1 *password_l1, si1 *password_l2, si8 s
 	return true;
 	
 }
+
+/**
+ * 	Write time-series data to a segment directory
+ * 	
+ * 	@param segment_path         The path to the segment directory
+ * 	@param password_l1          Level 1 password for the data (no password = NULL)
+ * 	@param password_l2          Level 2 password for the data (no password = NULL)
+ *	@param samples_per_block    Number of samples per MEF3 block
+ *	@param data             	The data to write as a 1-D array of data-type int32
+ * 	@return                     True if succesfully written, or False on failure
+ */
+bool write_mef_ts_data_and_indices(si1 *segment_path, si1 *password_l1, si1 *password_l2, ui4 samples_per_block, const mxArray *data, bool lossy_flag) {
+    
+    PASSWORD_DATA           *pwd;
+    UNIVERSAL_HEADER    	*uh;
+    FILE_PROCESSING_STRUCT  *gen_fps, *metadata_fps, *ts_idx_fps, *ts_data_fps;
+    TIME_SERIES_METADATA_SECTION_2  *tmd2;
+	TIME_SERIES_INDEX   	*tsi;
+    RED_PROCESSING_STRUCT   *rps;
+	RED_BLOCK_HEADER    	*block_header;
+	
+    si1     path_in[MEF_FULL_FILE_NAME_BYTES], path_out[MEF_FULL_FILE_NAME_BYTES], name[MEF_BASE_FILE_NAME_BYTES], type[TYPE_BYTES];
+    si1     full_file_name[MEF_FULL_FILE_NAME_BYTES], file_path[MEF_FULL_FILE_NAME_BYTES], segment_name[MEF_BASE_FILE_NAME_BYTES];
+	si4     max_samp, min_samp;
+    ui4     block_samps;
+    si8     start_sample, ts_indices_file_bytes, samps_remaining, file_offset;
+	si8     curr_time, time_inc;
+
+	//
+	// 
+	//
+
+	// if the password is just the null character, then correct to a null pointer
+	if (password_l1 != NULL && password_l1[0] == '\0')	password_l1 = NULL;
+	if (password_l2 != NULL && password_l2[0] == '\0')	password_l2 = NULL;
+	
+	//// check the data type
+	if (mxGetClassID(data) != mxINT32_CLASS) {
+		mexPrintf("Error: Incorrect data-type, should be int32, exiting...\n");
+		return false;
+	}
+	
+	// create a pointer to the data
+	si4 *pData = (si4 *)mxGetData(data);
+	
+	// initialize MEF library
+	(void) initialize_meflib();
+	MEF_globals->behavior_on_fail = SUPPRESS_ERROR_OUTPUT;
+	
+    // set up a generic mef3 fps for universal header
+    gen_fps = allocate_file_processing_struct(UNIVERSAL_HEADER_BYTES, NO_FILE_TYPE_CODE, NULL, NULL, 0);
+	initialize_universal_header(gen_fps, MEF_TRUE, MEF_FALSE, MEF_TRUE);
+	uh = gen_fps->universal_header;
+
+	// set the password data
+    MEF_globals->behavior_on_fail = SUPPRESS_ERROR_OUTPUT;
+    pwd = gen_fps->password_data = process_password_data(NULL, password_l1, password_l2, uh);
+    MEF_globals->behavior_on_fail = EXIT_ON_FAIL;
+	
+	// extract the segment name and check the type (if indeed segment)
+	extract_path_parts(segment_path, path_out, name, type);
+    MEF_strncpy(file_path, segment_path, MEF_FULL_FILE_NAME_BYTES);
+    if (!strcmp(type, SEGMENT_DIRECTORY_TYPE_STRING)) {
+		// segment type/directory
+		
+		// extract segment number from the segment name
+        uh->segment_number = extract_segment_number(&name[0]);
+
+        // copy the segment name for file name construction
+        MEF_strncpy(segment_name, name, MEF_BASE_FILE_NAME_BYTES);
+		
+		// extract the channel name and check the type (if indeed time-series)
+        MEF_strncpy(path_in, path_out, MEF_FULL_FILE_NAME_BYTES);
+        extract_path_parts(path_in, path_out, name, type);
+        if (!strcmp(type, TIME_SERIES_CHANNEL_DIRECTORY_TYPE_STRING)) {
+			// Correct/corresponding directory-type
+			
+			// set the channel name in the universal header
+            MEF_strncpy(uh->channel_name, name, MEF_BASE_FILE_NAME_BYTES);
+			
+            // extract the session name
+            MEF_strncpy(path_in, path_out, MEF_FULL_FILE_NAME_BYTES);
+            extract_path_parts(path_in, path_out, name, type);
+			
+			// set the session name in the universal header
+            MEF_strncpy(uh->session_name, name, MEF_BASE_FILE_NAME_BYTES);
+			
+        } else {
+			// incorrect directory-type
+			
+			mexPrintf("Error: Not a time-series channel, exiting...\n");
+            return false;
+			
+        }
+		
+    } else {
+		// not segment type/directory
+		
+		mexPrintf("Error: Not a segment, exiting...\n");
+        return false;
+		
+    }
+	
+    // Read the metadata file
+    MEF_snprintf(full_file_name, MEF_FULL_FILE_NAME_BYTES, "%s/%s.%s", file_path, segment_name, TIME_SERIES_METADATA_FILE_TYPE_STRING);
+    metadata_fps = read_MEF_file(NULL, full_file_name, password_l1, pwd, NULL, USE_GLOBAL_BEHAVIOR);
+
+	// 
+    MEF_globals->recording_time_offset = metadata_fps->metadata.section_3->recording_time_offset;
+
+	// create and set section 2 metadata
+    tmd2 = metadata_fps->metadata.time_series_section_2;
+	const mwSize *dims = mxGetDimensions(data);
+	tmd2->number_of_samples = (si8) dims[0];
+    tmd2->recording_duration = (si8) (((sf8)tmd2->number_of_samples / (sf8) tmd2->sampling_frequency) * 1e6);
+    tmd2->number_of_blocks = (si8) ceil((sf8) tmd2->number_of_samples / (sf8)samples_per_block);
+    tmd2->maximum_block_samples = samples_per_block;
+
+    // Get the start time and end time from the univeral header
+    uh->start_time = metadata_fps->universal_header->start_time;
+    uh->end_time = metadata_fps->universal_header->end_time;
+    
+	
+	
+    // Set up mef3 time series indices file
+    ts_indices_file_bytes = (tmd2->number_of_blocks * TIME_SERIES_INDEX_BYTES) + UNIVERSAL_HEADER_BYTES;
+    ts_idx_fps = allocate_file_processing_struct(ts_indices_file_bytes, TIME_SERIES_INDICES_FILE_TYPE_CODE, NULL, metadata_fps, UNIVERSAL_HEADER_BYTES);
+    MEF_snprintf(ts_idx_fps->full_file_name, MEF_FULL_FILE_NAME_BYTES, "%s/%s.%s", file_path, segment_name, TIME_SERIES_INDICES_FILE_TYPE_STRING);
+    uh = ts_idx_fps->universal_header;
+    generate_UUID(uh->file_UUID);
+    uh->number_of_entries = tmd2->number_of_blocks;
+    uh->maximum_entry_size = TIME_SERIES_INDEX_BYTES;
+
+    // Set up mef3 time series data file
+    ts_data_fps = allocate_file_processing_struct(UNIVERSAL_HEADER_BYTES + RED_MAX_COMPRESSED_BYTES(samples_per_block, 1), TIME_SERIES_DATA_FILE_TYPE_CODE, NULL, metadata_fps, UNIVERSAL_HEADER_BYTES);
+    MEF_snprintf(ts_data_fps->full_file_name, MEF_FULL_FILE_NAME_BYTES, "%s/%s.%s", file_path, segment_name, TIME_SERIES_DATA_FILE_TYPE_STRING);
+    uh = ts_data_fps->universal_header;
+    generate_UUID(uh->file_UUID);
+    uh->number_of_entries = tmd2->number_of_blocks;
+    uh->maximum_entry_size = samples_per_block;
+    ts_data_fps->directives.io_bytes = UNIVERSAL_HEADER_BYTES;
+    ts_data_fps->directives.close_file = MEF_FALSE;
+    write_MEF_file(ts_data_fps);
+
+    // TODO optional filtration
+    // use allocation below if lossy
+    if (lossy_flag == 1) {
+        
+		rps = RED_allocate_processing_struct(samples_per_block, 0, samples_per_block, RED_MAX_DIFFERENCE_BYTES(samples_per_block), samples_per_block, samples_per_block, pwd);
+        // ASK RED lossy compression user specified???
+        rps->compression.mode = RED_MEAN_RESIDUAL_RATIO;
+        rps->directives.detrend_data = MEF_TRUE;
+        rps->directives.require_normality = MEF_TRUE;
+        rps->compression.goal_mean_residual_ratio = 0.10;
+        rps->compression.goal_tolerance = 0.01;
+		
+    } else {
+        
+		rps = RED_allocate_processing_struct(samples_per_block, 0, 0, RED_MAX_DIFFERENCE_BYTES(samples_per_block), 0, 0, pwd);
+		
+    }
+    rps->block_header = (RED_BLOCK_HEADER *) (rps->compressed_data = ts_data_fps->RED_blocks);
+
+    // create new RED blocks
+    curr_time = metadata_fps->universal_header->start_time;
+    time_inc = (si8) (((sf8) samples_per_block / tmd2->sampling_frequency) * (sf8) 1e6);
+    samps_remaining = tmd2->number_of_samples;
+    block_header = rps->block_header;
+    tsi = ts_idx_fps->time_series_indices;
+    min_samp = RED_POSITIVE_INFINITY;
+    max_samp = RED_NEGATIVE_INFINITY;
+    block_samps = samples_per_block;
+    file_offset = UNIVERSAL_HEADER_BYTES;
+
+    start_sample = 0;
+
+    // Write the data and update the metadata
+    while (samps_remaining) {
+
+        // check
+        if (samps_remaining < block_samps)
+            block_samps = (ui4) samps_remaining;
+        block_header->number_of_samples = block_samps;
+        block_header->start_time = (si8) (curr_time + 0.5); // ASK Why 0.5 here?
+        curr_time += time_inc;
+
+		
+        rps->original_data = rps->original_ptr = (si4 *)pData + (tmd2->number_of_samples - samps_remaining);
+
+        // filter - comment out if don't want
+        // filtps->data_length = block_samps;
+        // RED_filter(filtps);
+
+        samps_remaining -= (si8) block_samps;
+
+        // compress
+        (void) RED_encode(rps);
+        ts_data_fps->universal_header->body_CRC = CRC_update((ui1 *) block_header, block_header->block_bytes, ts_data_fps->universal_header->body_CRC);
+        e_fwrite((void *) block_header, sizeof(ui1), block_header->block_bytes, ts_data_fps->fp, ts_data_fps->full_file_name, __FUNCTION__, __LINE__, EXIT_ON_FAIL);
+
+        // time series indices
+        tsi->file_offset = file_offset;
+        file_offset += (tsi->block_bytes = block_header->block_bytes);
+        tsi->start_time = block_header->start_time;
+        tsi->start_sample = start_sample;
+        start_sample += (tsi->number_of_samples = (si8) block_samps);
+        RED_find_extrema(rps->original_ptr, block_samps, tsi);
+        if (max_samp < tsi->maximum_sample_value)
+            max_samp = tsi->maximum_sample_value;
+        if (min_samp > tsi->minimum_sample_value)
+            min_samp = tsi->minimum_sample_value;
+        tsi->RED_block_flags = block_header->flags;
+        ++tsi;
+
+        // update metadata
+        if (tmd2->maximum_block_bytes < block_header->block_bytes)
+            tmd2->maximum_block_bytes = block_header->block_bytes;
+        if (tmd2->maximum_difference_bytes < block_header->difference_bytes)
+            tmd2->maximum_difference_bytes = block_header->difference_bytes;
+    }
+
+    // update metadata
+    tmd2->maximum_contiguous_block_bytes = file_offset - UNIVERSAL_HEADER_BYTES;
+    if (tmd2->units_conversion_factor >= 0.0) {
+        tmd2->maximum_native_sample_value = (sf8) max_samp * tmd2->units_conversion_factor;
+        tmd2->minimum_native_sample_value = (sf8) min_samp * tmd2->units_conversion_factor;
+    } else {
+        tmd2->maximum_native_sample_value = (sf8) min_samp * tmd2->units_conversion_factor;
+        tmd2->minimum_native_sample_value = (sf8) max_samp * tmd2->units_conversion_factor;
+    }
+    tmd2->maximum_contiguous_blocks = tmd2->number_of_blocks;
+
+    // Write the files
+    ts_data_fps->universal_header->header_CRC = CRC_calculate(ts_data_fps->raw_data + CRC_BYTES, UNIVERSAL_HEADER_BYTES - CRC_BYTES);
+    e_fseek(ts_data_fps->fp, 0, SEEK_SET, ts_data_fps->full_file_name, __FUNCTION__, __LINE__, MEF_globals->behavior_on_fail);
+    e_fwrite(uh, sizeof(ui1), UNIVERSAL_HEADER_BYTES, ts_data_fps->fp, ts_data_fps->full_file_name, __FUNCTION__, __LINE__, MEF_globals->behavior_on_fail);
+    fclose(ts_data_fps->fp);
+    // write out metadata & time series indices files
+    write_MEF_file(metadata_fps);
+    write_MEF_file(ts_idx_fps);
+
+
+    // clean up
+    free_file_processing_struct(metadata_fps);
+    free_file_processing_struct(ts_data_fps);
+    free_file_processing_struct(ts_idx_fps);
+    free_file_processing_struct(gen_fps);
+    rps->block_header = NULL;
+    rps->compressed_data = NULL;
+    rps->original_data = NULL;
+    rps->original_ptr = NULL;
+    RED_free_processing_struct(rps);
+
+	// return succes
+	return true;
+	
+}
