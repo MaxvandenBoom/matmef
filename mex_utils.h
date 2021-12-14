@@ -14,6 +14,15 @@
  *  You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "mex.h"
+#include "meflib/meflib/meflib.h"
+
+extern const char pathSeparator;
+
+bool dirExists(const char* path);
+bool fileExists(const char* path);
+char *strchr_sep(const char *str);
+char *strrchr_sep(const char *str);
+bool createDir(const char *path);
 
 void mxForceWarning(const char* warningId, const char *message, ...);
 bool mxIsWarningEnabled(const char* warningId);

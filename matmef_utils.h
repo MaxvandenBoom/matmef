@@ -16,6 +16,8 @@
 #include "mex.h"
 #include "meflib/meflib/meflib.h"
 
+void prep_channel_segment(const mxArray *mxChannelPath, const mxArray *mxSegmentNum, si1 *channel_path, si1 *channel_name, int *segment_num, si1 *segment_path, si4 inputChannelType);
+
 si4 extract_segment_number(si1 *segment_name);
 
 #endif   // MATMEF_UTILS_

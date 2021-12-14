@@ -16,6 +16,140 @@
 #include <stdarg.h>
 #include <string.h>
 
+
+const char pathSeparator =
+#ifdef _WIN32
+	'\\';
+#else
+	'/';
+#endif
+
+/**
+ * 	Check the given path exists and is a directory
+ *
+ * 	@param path            		The path to the directory that need to be checked
+ * 	@return						True if the path exists and is a directory, false if not
+ */
+bool dirExists(const char* path) {
+	struct stat	sb;
+	
+#ifndef _WIN32
+	return stat(path, &sb) == 0 && sb.st_mode & S_IFDIR;
+#else
+	return _stat(path, &sb) == 0 && sb.st_mode & _S_IFDIR;
+#endif
+
+}
+
+/**
+ * 	Check the given path exists and is a file
+ *
+ * 	@param path            		The path to the file that need to be checked
+ * 	@return						True if the path exists and is a file, false if not
+ */
+bool fileExists(const char* path) {
+	
+#ifndef _WIN32
+	struct stat	sb;
+	return stat(path, &sb) == 0 && !(sb.st_mode & S_IFDIR);
+#else
+	struct _stat64 sb64;
+	return _stat64(path, &sb64) == 0 && !(sb64.st_mode & _S_IFDIR);
+#endif
+	
+}
+
+/**
+ * 	Search for a directory seperator character ('/' or '\\')
+ *
+ * 	@param str            		The string to be searched
+ * 	@return						Pointer to the first occurrence of character, null pointer if not found
+ */
+char *strchr_sep(const char *str) {
+	char *pch1 = strchr(str, '/');
+	char *pch2 = strchr(str, '\\');
+	if (pch1 != NULL && pch2 == NULL)	return pch1;
+	if (pch1 == NULL && pch2 != NULL)	return pch2;
+	if (pch1 != NULL && pch2 != NULL) {
+		if (pch1 < pch2)	return pch1;
+		else				return pch2;
+	}
+	return NULL;
+}
+
+/**
+ * 	Search for a directory seperator character ('/' or '\\'). Starting at the back of the string, searching forward
+ *
+ * 	@param str            		The string to be searched
+ * 	@return						Pointer to the last occurrence of character, null pointer if not found
+ */
+char *strrchr_sep(const char *str) {
+	char *pch1 = strrchr(str, '/');
+	char *pch2 = strrchr(str, '\\');
+	if (pch1 != NULL && pch2 == NULL)	return pch1;
+	if (pch1 == NULL && pch2 != NULL)	return pch2;
+	if (pch1 != NULL && pch2 != NULL) {
+		if (pch1 < pch2)	return pch2;
+		else				return pch1;
+	}
+	return NULL;
+}
+
+bool createDir(const char *path) {
+	
+	// check if there is a parent path
+	char *p = strrchr_sep(path);
+	if (p == NULL)	return true;
+	
+	// skip empty (but not if we are on the root)
+	if (p != path && (*(p - 1) == '\\' || *(p - 1) == '/'))
+		p--;
+	
+	// extract the parent directory
+	char *temp = calloc(1, strlen(path) + 1);
+	memcpy(temp, path, p - path);
+	temp[p - path] = '\0';
+	
+	// check if there is a parent path to check
+	if (strlen(temp) > 0 && *(p - 1) != ':') {
+	
+		// recursively check directory
+		if (!createDir(temp)) {
+			
+			// something went wrong, propegate failure upward
+			free(temp);
+			return false;
+			
+		}
+	}
+	
+	// free memory
+	free(temp);
+	
+	
+	// 
+	// safe to handle the current directory
+	// (the parent directory is either at root, directory already existed or has been created succesfully)
+	// 
+	
+	// check if the current directory exists
+	if (dirExists(path))
+		return true;
+	
+	// create current directory
+	#ifdef _WIN32
+		if (_mkdir(path, 0774) != 0)
+	#else
+		if (mkdir(path, 0774) != 0)
+	#endif
+			return false;
+	
+	// return succes
+	return true;
+	
+	
+}
+
 /**
  * 	Output a warning, regardless of whether warnings
  *  are enabled or disabled in matlab
