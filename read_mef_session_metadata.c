@@ -3,7 +3,7 @@
  * 	MEF 3.0 Library Matlab Wrapper
  * 	Read a MEF3 folder and retrieve the session, channel(s), segment(s) and record(s) metadata
  *	
- *  Copyright 2020, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+ *  Copyright 2022, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
  *
  *  
@@ -38,7 +38,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
 	// check the session path input argument
     if (nrhs < 1)				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:noSessionPathArg", "'sessionPath' input argument not set");
-	if (!mxIsChar(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidSessionPathArg", "'sessionPath' input argument invalid, should string (array of characters)");
+	if (!mxIsChar(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidSessionPathArg", "'sessionPath' input argument invalid, should be a string (array of characters)");
 	if (mxIsEmpty(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidSessionPathArg", "'sessionPath' input argument invalid, argument is empty");
 	
 	// set the session path
@@ -65,7 +65,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			
 			// check the password input argument data type
 			if (!mxIsChar(prhs[1]))
-				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidPasswordArg", "'password' input argument invalid, should string (array of characters)");
+				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidPasswordArg", "'password' input argument invalid, should be a string (array of characters)");
 
 			// convert password (matlab char-array to UTF-8 character string)
 			if (!cpyMxStringToUtf8CharString(prhs[1], password, PASSWORD_BYTES))

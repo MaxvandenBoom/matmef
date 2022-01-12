@@ -3,7 +3,7 @@
  * 	MEF 3.0 Library Matlab Wrapper
  * 	Create and initialize a new universal-header or metadata structure-array with default values
  *	
- *  Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+ *  Copyright 2022, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
  *
  *  
@@ -29,7 +29,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// check the type input argument
     if (nrhs < 1)				mexErrMsgIdAndTxt("MATLAB:init_mef_struct:noTypeArg", "'type' input argument not set");
 	if (mxIsEmpty(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:init_mef_struct:invalidTypeArg", "'type' input argument invalid, argument is empty");
-	if (!mxIsChar(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:init_mef_struct:invalidTypeArg", "'type' input argument invalid, should string (array of characters)");
+	if (!mxIsChar(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:init_mef_struct:invalidTypeArg", "'type' input argument invalid, should be a string (array of characters)");
 
 	// retrieve the type input string and make lower case
 	char *mat_type = mxArrayToString(prhs[0]);

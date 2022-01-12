@@ -3,7 +3,7 @@
  * 	MEF 3.0 Library Matlab Wrapper
  * 	Write new time-series data in the specified segment
  *	
- *  Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+ *  Copyright 2022, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
  *
  *  
@@ -74,7 +74,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// check the level 1 password
 	if (nrhs < 3)					mexErrMsgIdAndTxt("MATLAB:write_mef_ts_segment_metadata:noPasswordL1Arg", "'passwordL1' input argument not set, pass empty string for no encryption");
 	if (!mxIsEmpty(prhs[2])) {
-		if (!mxIsChar(prhs[2]))		mexErrMsgIdAndTxt("MATLAB:write_mef_ts_segment_metadata:invalidPasswordL1Arg", "'passwordL1' input argument invalid, should string (array of characters)");
+		if (!mxIsChar(prhs[2]))		mexErrMsgIdAndTxt("MATLAB:write_mef_ts_segment_metadata:invalidPasswordL1Arg", "'passwordL1' input argument invalid, should be a string (array of characters)");
 		
 		// convert matlab char-array to UTF-8 character string
 		if (!cpyMxStringToUtf8CharString(prhs[2], password_l1, PASSWORD_BYTES))
@@ -85,7 +85,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// check the level 2 password
 	if (nrhs < 4)					mexErrMsgIdAndTxt("MATLAB:write_mef_ts_segment_metadata:noPasswordL2Arg", "'passwordL2' input argument not set, pass empty string for no encryption");
 	if (!mxIsEmpty(prhs[3])) {
-		if (!mxIsChar(prhs[3]))		mexErrMsgIdAndTxt("MATLAB:write_mef_ts_segment_metadata:invalidPasswordL2Arg", "'passwordL2' input argument invalid, should string (array of characters)");
+		if (!mxIsChar(prhs[3]))		mexErrMsgIdAndTxt("MATLAB:write_mef_ts_segment_metadata:invalidPasswordL2Arg", "'passwordL2' input argument invalid, should be a string (array of characters)");
 		
 		// convert matlab char-array to UTF-8 character string
 		if (!cpyMxStringToUtf8CharString(prhs[3], password_l2, PASSWORD_BYTES))

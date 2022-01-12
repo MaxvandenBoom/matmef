@@ -3,7 +3,7 @@
  * 	MEF 3.0 Library Matlab Wrapper
  * 	Write a new time-series or video metadata file for a specific segment
  *	
- *  Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+ *  Copyright 2022, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
  *
  *  
@@ -43,7 +43,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// 
 	
 	if (nrhs < 1)					mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:noChannelType", "'channelType' input argument not set");
-	if (!mxIsChar(prhs[0]))			mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidChannelTypeArg", "'channelType' input argument invalid, should string (array of characters)");
+	if (!mxIsChar(prhs[0]))			mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidChannelTypeArg", "'channelType' input argument invalid, should be a string (array of characters)");
 	char *mat_channel_type = mxArrayToString(prhs[0]);
 	for(int i = 0; mat_channel_type[i]; i++)	mat_channel_type[i] = tolower(mat_channel_type[i]);
 	if (strcmp(mat_channel_type, "timeseries") != 0 && strcmp(mat_channel_type, "ts") != 0 && strcmp(mat_channel_type, "video") != 0 && strcmp(mat_channel_type, "v") != 0)
@@ -98,7 +98,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// check the level 1 password
 	if (nrhs < 4)					mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:noPasswordL1Arg", "'passwordL1' input argument not set, pass empty string for no encryption");
 	if (!mxIsEmpty(prhs[3])) {
-		if (!mxIsChar(prhs[3]))		mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidPasswordL1Arg", "'passwordL1' input argument invalid, should string (array of characters)");
+		if (!mxIsChar(prhs[3]))		mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidPasswordL1Arg", "'passwordL1' input argument invalid, should be a string (array of characters)");
 		
 		// convert matlab char-array to UTF-8 character string
 		if (!cpyMxStringToUtf8CharString(prhs[3], password_l1, PASSWORD_BYTES))
@@ -109,7 +109,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// check the level 2 password
 	if (nrhs < 5)					mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:noPasswordL2Arg", "'passwordL2' input argument not set, pass empty string for no encryption");
 	if (!mxIsEmpty(prhs[4])) {
-		if (!mxIsChar(prhs[4]))		mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidPasswordL2Arg", "'passwordL2' input argument invalid, should string (array of characters)");
+		if (!mxIsChar(prhs[4]))		mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidPasswordL2Arg", "'passwordL2' input argument invalid, should be a string (array of characters)");
 		
 		// convert matlab char-array to UTF-8 character string
 		if (!cpyMxStringToUtf8CharString(prhs[4], password_l2, PASSWORD_BYTES))

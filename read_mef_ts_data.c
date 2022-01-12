@@ -3,7 +3,7 @@
  * 	MEF 3.0 Library Matlab Wrapper
  * 	Read the MEF3 data from a time-series channel
  *	
- *  Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+ *  Copyright 2022, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *	Adapted from PyMef (by Jan Cimbalnik, Matt Stead, Ben Brinkmann, and Dan Crepeau)
  *
  *  
@@ -39,7 +39,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
 	// check the channel path input argument
     if (nrhs < 1)				mexErrMsgIdAndTxt("MATLAB:read_mef_ts_data:noChannelPathArg", "'channelPath' input argument not set");
-	if(!mxIsChar(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_ts_data:invalidChannelPathArg", "'channelPath' input argument invalid, should string (array of characters)");
+	if(!mxIsChar(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_ts_data:invalidChannelPathArg", "'channelPath' input argument invalid, should be a string (array of characters)");
 	if(mxIsEmpty(prhs[0]))		mexErrMsgIdAndTxt("MATLAB:read_mef_ts_data:invalidChannelPathArg", "'channelPath' input argument invalid, argument is empty");
 	
 	// set the channel path
@@ -60,7 +60,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
 		// check the password input argument data type
 		if (!mxIsChar(prhs[1]))
-			mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidPasswordArg", "'password' input argument invalid, should string (array of characters)");
+			mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidPasswordArg", "'password' input argument invalid, should be a string (array of characters)");
 
 		// convert password (matlab char-array to UTF-8 character string)
 		if (!cpyMxStringToUtf8CharString(prhs[1], password, PASSWORD_BYTES))
@@ -82,7 +82,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		
 		// check valid range type
 		if (!mxIsChar(prhs[2]))
-			mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidRangeTypeArg", "'rangeType' input argument invalid, should string (array of characters)");
+			mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidRangeTypeArg", "'rangeType' input argument invalid, should be a string (array of characters)");
 		char *mat_range_type = mxArrayToString(prhs[2]);
 		for(int i = 0; mat_range_type[i]; i++)	mat_range_type[i] = tolower(mat_range_type[i]);
 		if (strcmp(mat_range_type, "time") != 0 && strcmp(mat_range_type, "samples") != 0)

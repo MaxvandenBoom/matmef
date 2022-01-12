@@ -2,7 +2,7 @@
  * 	@file
  * 	Matmef specific utility functions
  *	
- *  Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+ *  Copyright 2022, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
  *
  *  
  *  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ void prep_channel_segment(const mxArray *mxChannelPath, const mxArray *mxSegment
 	//
 	
 	if (mxIsEmpty(mxChannelPath))		mexErrMsgIdAndTxt("MATLAB:prep_channel_segment:invalidChannelPathArg", "'channelPath' input argument invalid, argument is empty");
-	if (!mxIsChar(mxChannelPath))		mexErrMsgIdAndTxt("MATLAB:prep_channel_segment:invalidChannelPathArg", "'channelPath' input argument invalid, should string (array of characters)");
+	if (!mxIsChar(mxChannelPath))		mexErrMsgIdAndTxt("MATLAB:prep_channel_segment:invalidChannelPathArg", "'channelPath' input argument invalid, should be a string (array of characters)");
 	
 	// set the channel path
 	MEF_strncpy(channel_path, mxArrayToString(mxChannelPath), MEF_FULL_FILE_NAME_BYTES);
