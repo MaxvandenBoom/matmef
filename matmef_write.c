@@ -199,9 +199,8 @@ bool write_metadata(si1 *segment_path, si1 *password_l1, si1 *password_l2, si8 s
 bool write_mef_ts_data_and_indices(si1 *segment_path, si1 *password_l1, si1 *password_l2, ui4 samples_per_block, const mxArray *data, bool lossy_flag) {
     
     PASSWORD_DATA           *pwd;
-    UNIVERSAL_HEADER    	*uh;
-    FILE_PROCESSING_STRUCT  *gen_fps, *metadata_fps, *ts_idx_fps, *ts_data_fps;
-    TIME_SERIES_METADATA_SECTION_2  *tmd2;
+    UNIVERSAL_HEADER    	*ts_data_uh;
+    FILE_PROCESSING_STRUCT  *gen_fps, *metadata_fps;
 	TIME_SERIES_INDEX   	*tsi;
     RED_PROCESSING_STRUCT   *rps;
 	RED_BLOCK_HEADER    	*block_header;
@@ -210,7 +209,7 @@ bool write_mef_ts_data_and_indices(si1 *segment_path, si1 *password_l1, si1 *pas
     si1     full_file_name[MEF_FULL_FILE_NAME_BYTES], file_path[MEF_FULL_FILE_NAME_BYTES], segment_name[MEF_BASE_FILE_NAME_BYTES];
 	si4     max_samp, min_samp;
     ui4     block_samps;
-    si8     start_sample, ts_indices_file_bytes, samps_remaining, file_offset;
+    si8     start_sample, samps_remaining, file_offset;
 	si8     curr_time, time_inc;
 
 	//
@@ -234,14 +233,11 @@ bool write_mef_ts_data_and_indices(si1 *segment_path, si1 *password_l1, si1 *pas
 	(void) initialize_meflib();
 	MEF_globals->behavior_on_fail = SUPPRESS_ERROR_OUTPUT;
 	
-    // set up a generic mef3 fps
+    // set up a generic mef3 fps and process the password data with it
     gen_fps = allocate_file_processing_struct(UNIVERSAL_HEADER_BYTES, NO_FILE_TYPE_CODE, NULL, NULL, 0);
 	initialize_universal_header(gen_fps, MEF_TRUE, MEF_FALSE, MEF_TRUE);
-	uh = gen_fps->universal_header;
-
-	// set the password data
     MEF_globals->behavior_on_fail = SUPPRESS_ERROR_OUTPUT;
-    pwd = gen_fps->password_data = process_password_data(NULL, password_l1, password_l2, uh);
+    pwd = process_password_data(NULL, password_l1, password_l2, gen_fps->universal_header);
     MEF_globals->behavior_on_fail = EXIT_ON_FAIL;
 	
 	// extract the segment name and check the directory-type (if indeed segment)
@@ -249,9 +245,6 @@ bool write_mef_ts_data_and_indices(si1 *segment_path, si1 *password_l1, si1 *pas
     MEF_strncpy(file_path, segment_path, MEF_FULL_FILE_NAME_BYTES);
     if (!strcmp(type, SEGMENT_DIRECTORY_TYPE_STRING)) {
 		// segment type/directory
-		
-		// extract segment number from the segment name
-        uh->segment_number = extract_segment_number(&name[0]);
 
         // copy the segment name for file name construction later
         MEF_strncpy(segment_name, name, MEF_BASE_FILE_NAME_BYTES);
@@ -262,15 +255,9 @@ bool write_mef_ts_data_and_indices(si1 *segment_path, si1 *password_l1, si1 *pas
         if (!strcmp(type, TIME_SERIES_CHANNEL_DIRECTORY_TYPE_STRING)) {
 			// correct/corresponding directory-type
 			
-			// set the channel name in the universal header
-            MEF_strncpy(uh->channel_name, name, MEF_BASE_FILE_NAME_BYTES);
-			
             // extract the session name
             MEF_strncpy(path_in, path_out, MEF_FULL_FILE_NAME_BYTES);
             extract_path_parts(path_in, path_out, name, type);
-			
-			// set the session name in the universal header
-            MEF_strncpy(uh->session_name, name, MEF_BASE_FILE_NAME_BYTES);
 			
         } else {
 			// incorrect directory-type
@@ -311,7 +298,7 @@ bool write_mef_ts_data_and_indices(si1 *segment_path, si1 *password_l1, si1 *pas
 	//
 	
 	// create a pointer to the existing time-series section 2 metadata (from the .tmet file)
-    tmd2 = metadata_fps->metadata.time_series_section_2;
+    TIME_SERIES_METADATA_SECTION_2 *tmd2 = metadata_fps->metadata.time_series_section_2;
 	
 	// update fields in the time-series section 2 metadata based on the data (to be written)
 	const mwSize *dims = mxGetDimensions(data);
@@ -319,11 +306,6 @@ bool write_mef_ts_data_and_indices(si1 *segment_path, si1 *password_l1, si1 *pas
     tmd2->recording_duration = (si8) (((sf8)tmd2->number_of_samples / (sf8) tmd2->sampling_frequency) * 1e6);
     tmd2->number_of_blocks = (si8) ceil((sf8) tmd2->number_of_samples / (sf8)samples_per_block);
     tmd2->maximum_block_samples = samples_per_block;
-
-    // Get the start time and end time from the univeral header
-    uh->start_time = metadata_fps->universal_header->start_time;
-    uh->end_time = metadata_fps->universal_header->end_time;
-    
 	
 	
 
@@ -332,31 +314,32 @@ bool write_mef_ts_data_and_indices(si1 *segment_path, si1 *password_l1, si1 *pas
 	//
 	
 	// allocate a fps and univeral header for the ts-indices (file), based on the ts-metadata (copying the directives, password data, and raw data)
-    ts_indices_file_bytes = (tmd2->number_of_blocks * TIME_SERIES_INDEX_BYTES) + UNIVERSAL_HEADER_BYTES;
-    ts_idx_fps = allocate_file_processing_struct(ts_indices_file_bytes, TIME_SERIES_INDICES_FILE_TYPE_CODE, NULL, metadata_fps, UNIVERSAL_HEADER_BYTES);
+    si8 ts_indices_file_bytes 			= (tmd2->number_of_blocks * TIME_SERIES_INDEX_BYTES) + UNIVERSAL_HEADER_BYTES;
+    FILE_PROCESSING_STRUCT *ts_idx_fps 	= allocate_file_processing_struct(ts_indices_file_bytes, TIME_SERIES_INDICES_FILE_TYPE_CODE, NULL, metadata_fps, UNIVERSAL_HEADER_BYTES);
     MEF_snprintf(ts_idx_fps->full_file_name, MEF_FULL_FILE_NAME_BYTES, "%s/%s.%s", file_path, segment_name, TIME_SERIES_INDICES_FILE_TYPE_STRING);
 	
 	// generate a uuid and set some of the index entries fields
-    uh = ts_idx_fps->universal_header;
-    generate_UUID(uh->file_UUID);
-    uh->number_of_entries = tmd2->number_of_blocks;
-    uh->maximum_entry_size = TIME_SERIES_INDEX_BYTES;
+    generate_UUID(ts_idx_fps->universal_header->file_UUID);
+    ts_idx_fps->universal_header->number_of_entries = tmd2->number_of_blocks;
+    ts_idx_fps->universal_header->maximum_entry_size = TIME_SERIES_INDEX_BYTES;
+
+
 
 	// 
 	// Set up a file-processing-struct and universal-header for the time-series data and write to a file
 	//
 	
 	// allocate a fps and univeral header for the ts-data, based on the ts-metadata (copying the directives, password data, and raw data, including start_)
-    ts_data_fps = allocate_file_processing_struct(UNIVERSAL_HEADER_BYTES + RED_MAX_COMPRESSED_BYTES(samples_per_block, 1), TIME_SERIES_DATA_FILE_TYPE_CODE, NULL, metadata_fps, UNIVERSAL_HEADER_BYTES);
+	FILE_PROCESSING_STRUCT *ts_data_fps = allocate_file_processing_struct(UNIVERSAL_HEADER_BYTES + RED_MAX_COMPRESSED_BYTES(samples_per_block, 1), TIME_SERIES_DATA_FILE_TYPE_CODE, NULL, metadata_fps, UNIVERSAL_HEADER_BYTES);
     MEF_snprintf(ts_data_fps->full_file_name, MEF_FULL_FILE_NAME_BYTES, "%s/%s.%s", file_path, segment_name, TIME_SERIES_DATA_FILE_TYPE_STRING);
     
 	// pointer to the universal-header of the time-series data (file)
-    uh = ts_data_fps->universal_header;
+	ts_data_uh = ts_data_fps->universal_header;
 	
 	// generate/update the ts-data file uuid and set some of the index entries fields
-    generate_UUID(uh->file_UUID);
-    uh->number_of_entries = tmd2->number_of_blocks;
-    uh->maximum_entry_size = samples_per_block;
+    generate_UUID(ts_data_uh->file_UUID);
+    ts_data_uh->number_of_entries = tmd2->number_of_blocks;
+    ts_data_uh->maximum_entry_size = samples_per_block;
 	
 	// write the universal header of the ts-data file
     ts_data_fps->directives.io_bytes = UNIVERSAL_HEADER_BYTES;
@@ -460,7 +443,7 @@ bool write_mef_ts_data_and_indices(si1 *segment_path, si1 *password_l1, si1 *pas
 	
 	// re-write the universal header of the ts-data file (which now includes the CRC) and manually close (since directives.close_file was set to off for this file)
     e_fseek(ts_data_fps->fp, 0, SEEK_SET, ts_data_fps->full_file_name, __FUNCTION__, __LINE__, MEF_globals->behavior_on_fail);
-    e_fwrite(uh, sizeof(ui1), UNIVERSAL_HEADER_BYTES, ts_data_fps->fp, ts_data_fps->full_file_name, __FUNCTION__, __LINE__, MEF_globals->behavior_on_fail);
+    e_fwrite(ts_data_uh, sizeof(ui1), UNIVERSAL_HEADER_BYTES, ts_data_fps->fp, ts_data_fps->full_file_name, __FUNCTION__, __LINE__, MEF_globals->behavior_on_fail);
     fclose(ts_data_fps->fp);
 	
     // write/update the time-series metadata file
