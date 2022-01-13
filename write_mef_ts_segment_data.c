@@ -26,8 +26,8 @@
  *
  * @param channelPath			Path (absolute or relative) to a MEF3 channel folder (to be created or existing)
  * @param segmentNum			The segment number Should be 0 or a positive integer (1, 2, ...)
- * @param passwordL1			Level 1 password on the segment data; Pass empty string/variable if not encrypted
- * @param passwordL2			Level 2 password on the segment data; Pass empty string/variable if not encrypted
+ * @param passwordL1			Level 1 password on the segment data; Pass empty string/variable for no encryption
+ * @param passwordL2			Level 2 password on the segment data; Pass empty string/variable for no encryption
  * @param samplesPerMefBlock	Number of samples per MEF3 block
  * @param data					The data to write as a 1-D array of data-type int32
  */

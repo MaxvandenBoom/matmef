@@ -28,8 +28,8 @@
  * @param channelType	The type of channel ['timeseries' or 'ts' for time-series, 'v' or 'video' for video]
  * @param channelPath	Path (absolute or relative) a MEF3 channel folder (to be created or existing)
  * @param segmentNum	The segment number, should be 0 or a positive integer (1, 2, ...)
- * @param passwordL1	Level 1 password on the segment metadata; Pass empty string/variable if not encrypted
- * @param passwordL2	Level 2 password on the segment metadata; Pass empty string/variable if not encrypted
+ * @param passwordL1	Level 1 password on the segment metadata; Pass empty string/variable for no encryption
+ * @param passwordL2	Level 2 password on the segment metadata; Pass empty string/variable for no encryption
  * @param startTime		The start epoch time in microseconds (μUTC format) to be stored in the universal-header
  * @param endTime		The end epoch time in microseconds (μUTC format) to be stored in the universal-header
  * @param section2		Structure containing section 2 metadata. Make sure the section 2 metadata matches the channel-type
