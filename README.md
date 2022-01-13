@@ -1,11 +1,11 @@
-# matmef
+# MatMef
 Matlab wrapper for MEF 3.0 library
 
-This project provides several Matlab mex functions that wrap around the MEF 3.0 library to read MEF 3.0 data
+This project provides Matlab (mex) functions to read and write MEF 3.0 data using the MEF 3.0 library
 
 ## Using pre-compiled mex files
 1. Clone or download (and extract) the matmef repository
-2. Use the functions
+2. Use the functions (as illustrated in the examples below)
 
 ## Building from source
 1. Clone the matmef repository using: `git clone https://github.com/MaxvandenBoom/matmef.git`
