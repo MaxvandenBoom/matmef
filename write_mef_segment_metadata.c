@@ -32,6 +32,7 @@
  * @param passwordL2	Level 2 password on the segment metadata; Pass empty string/variable for no encryption
  * @param startTime		The start epoch time in microseconds (μUTC format) to be stored in the universal-header
  * @param endTime		The end epoch time in microseconds (μUTC format) to be stored in the universal-header
+ * @param anonName		The anonymized subject name to be stored in the universal-header
  * @param section2		Structure containing section 2 metadata. Make sure the section 2 metadata matches the channel-type
  * @param section3		Structure containing section 3 metadata
  */
@@ -123,19 +124,27 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
 	
 	// 
-	// start- and end-time
+	// universal header start-time, end-time and anonymized subject name
 	// 
 	
 	si8 start_time = 0;
 	si8 end_time = 0;
+	si1 anon_name[UNIVERSAL_HEADER_ANONYMIZED_NAME_BYTES] = {0};
 	
-	// check start-time
+	// check start-time and end-time
 	if (nrhs < 6)				mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:noStartTimeArg", "'startTime' input argument not set");
 	if (!getInputArgAsInt64(prhs[5], "startTime", LLONG_MIN, LLONG_MAX, &start_time))	return;
 	
-	// check end-time
 	if (nrhs < 7)				mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:noEndTimeArg", "'endTime' input argument not set");
 	if (!getInputArgAsInt64(prhs[6], "endTime", LLONG_MIN, LLONG_MAX, &end_time))	return;
+	
+	// check and convert the anonymized name (to a C UTF-8 character string)
+	if (nrhs < 8)					mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:noAnonNameArg", "'anonName' input argument not set");
+	if (!mxIsEmpty(prhs[7])) {
+		if (!mxIsChar(prhs[7]))		mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidAnonNameArg", "'anonName' input argument invalid, should be a string (array of characters)");
+		if (!cpyMxStringToUtf8CharString(prhs[7], anon_name, UNIVERSAL_HEADER_ANONYMIZED_NAME_BYTES))
+			mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidAnonNameArg", "'anonName' input argument invalid, could not convert matlab char array to UTF-8 bytes");
+	}
 	
 	
 	//
@@ -143,8 +152,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	//
 
 	// check section 2
-	if (nrhs < 8)										mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:noSection2Arg", "'section2' input argument not set");
-	if (mxIsEmpty(prhs[7]) || !mxIsStruct(prhs[7]))		mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidSection2Arg", "'section2' input argument invalid, should be a structure with section 2 metadata fields");
+	if (nrhs < 9)										mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:noSection2Arg", "'section2' input argument not set");
+	if (mxIsEmpty(prhs[8]) || !mxIsStruct(prhs[8]))		mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidSection2Arg", "'section2' input argument invalid, should be a structure with section 2 metadata fields");
 	
 	// create and initialize a new section 2 metadata matlab-struct, and transfer
 	// the fields from the input-argument section 2 metadata to overwrite the field in the newly created matlab-struct
@@ -152,25 +161,25 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	if (channel_type == TIME_SERIES_CHANNEL_TYPE) {
 		
 		md2_struct = create_init_matlab_tmd2();
-		if (!transferMxFields(prhs[7], md2_struct))
+		if (!transferMxFields(prhs[8], md2_struct))
 			mexErrMsgTxt("Error while transferring the input time-series section 2 metadata");
 		
 	} else {
 		
 		md2_struct = create_init_matlab_vmd2();
-		if (!transferMxFields(prhs[7], md2_struct))
+		if (!transferMxFields(prhs[8], md2_struct))
 			mexErrMsgTxt("Error while transferring the input video section 2 metadata");
 		
 	}
 
 	// check section 3
-	if (nrhs < 9)										mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:noSection3Arg", "'section3' input argument not set");
-	if (mxIsEmpty(prhs[8]) || !mxIsStruct(prhs[8]))		mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidSection3Arg", "'section3' input argument invalid, should be a structure with section 3 metadata fields");
+	if (nrhs < 10)										mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:noSection3Arg", "'section3' input argument not set");
+	if (mxIsEmpty(prhs[9]) || !mxIsStruct(prhs[9]))		mexErrMsgIdAndTxt("MATLAB:write_mef_segment_metadata:invalidSection3Arg", "'section3' input argument invalid, should be a structure with section 3 metadata fields");
 
 	// create and initialize a new section 3 metadata matlab-struct, and transfer
 	// the fields from the input-argument section 3 metadata to overwrite the field in the newly created matlab-struct
 	mxArray *md3_struct = create_init_matlab_md3();
-	if (!transferMxFields(prhs[8], md3_struct)) {
+	if (!transferMxFields(prhs[9], md3_struct)) {
 		mexErrMsgTxt("Error while transferring the input section 3 metadata");
 	}
 	
@@ -178,7 +187,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	// 
 	// write the metadata
 	// 
-	if (!write_metadata(segment_path, password_l1, password_l2, start_time, end_time, channel_type, md2_struct, md3_struct))
+	if (!write_metadata(segment_path, password_l1, password_l2, start_time, end_time, anon_name, channel_type, md2_struct, md3_struct))
 		mexErrMsgTxt("Error while writing metadata to the file");
 	
 	// succesfull return from call

@@ -1,7 +1,7 @@
 %    
 %   Write a new time-series or video metadata file for a specific segment
 %
-%   write_mef_segment_metadata(channelType, channelPath, segmentNum, password1, password2, startTime, endTime, section2, section3)
+%   write_mef_segment_metadata(channelType, channelPath, segmentNum, password1, password2, startTime, endTime, anonName, section2, section3)
 %
 %       channelType  = The type of channel ['timeseries' or 'ts' for time-series, 'v' or 'video' for video]
 %       channelPath  = Absolute path to the MEF3 channel directory (to be created or existing)
@@ -10,6 +10,7 @@
 %       passwordL2   = Segment metadata level 2 password; Pass empty string/variable for no encryption
 %       startTime    = The start epoch time in microseconds (μUTC format) to be stored in the universal-header
 %       endTime      = The end epoch time in microseconds (μUTC format) to be stored in the universal-header
+%       anonName     = The anonymized subject name to be stored in the universal-header
 %       section2     = Structure containing section 2 metadata. Be sure to pass time-series section 2 metadata when
 %                      writing to a time-series channel-type, and pass video metadata section 2 for a video channel type
 %       section3     = Structure containing section 3 metadata
@@ -24,4 +25,4 @@
 %   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 %   You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
-function write_mef_segment_metadata(channelType, channelPath, segmentNum, passwordL1, passwordL2, startTime, endTime, section2, section3)
+function write_mef_segment_metadata(channelType, channelPath, segmentNum, passwordL1, passwordL2, startTime, endTime, anonName, section2, section3)

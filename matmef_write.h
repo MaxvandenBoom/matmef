@@ -23,7 +23,7 @@
 // Functions
 //
 
-bool write_metadata(si1 *segment_path, si1 *password_l1, si1 *password_l2, si8 start_time, si8 end_time, si4 channelType, mxArray *mat_tmd2, mxArray *mat_md3);
+bool write_metadata(si1 *segment_path, si1 *password_l1, si1 *password_l2, si8 start_time, si8 end_time, si1 *anonymized_name, si4 channelType, mxArray *mat_tmd2, mxArray *mat_md3);
 bool write_mef_ts_data_and_indices(si1 *segment_path, si1 *password_l1, si1 *password_l2, ui4 samples_per_block, const mxArray *data, bool lossy_flag);
 
 

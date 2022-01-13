@@ -30,12 +30,13 @@
  * 	@param password_l2          Level 2 password for the metadata (no password = NULL)
  *	@param start_time           The start epoch time in microseconds (μUTC format) to be stored in the universal-header of the file
  *	@param end_time             The end epoch time in microseconds (μUTC format) to be stored in the universal-header of the file
+ *	@param anonymized_name      The anonymized subject name to be stored in the universal-header of the file
  *	@param channel_type         The type of channel [either TIME_SERIES_CHANNEL_TYPE or VIDEO_CHANNEL_TYPE]
  *	@param mat_md2              Pointer to a matlab-struct (mxArray) with either time-series or video section 2 metadata
  *	@param mat_md3              Pointer to a matlab-struct (mxArray) with the section 3 metadata
  * 	@return                     True if succesfully written, or False on failure
  */
-bool write_metadata(si1 *segment_path, si1 *password_l1, si1 *password_l2, si8 start_time, si8 end_time, si4 channel_type, mxArray *mat_md2, mxArray *mat_md3) {
+bool write_metadata(si1 *segment_path, si1 *password_l1, si1 *password_l2, si8 start_time, si8 end_time, si1 *anonymized_name, si4 channel_type, mxArray *mat_md2, mxArray *mat_md3) {
 	
     FILE_PROCESSING_STRUCT *gen_fps, *metadata_fps;
     UNIVERSAL_HEADER        *uh;
@@ -53,9 +54,10 @@ bool write_metadata(si1 *segment_path, si1 *password_l1, si1 *password_l2, si8 s
     initialize_universal_header(gen_fps, MEF_TRUE, MEF_FALSE, MEF_TRUE);
     uh = gen_fps->universal_header;
 	
-	// transfer the start-time, end-time
+	// transfer the start-time, end-time and anonymized name from the arguments to the universal header
     uh->start_time = start_time;
     uh->end_time = end_time;
+	MEF_strncpy(uh->anonymized_name, anonymized_name, UNIVERSAL_HEADER_ANONYMIZED_NAME_BYTES);
 
 	// set the password data
     MEF_globals->behavior_on_fail = SUPPRESS_ERROR_OUTPUT;
