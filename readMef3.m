@@ -66,10 +66,19 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, va
     
     % make sure the session directory is valid and exists
     if ~exist('sessPath', 'var') || isempty(sessPath) || ~ischar(sessPath)
-        error('Error: missing or invalid session directory ''%s''', sessPath);
+        error('Error: missing or invalid session directory');
     end
     if ~exist(sessPath, 'dir')
         error(['Error: session directory ''', sessPath, ''' could not be found']);
+    end
+    
+    % check the password input
+    if ~isempty(password)
+        if isstring(password)
+            password = num2str(password);
+        elseif ~ischar(password)
+            error('Error: invalid ''password'' input argument, should either be empty or a character-array');
+        end
     end
 
     % read all the metadata in the session (including channels and segments)
@@ -126,8 +135,8 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, va
             ranges = varargin{1};
             
             % check the range start input argument
-            if isempty(ranges) || ~isnumeric(ranges) || size(ranges, 2) ~= 2 || size(ranges, 1) < 1 || any(ranges(:) < 0)
-                error('Error: invalid ''ranges'' input argument, should be a Nx2 matrix with numeric values (>= 0)');
+            if isempty(ranges) || ~isnumeric(ranges) || size(ranges, 2) ~= 2 || size(ranges, 1) < 1 || any(ranges(:) < 0) || any(rem(ranges, 1) ~= 0)
+                error('Error: invalid ''ranges'' input argument, should be a Nx2 matrix with whole numeric values (>= 0)');
             end
             
             % sort the ranges and calculate their lengths
@@ -149,11 +158,11 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, va
             % 6 input args, range start and end given
             
             % check the range start and end input arguments
-            if isempty(rangeStart) || ~isnumeric(rangeStart) || length(rangeStart) ~= 1 || (~(rangeStart == -1) && rangeStart < 0)
-                error('Error: invalid rangeStart input argument, should be a single value numeric (either -1 or >= 0)');
+            if isempty(rangeStart) || ~isnumeric(rangeStart) || length(rangeStart) ~= 1 || (~(rangeStart == -1) && rangeStart < 0) || rem(rangeStart, 1) ~= 0
+                error('Error: invalid rangeStart input argument, should be a single whole numeric value (either -1 or >= 0)');
             end
-            if isempty(rangeEnd) || ~isnumeric(rangeEnd) || length(rangeEnd) ~= 1 || (~(rangeEnd == -1) && rangeEnd < 0)
-                error('Error: invalid rangeEnd input argument, should be a single value numeric (either -1 or >= 0)');
+            if isempty(rangeEnd) || ~isnumeric(rangeEnd) || length(rangeEnd) ~= 1 || (~(rangeEnd == -1) && rangeEnd < 0) || rem(rangeEnd, 1) ~= 0
+                error('Error: invalid rangeEnd input argument, should be a single whole numeric value (either -1 or >= 0)');
             end
 
             % transfer the start and end of the range
@@ -219,15 +228,25 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, va
         
         % allow the request of a single channel as a string argument
         if ischar(channels), channels = {channels}; end
+        if isstring(channels), channels = cellstr(channels);    end
         
         % check the channels input argument
-        if ~iscell(channels)
-            error('Error: invalid input argument for ''channels'', should be a cell array containing channel names as string (e.g. {''ch1'', ''ch2'', ''ch3''})');
+        if ~isvector(channels)
+            error('Error: invalid ''channels'' input argument, should be passed as a one-dimensional cell-array');
+        elseif ~iscell(channels)
+            error('Error: invalid input argument for ''channels'', should be a cell array containing channel names (e.g. {''Ch1'', ''Ch2'', ''Ch3''})');
         end
         for iChannel = 1:length(channels)
             if ~ischar(channels{iChannel})
-                error('Error: invalid input argument for ''channels'', should be a cell array containing channel names as string (e.g. {''ch1'', ''ch2'', ''ch3''})');
+                error('Error: invalid input argument for ''channels'', should be a cell array containing channel names (e.g. {''Ch1'', ''Ch2'', ''Ch3''})');
             end
+        end
+        
+        % check for duplicate names
+        [uEntries, ~, uIdxs] = unique(channels);
+        nEntries = histc(uIdxs, 1:numel(uEntries));
+        if any(nEntries > 1)
+            error(['Error: invalid ''channels'' input argument, array contains duplicate names: ', num2str(strjoin(strcat('''', uEntries(nEntries > 1), ''''), ', '))]);
         end
         
         % make sure all requested channels exist
