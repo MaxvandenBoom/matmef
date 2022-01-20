@@ -1,35 +1,48 @@
 %	
 %   Read MEF3 meta- and signaldata from a session directory
 %	
-%   [metadata, data] = readMef3(sessPath, password, channels, rangeType, rangeStart, rangeEnd)
+%   [metadata, data] = readMef3(sessPath)
 %   [metadata, data] = readMef3(sessPath, password, channels, rangeType, ranges)
+%   [metadata, data] = readMef3(sessPath, password, channels, rangeType, rangeStart, rangeEnd)
 %	
 %       sessPath    = path (absolute or relative) to the MEF3 session folder
-%       password    = password to the MEF3 data; Pass empty string/variable if not encrypted
-%       channels    = a cell array with the names of the channels to return the signal data from. The order of channels
+%       password    = (optional) password to the MEF3 data; Leave empty ([] or '') if not encrypted
+%       channels    = (optional) a cell array with the names of the channels to return the signal data from. The order of channels
 %                     in this input argument will determine the order of channels in the output matrix. If left empty, all
 %                     channels will be read and ordered as in the metadata.time_series_channels (ordered according to
 %                     the 'acquisition_channel_number' metadata variable of each channel)
-%       rangeType   = (optional) modality that is used to define the data-range to read [either 'time' or 'samples']
+%       rangeType   = (optional) modality that is used to define the data-range to read [either 'time' or 'samples' (default)].
 %       rangeStart  = (optional) start-point for the reading of data (depending on the rangeType, defined as an epoch/unix
-%                     timestamp or samplenumber). Pass -1 to start at the first sample of the timeseries
-%       rangeEnd    = (optional) end-point to stop the of reading data (depending on the rangeType, defined as
-%                     an epoch/unix timestamp or samplenumber). Pass -1 to end at the last sample of the timeseries
+%                     timestamp or samplenumber). Pass -1 (default) to start at the first sample or beginning of the timeseries.
+%       rangeEnd    = (optional) end-point to stop the of reading data (depending on the rangeType, defined as an epoch/unix
+%                     timestamp or samplenumber). Pass -1 (default) to end at the last sample or end of the timeseries
 %       ranges      = (optional) a Nx2 matrix of multiple ranges (start- and end-points) for the reading of data.
-%   
+%
+%
 %   Returns:
-%       metadata    = A structing that contains all session/channel/segment metadata. Will return empty on failure to read
-%       data        = A matrix of doubles containing the requested channel(s) signal data. The first dimension (rows) represents
-%                     the channels (ordered based on the 'channels' input argument); the second dimension (columns) represents the
-%                     the samples/time. If multiple ranges are given then there is a third dimension, representing the requested ranges/epochs
+%       metadata    = A structure that contains all session/channel/segment metadata
+%       data        = A matrix of doubles containing the signal data (of the requested channels). The matrix will be formatted as
+%                     <channels> x <samples/time>, with the first dimension (rows) representing the channels (ordered based on
+%                     the 'channels' input argument) and the second dimension (columns) the samples/time. If multiple ranges are
+%                     requested then the return format will be <channels> x <samples/time> x <ranges>, so that the third
+%                     dimension represents the requested ranges/epochs.
 % 
+%
+%   Notes:
+%       - When the rangeType is set to 'samples', the function simply returns the samples as they are found (consecutively) in
+%         the datafile, without any regard for time or data gaps; Meaning that, if there is a time-gap between samples, then 
+%         these will not appear in the returned result. In contrast, the 'time' rangeType will return the data with NaN values
+%         in place for the missing samples.
+%       - Since this is a high-level read function, the data that is returned has the unit conversion factor applied. Use the
+%         low-level read function to read the raw data without applying the unit conversion factor
+%
 %
 %   Examples:
 %
 %       % single range/epoch
-%       [metadata] = readMef3('./mefSessionData/');                                          % read metadata only  
-%       [metadata, signaldata] = readMef3('./mefSessionData/', [], {'Ch02', 'Ch07'});        % read metadata and two channels of data
-%       [metadata, signaldata] = readMef3('./mefSessionData/', [], [], 'samples', 0, 1000);  % read all channels, samples 0-1000 
+%       [metadata]             = readMef3('./mefSessDir.mefd/');                              % read metadata only  
+%       [metadata, signaldata] = readMef3('./mefSessDir.mefd/', [], {'Ch02', 'Ch07'});        % read metadata and two channels of data
+%       [metadata, signaldata] = readMef3('./mefSessDir.mefd/', [], [], 'samples', 0, 1000);  % read all channels, samples 0-1000 
 %
 %       % multiple ranges/epochs
 %       ranges = [[0,    1000]; ...
@@ -38,16 +51,7 @@
 %       [metadata, signaldata] = readMef3('./mefSessionData/', [], [], 'samples', ranges);
 %
 %
-%   Note:    When the rangeType is set to 'samples', the function simply returns the samples as they are
-%            found (consecutively) in the datafile, without any regard for time or data gaps; Meaning 
-%            that, if there is a time-gap between samples, then these will not appear in the result returned.
-%            In contrast, the 'time' rangeType will return the data with NaN values in place for the missing samples.
-%
-%   Note 2:  Since this is a high-level read function, the data that is returned has the unit conversion factor applied
-%            Use the low-level read function to read the raw data without applying the unit conversion factor
-%
-%
-%   Copyright 2021, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+%   Copyright 2022, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
 %   
 
 %   This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
@@ -181,7 +185,7 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, va
 
     
     % 
-    % sort the channels in the metadat (using channel->metadata->section_2->acquisition_channel_number)
+    % sort the channels in the metadata (using channel->metadata->section_2->acquisition_channel_number)
     % 
 
     % list the acquisition channel numbers
