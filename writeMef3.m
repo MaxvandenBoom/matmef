@@ -342,6 +342,9 @@ function writeMef3(sessPath, data, sampleFreq, channelNames, password, overwrite
     if length(sessPath) < 6 || (~strcmpi(sessPath(end - 4:end), '.mefd') && (length(sessPath) > 6 && ~strcmpi(sessPath(end - 5:end - 1), '.mefd')))
         error('Error: invalid session directory, the MEF3 session path should end with ''.mefd'' (e.g. ''/path/session.mefd'')');
     end
+    if strcmp(sessPath(1), '~')
+        error('Error: invalid session directory, the tilde (''~'') in the session path is only known to the shell, specify the full path instead');
+    end
     
     % if the session directory
     if ~exist(sessPath, 'dir')
@@ -484,12 +487,19 @@ function writeMef3(sessPath, data, sampleFreq, channelNames, password, overwrite
         % determine the universal header end-time
         uhEndTime = floor((size(data, 2) / wrSection2.sampling_frequency) * 10^6);
         
-        % build the channel path and make sure the directory exists
+        % build the channel and segment paths and make sure the directories exists
         chPath = fullfile(sessPath, [channelNames{iCh}, '.timd']);
         if ~exist(chPath, 'dir')
             [status, msg, ~] = mkdir(chPath);
             if status == 0
                error('Error: could not create channel directory ''%s''. %s', chPath, msg); 
+            end
+        end
+        segPath = fullfile(chPath, [channelNames{iCh}, '-000001.segd']);
+        if ~exist(segPath, 'dir')
+            [status, msg, ~] = mkdir(segPath);
+            if status == 0
+               error('Error: could not create segment directory ''%s''. %s', segPath, msg); 
             end
         end
         
