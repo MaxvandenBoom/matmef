@@ -91,7 +91,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadIndicesArg", "'readIndices' input argument invalid, should be a single value logical or numeric");
 			
 			// retrieve the map indices flag value
-			int mat_read_indices_flag = mxGetScalar(prhs[2]);
+			double mat_read_indices_flag = mxGetScalar(prhs[2]);
 			if (mat_read_indices_flag != 0 && mat_read_indices_flag != 1)
 				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadIndicesArg", "'readIndices' input argument invalid, allowed values are 0, false, 1 or true");
 			
@@ -117,7 +117,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadRecordsArg", "'readRecords' input argument invalid, should be a single value logical or numeric");
 			
 			// retrieve the read records flag value
-			int mat_read_records_flag = mxGetScalar(prhs[3]);
+			double mat_read_records_flag = mxGetScalar(prhs[3]);
 			if (mat_read_records_flag != 0 && mat_read_records_flag != 1)
 				mexErrMsgIdAndTxt("MATLAB:read_mef_session_metadata:invalidReadRecordsArg", "'readRecords' input argument invalid, allowed values are 0, false, 1 or true");
 			
