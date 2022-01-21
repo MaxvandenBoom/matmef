@@ -139,7 +139,7 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, va
             ranges = varargin{1};
             
             % check the range start input argument
-            if isempty(ranges) || ~isnumeric(ranges) || size(ranges, 2) ~= 2 || size(ranges, 1) < 1 || any(ranges(:) < 0) || any(rem(ranges, 1) ~= 0)
+            if isempty(ranges) || ~isnumeric(ranges) || size(ranges, 2) ~= 2 || size(ranges, 1) < 1 || any(ranges(:) < 0) || any(rem(ranges, 1) ~= 0, 'all')
                 error('Error: invalid ''ranges'' input argument, should be a Nx2 matrix with whole numeric values (>= 0)');
             end
             
