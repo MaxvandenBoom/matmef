@@ -1,12 +1,12 @@
 %	
-%   Write MEF3 meta- and signaldata to a session directory
+%   Write MEF3 meta- and signaldata
 %	
-%   writeMef3(sessPath, data, sampleFreq)
-%   writeMef3(sessPath, data, sampleFreq, channelNames)
-%   writeMef3(sessPath, data, sampleFreq, channelNames, password)
-%   writeMef3(sessPath, data, sampleFreq, channelNames, password, overwrite, channelAcqNums, unitConvFactor, section2, section3)
+%   writeMef3(outputPath, data, sampleFreq)
+%   writeMef3(outputPath, data, sampleFreq, channelNames)
+%   writeMef3(outputPath, data, sampleFreq, channelNames, password)
+%   writeMef3(outputPath, data, sampleFreq, channelNames, password, overwrite, channelAcqNums, unitConvFactor, section2, section3)
 %	
-%       sessPath       = path (absolute or relative) to the MEF3 session folder in which the directories and files should be written
+%       outputPath     = the output path in which the MEF3 directories and files should be written
 %       data           = matrix that contains the signal data to be written. The matrix should be formatted as 
 %                        <channels> x <samples>, so the first dimension (rows) represents the channels and the second
 %                        dimension (columns) represents the samples.
@@ -92,7 +92,7 @@
 %   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 %   You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
-function writeMef3(sessPath, data, sampleFreq, channelNames, password, overwrite, channelAcqNums, unitConvFactor, section2, section3)
+function writeMef3(outputPath, data, sampleFreq, channelNames, password, overwrite, channelAcqNums, unitConvFactor, section2, section3)
 
     % set defaults
     if ~exist('password', 'var')        || isempty(password),       password = [];          end
@@ -109,8 +109,8 @@ function writeMef3(sessPath, data, sampleFreq, channelNames, password, overwrite
     % 
 
     % check session path
-    if ~exist('sessPath', 'var') || isempty(sessPath) || ~ischar(sessPath)
-        error('Error: missing or invalid session directory');
+    if ~exist('outputPath', 'var') || isempty(outputPath) || ~ischar(outputPath)
+        error('Error: missing or invalid output directory');
     end
     
     % check data
@@ -338,32 +338,32 @@ function writeMef3(sessPath, data, sampleFreq, channelNames, password, overwrite
         
     end
     
-    % check the format of the session directory, should end with .mefd
-    if length(sessPath) < 6 || (~strcmpi(sessPath(end - 4:end), '.mefd') && ...
-            (length(sessPath) > 6 && ~strcmpi(sessPath(end - 5:end), '.mefd\') && ~strcmpi(sessPath(end - 5:end), '.mefd/')))
-        error('Error: invalid session directory, the MEF3 session path should end with ''.mefd'' (e.g. ''/path/session.mefd'')');
+    % check the format of the output directory, should end with .mefd
+    if length(outputPath) < 6 || (~strcmpi(outputPath(end - 4:end), '.mefd') && ...
+            (length(outputPath) > 6 && ~strcmpi(outputPath(end - 5:end), '.mefd\') && ~strcmpi(outputPath(end - 5:end), '.mefd/')))
+        error('Error: invalid output directory, the MEF3 output path should end with ''.mefd'' (e.g. ''/path/session.mefd'')');
     end
-    if strcmp(sessPath(1), '~')
-        error('Error: invalid session directory, the tilde (''~'') in the session path is only known to the shell, specify the full path instead');
+    if strcmp(outputPath(1), '~')
+        error('Error: invalid ouput directory, the tilde (''~'') in the output path is only known to the shell, specify the full output path instead');
     end
     
-    % if the session directory
-    if ~exist(sessPath, 'dir')
+    % check for the existence of the output directory and files
+    if ~exist(outputPath, 'dir')
         
-        % create the session directory
-        [status, msg, ~] = mkdir(sessPath);
+        % create the output directory
+        [status, msg, ~] = mkdir(outputPath);
         if status == 0
-           error('Error: could not create session directory ''%s''. %s', sessPath, msg); 
+           error('Error: could not create output directory ''%s''. %s', outputPath, msg); 
         end
         
     elseif overwrite == 0
-        % session directory already exists, and we cannot overwrite, check files
+        % output directory already exists, and we cannot overwrite, check files
         
         existingFiles = {};
         for iCh = 1:numChannels
             
             % check channel files
-            chPath = fullfile(sessPath, [channelNames{iCh}, '.timd']);
+            chPath = fullfile(outputPath, [channelNames{iCh}, '.timd']);
             if exist(chPath, 'dir')                
                 chFilePath = fullfile(chPath, [channelNames{iCh}, '-000001.segd'], [channelNames{iCh}, '-000001']);
                 if exist([chFilePath, '.tmet'], 'file') == 2,   existingFiles{end + 1} = [chFilePath, '.tmet'];   end
@@ -383,7 +383,7 @@ function writeMef3(sessPath, data, sampleFreq, channelNames, password, overwrite
     % are not part of the data that will be written (this could confuse the read function)
     % TODO:
     for iCh = 1:numChannels
-        chPath = fullfile(sessPath, [channelNames{iCh}, '.timd']);
+        chPath = fullfile(outputPath, [channelNames{iCh}, '.timd']);
         if exist(chPath, 'dir')
 
             % check if there are other segment folders (.segd) in the channel folder
@@ -489,7 +489,7 @@ function writeMef3(sessPath, data, sampleFreq, channelNames, password, overwrite
         uhEndTime = floor((size(data, 2) / wrSection2.sampling_frequency) * 10^6);
         
         % build the channel and segment paths and make sure the directories exists
-        chPath = fullfile(sessPath, [channelNames{iCh}, '.timd']);
+        chPath = fullfile(outputPath, [channelNames{iCh}, '.timd']);
         if ~exist(chPath, 'dir')
             [status, msg, ~] = mkdir(chPath);
             if status == 0
