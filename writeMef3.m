@@ -339,7 +339,8 @@ function writeMef3(sessPath, data, sampleFreq, channelNames, password, overwrite
     end
     
     % check the format of the session directory, should end with .mefd
-    if length(sessPath) < 6 || (~strcmpi(sessPath(end - 4:end), '.mefd') && (length(sessPath) > 6 && ~strcmpi(sessPath(end - 5:end - 1), '.mefd')))
+    if length(sessPath) < 6 || (~strcmpi(sessPath(end - 4:end), '.mefd') && ...
+            (length(sessPath) > 6 && ~strcmpi(sessPath(end - 5:end), '.mefd\') && ~strcmpi(sessPath(end - 5:end), '.mefd/')))
         error('Error: invalid session directory, the MEF3 session path should end with ''.mefd'' (e.g. ''/path/session.mefd'')');
     end
     if strcmp(sessPath(1), '~')
