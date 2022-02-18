@@ -365,7 +365,7 @@ function writeMef3(outputPath, data, sampleFreq, channelNames, password, overwri
             % check channel files
             chPath = fullfile(outputPath, [channelNames{iCh}, '.timd']);
             if exist(chPath, 'dir')                
-                chFilePath = fullfile(chPath, [channelNames{iCh}, '-000001.segd'], [channelNames{iCh}, '-000001']);
+                chFilePath = fullfile(chPath, [channelNames{iCh}, '-000000.segd'], [channelNames{iCh}, '-000000']);
                 if exist([chFilePath, '.tmet'], 'file') == 2,   existingFiles{end + 1} = [chFilePath, '.tmet'];   end
                 if exist([chFilePath, '.tdat'], 'file') == 2,   existingFiles{end + 1} = [chFilePath, '.tdat'];   end
                 if exist([chFilePath, '.tidx'], 'file') == 2,   existingFiles{end + 1} = [chFilePath, '.tidx'];   end
@@ -496,7 +496,7 @@ function writeMef3(outputPath, data, sampleFreq, channelNames, password, overwri
                error('Error: could not create channel directory ''%s''. %s', chPath, msg); 
             end
         end
-        segPath = fullfile(chPath, [channelNames{iCh}, '-000001.segd']);
+        segPath = fullfile(chPath, [channelNames{iCh}, '-000000.segd']);
         if ~exist(segPath, 'dir')
             [status, msg, ~] = mkdir(segPath);
             if status == 0
@@ -548,7 +548,7 @@ function writeMef3(outputPath, data, sampleFreq, channelNames, password, overwri
 
         % remove existing files channel files
         if overwrite == 1
-            chFilePath = fullfile(chPath, [channelNames{iCh}, '-000001.segd'], [channelNames{iCh}, '-000001']);
+            chFilePath = fullfile(chPath, [channelNames{iCh}, '-000000.segd'], [channelNames{iCh}, '-000000']);
             if exist([chFilePath, '.tmet'], 'file') == 2,   delete([chFilePath, '.tmet']);   end
             if exist([chFilePath, '.tdat'], 'file') == 2,   delete([chFilePath, '.tdat']);   end
             if exist([chFilePath, '.tidx'], 'file') == 2,   delete([chFilePath, '.tidx']);   end
@@ -556,7 +556,7 @@ function writeMef3(outputPath, data, sampleFreq, channelNames, password, overwri
 
         
         % write metadata
-        write_mef_segment_metadata('ts', chPath, 1, ...
+        write_mef_segment_metadata('ts', chPath, 0, ...
                                     password, password, ...
                                     int64(0), int64(uhEndTime), '', wrSection2, wrSection3);
         
@@ -580,7 +580,7 @@ function writeMef3(outputPath, data, sampleFreq, channelNames, password, overwri
         chData(chDataPosInf) = 0x7FFFFFFF;
         
         % write the signal data
-        write_mef_ts_segment_data(chPath, 1, [], [], samples_per_block, chData'); 
+        write_mef_ts_segment_data(chPath, 0, [], [], samples_per_block, chData'); 
         
     end
     
