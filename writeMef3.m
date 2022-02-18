@@ -572,6 +572,8 @@ function writeMef3(outputPath, data, sampleFreq, channelNames, password, overwri
         chDataPosInf = isinf(chData) & chData > 0;
         
         % convert to int32
+        % Note: Normally, casting would just drop the fractional part, but matlab will round the numbers instead
+        %       (in this context, rounding will result in a more precise output)
         chData = int32(chData);
         
         % set the nan/inf values to the pre-defined int32 nan/inf values
