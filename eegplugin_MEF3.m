@@ -1,7 +1,7 @@
-% eegplugin_mef3() - plugin for importing read MEF 3.0 data
+% eegplugin_MEF3() - plugin for importing read MEF 3.0 data
 %
 % Usage:
-%   >> eegplugin_mffmatlabio(fig, trystrs, catchstrs);
+%   >> eegplugin_MEF3(fig, trystrs, catchstrs);
 %
 % Inputs:
 %   fig        - [integer] eeglab figure.
@@ -9,27 +9,27 @@
 %   catchstrs  - [struct] "catch" strings for menu callbacks.
 %
 
-function versionstr = eegplugin_mef3(fig, trystrs, catchstrs)
+function versionstr = eegplugin_MEF3(fig, trystrs, catchstrs)
 
     % retrieve the version
     try 
         versionstr = fileread('VERSION');
     catch 
-        disp('eegplugin_mef3 cannot find the ''VERSION'' file');
+        disp('eegplugin_MEF3 cannot find the ''VERSION'' file');
         return
     end
     
     % check input arguments
     if nargin < 3
-        disp('eegplugin_mef3 requires 3 arguments');
+        disp('eegplugin_MEF3 requires 3 arguments');
         return
     end
     
     % add amica folder to path
     % -----------------------
-    if ~exist('pop_mef3')
-        p = which('eegplugin_mef3');
-        p = p(1:findstr(p,'eegplugin_mef3.m')-1);
+    if ~exist('pop_MEF3')
+        p = which('eegplugin_MEF3');
+        p = p(1:findstr(p,'eegplugin_MEF3.m')-1);
         addpath(p);
     end
 
@@ -39,7 +39,7 @@ function versionstr = eegplugin_mef3(fig, trystrs, catchstrs)
     
     % menu callback commands
     % ----------------------
-    comload    = [  trystrs.no_check '[EEG, LASTCOM] = pop_mef3;' catchstrs.new_non_empty ];
+    comload    = [  trystrs.no_check '[EEG, LASTCOM] = pop_MEF3;' catchstrs.new_non_empty ];
     
     % create menus (CHANGING THESE MENUS AFFECTS THE MAIN eeglab.m FUNCTION)
     % ------------

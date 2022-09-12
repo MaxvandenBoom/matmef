@@ -1,8 +1,8 @@
-% pop_mef3 - import MEF file to EEGLAB structure.
+% pop_MEF3 - import MEF file to EEGLAB structure.
 %
 % Usage:
-%   EEG = pop_mef3; % pop up menu to select file
-%   EEG = pop_mef3(folder); % import folder
+%   EEG = pop_MEF3; % pop up menu to select file
+%   EEG = pop_MEF3(folder); % import folder
 %
 % Input:
 %  folder - foldername for the MEF data
@@ -10,7 +10,7 @@
 % Output:
 %  EEG     - EEGLAB structure
 
-function [EEG, com] = pop_mef3(fileName)
+function [EEG, com] = pop_MEF3(fileName)
 
 com = '';
 
@@ -45,4 +45,4 @@ if isfield(metadata, 'time_series_metadata')
     end
 end
 
-com = sprintf('EEG = pop_mef3(''%s'');', fileName);
+com = sprintf('EEG = pop_MEF3(''%s'');', fileName);
