@@ -6,7 +6,7 @@
 %   writeMef3(outputPath, data, sampleFreq, channelNames, password)
 %   writeMef3(outputPath, data, sampleFreq, channelNames, password, overwrite, channelAcqNums, unitConvFactor, section2, section3)
 %	
-%       outputPath     = the output path in which the MEF3 directories and files should be written
+%       outputPath     = the output path to which the MEF3 directories and files should be written
 %       data           = matrix that contains the signal data to be written. The matrix should be formatted as 
 %                        <channels> x <samples>, so the first dimension (rows) represents the channels and the second
 %                        dimension (columns) represents the samples.

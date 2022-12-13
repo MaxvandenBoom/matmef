@@ -12,10 +12,10 @@
 %                     channels will be read and ordered as in the metadata.time_series_channels (ordered according to
 %                     the 'acquisition_channel_number' metadata variable of each channel)
 %       rangeType   = (optional) modality that is used to define the data-range to read [either 'time' or 'samples' (default)].
-%       rangeStart  = (optional) start-point for the reading of data (0-based; depending on the rangeType, defined either as an epoch/unix
-%                     timestamp or samplenumber). Pass -1 (default) to start at the first sample or beginning of the timeseries.
-%       rangeEnd    = (optional) end-point to stop the of reading data (0-based; depending on the rangeType, defined either as an epoch/unix
-%                     timestamp or samplenumber). Pass -1 (default) to end at the last sample or end of the timeseries
+%       rangeStart  = (optional) start-point for the reading of data. This can, indicated by the rangeType argument, either be a epoch/unix
+%                     timestamp or a (zero-based) sample-index. Pass -1 (default) to start at the first sample or beginning of the timeseries.
+%       rangeEnd    = (optional) end-point to stop the of reading data. This can, indicated by the rangeType argument, either be a epoch/unix
+%                     timestamp or a (zero-based) sample-index. Pass -1 (default) to end at the last sample or end of the timeseries
 %       ranges      = (optional) a Nx2 matrix of multiple ranges (start- and end-points) for the reading of data.
 %
 %
@@ -33,7 +33,7 @@
 %         the datafile, without any regard for time or data gaps; Meaning that, if there is a time-gap between samples, then 
 %         these will not appear in the returned result. In contrast, the 'time' rangeType will return the data with NaN values
 %         in place for the missing samples.
-%       - Because the range is 0-based, data are loaded "up-till" the range end-index. So the result does not include the value
+%       - Because the range is 0-based, data are loaded "up-till" the end-index. So the result does not include the value
 %         at the end-index (e.g. a requested sample range of 0-3 will return first 3 values, being the values at [0], [1], [2])
 %       - Since this is a high-level read function, the data that is returned has the unit conversion factor applied. Use the
 %         low-level read function to read the raw data without applying the unit conversion factor
