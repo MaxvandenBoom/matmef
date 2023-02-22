@@ -25,8 +25,8 @@
  * @param channelPath       Path (absolute or relative) to the MEF3 channel folder
  * @param password          Password to the MEF3 data; Pass empty string/variable if not encrypted
  * @param rangeType         Modality that is used to define the data-range to read [either 'time' or 'samples' (default)]
- * @param rangeStart        Start-point for the reading of data. This can be either an epoch/unix timestamp or a (0-based) sample-index; -1 for beginning/first)
- * @param rangeEnd          End-point at which to stop the of reading data. This can be either an epoch/unix timestamp or (0-based) sample-index; -1 for end/last)
+ * @param rangeStart        Start-point for the reading of data. This can be either an (microsecond) epoch/unix timestamp or a (0-based) sample-index; -1 for beginning/first)
+ * @param rangeEnd          End-point at which to stop the of reading data. This can be either an (microsecond) epoch/unix timestamp or (0-based) sample-index; -1 for end/last)
  * @param applyConvFactor   Whether to apply the unit conversion factor to the raw data. [0 = not apply (default), 1 = apply]
  * @return                  A vector of doubles holding the channel data
  */

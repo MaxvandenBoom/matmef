@@ -7,25 +7,28 @@
 %	
 %       sessPath    = path (absolute or relative) to the MEF3 session folder
 %       password    = (optional) password to the MEF3 data; Leave empty ([] or '') if not encrypted
-%       channels    = (optional) a cell array with the names of the channels to return the signal data from. The order of channels
-%                     in this input argument will determine the order of channels in the output matrix. If left empty, all
-%                     channels will be read and ordered as in the metadata.time_series_channels (ordered according to
-%                     the 'acquisition_channel_number' metadata variable of each channel)
-%       rangeType   = (optional) modality that is used to define the data-range to read [either 'time' or 'samples' (default)].
-%       rangeStart  = (optional) start-point for the reading of data. This can, indicated by the rangeType argument, either be a epoch/unix
-%                     timestamp or a (zero-based) sample-index. Pass -1 (default) to start at the first sample or beginning of the timeseries.
-%       rangeEnd    = (optional) end-point to stop the of reading data. This can, indicated by the rangeType argument, either be a epoch/unix
-%                     timestamp or a (zero-based) sample-index. Pass -1 (default) to end at the last sample or end of the timeseries
+%       channels    = (optional) a cell array with the names of the channels to return the signal data from. The 
+%                     order of channels in this input argument will determine the order of channels in the output matrix. 
+%                     If left empty, all channels will be read and ordered as in 'metadata.time_series_channels'
+%                     (i.e. ordered according to the 'acquisition_channel_number' metadata variable of each channel)
+%       rangeType   = (optional) modality or unit that is used to define the data-range to read, this argument can 
+%                      be either 'time' or 'samples' (default).
+%       rangeStart  = (optional) start-point for the reading of data. This should be, depending on the given rangeType 
+%                     argument, either a (microsecond) epoch/unix timestamp or a (zero-based) sample-index. 
+%                     Pass -1 (default) to start at the first sample or beginning of the timeseries.
+%       rangeEnd    = (optional) end-point to stop the of reading data. This should be, depending on the rangeType
+%                     argument, either a (microsecond) epoch/unix timestamp or a (zero-based) sample-index.
+%                     Pass -1 (default) to end at the last sample or end of the time-series
 %       ranges      = (optional) a Nx2 matrix of multiple ranges (start- and end-points) for the reading of data.
 %
 %
 %   Returns:
 %       metadata    = A structure that contains all session/channel/segment metadata
-%       data        = A matrix of doubles containing the signal data (of the requested channels). The matrix will be formatted as
-%                     <channels> x <samples/time>, with the first dimension (rows) representing the channels (ordered based on
-%                     the 'channels' input argument) and the second dimension (columns) the samples/time. If multiple ranges are
-%                     requested then the return format will be <channels> x <samples/time> x <ranges>, so that the third
-%                     dimension represents the requested ranges/epochs.
+%       data        = A matrix of doubles containing the signal data (of the requested channels). The matrix will be 
+%                     formatted as <channels> x <samples/time>, with the first dimension (rows) representing the 
+%                     channels (ordered based on the 'channels' input argument) and the second dimension (columns)
+%                     the samples/time. If multiple ranges are requested then the return format will be
+%                     <channels> x <samples/time> x <ranges>, so that the third dimension represents the requested ranges/epochs.
 % 
 %
 %   Notes:
@@ -53,7 +56,7 @@
 %       [metadata, signaldata] = readMef3('./mefSessionData/', [], [], 'samples', ranges);
 %
 %
-%   Copyright 2022, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
+%   Copyright 2023, Max van den Boom (Multimodal Neuroimaging Lab, Mayo Clinic, Rochester MN)
 %   
 
 %   This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
