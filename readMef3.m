@@ -74,6 +74,9 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, va
     if ~exist('channels', 'var') || isempty(channels),  channels = {};  end
     
     % make sure the session directory is valid and exists
+    if exist('sessPath', 'var') && isstring(sessPath)
+        sessPath = char(sessPath);
+    end
     if ~exist('sessPath', 'var') || isempty(sessPath) || ~ischar(sessPath)
         error('Error: missing or invalid session directory');
     end
@@ -84,9 +87,9 @@ function [metadata, data] = readMef3(sessPath, password, channels, rangeType, va
     % check the password input
     if ~isempty(password)
         if isstring(password)
-            password = num2str(password);
+            password = char(password);
         elseif ~ischar(password)
-            error('Error: invalid ''password'' input argument, should either be empty or a character-array');
+            error('Error: invalid ''password'' input argument, should either be empty, a string or a character-array');
         end
     end
 
